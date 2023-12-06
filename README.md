@@ -1,1 +1,1 @@
-![alt text](https://raw.githubusercontent.com/SmileAoE/aoeiigrdb/main/DB/Screenshot.png)
+![alt text](https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main/DB/Screenshot.png)
