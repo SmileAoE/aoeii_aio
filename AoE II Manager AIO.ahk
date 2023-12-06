@@ -3,7 +3,7 @@
 ;--------------------------------------------
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
-Repo := 'aoeiigrdb'
+Repo := 'aoeii_aio'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Versions := Map()
 Compatibilities := Map(), C := 0
@@ -21,7 +21,7 @@ Combine := Map('2.0b CD'    , ['2.0a No CD']
              , '1.1  No CD' , ['1.0c No CD']
              , '1.5  CD'    , ['1.0c No CD'])
 ;---------------------------------------------------
-AppDir := ['DB', A_AppData '\aoeiigrdb']
+AppDir := ['DB', A_AppData '\aoeii_aio']
 Try {
     Info := Gui('-MinimizeBox', 'Preparing...'), Info.OnEvent('Close', (*) => ExitApp())
     InfoText := Info.AddText('Center w400 h40', PW := 'Please Wait')
@@ -147,7 +147,7 @@ DownloadInstallGame() {
     Rsd := MsgBox('Done!`n`nGame located at: "' OutGame '\Age of Empires II"`n`nWanna select this game location?', 'Question', 0x20 + 0x4)
     If Rsd = 'Yes' {
         ChosenFolder.Value := OutGame '\Age of Empires II'
-        IniWrite(ChosenFolder.Value, A_AppData '\aoeiigrdb\config.ini', 'Game', 'Path')
+        IniWrite(ChosenFolder.Value, A_AppData '\aoeii_aio\config.ini', 'Game', 'Path')
         GameFolderValid()
     }
 }
@@ -175,7 +175,7 @@ SelectTheGame() {
     Selected := FileSelect('D')
     If !Selected
         Return
-    IniWrite(Selected, A_AppData '\aoeiigrdb\config.ini', 'Game', 'Path')
+    IniWrite(Selected, A_AppData '\aoeii_aio\config.ini', 'Game', 'Path')
     ChosenFolder.Value := Selected
     GameFolderValid()
     CurrentVersions()
@@ -231,8 +231,8 @@ Manager.AddText('xp+20 yp+20 w1 h1')
 Versions['2.2  CD'] := Manager.AddRadio('w30 w100 Checked', '2.2  CD')
 Versions['2.2  CD'].SetFont('s10', 'Consolas')
 
-Patch := Manager.AddCheckbox('xm+240 ym+200' (IniRead(A_AppData '\aoeiigrdb\config.ini', 'Game', 'Fix', 1) ? ' Checked' : ''), 'Enable fixs after each patching if available')
-Patch.OnEvent('Click', (*) => IniWrite(Patch.Value, A_AppData '\aoeiigrdb\config.ini', 'Game', 'Fix'))
+Patch := Manager.AddCheckbox('xm+240 ym+200' (IniRead(A_AppData '\aoeii_aio\config.ini', 'Game', 'Fix', 1) ? ' Checked' : ''), 'Enable fixs after each patching if available')
+Patch.OnEvent('Click', (*) => IniWrite(Patch.Value, A_AppData '\aoeii_aio\config.ini', 'Game', 'Fix'))
 
 Manager.AddGroupBox('xm+230 ym+225 w450 h120 Right', '# Compatibilities').SetFont('Bold')
 Manager.AddPicture('xp+54 yp+25', 'DB\000\aok.png')
@@ -437,7 +437,7 @@ CurrentVersions() {
 }
 
 GameFolderValid() {
-    If DirExist(GameFolder := IniRead(A_AppData '\aoeiigrdb\config.ini', 'Game', 'Path', '')) {
+    If DirExist(GameFolder := IniRead(A_AppData '\aoeii_aio\config.ini', 'Game', 'Path', '')) {
         ChosenFolder.Value := GameFolder
     }
     AoKLogo.Enabled := False
@@ -475,14 +475,6 @@ GuiButtonIcon(Handle, File, Index := 1, Options := '') {
     NumPut('UInt', A, button_il, 16 + A_PtrSize)	; Alignment
     SendMessage(BCM_SETIMAGELIST := 5634, 0, button_il, Handle)
     Return IL_Add(normal_il, File, Index)
-}
-
-RetrieveMap() {
-    whr := ComObject("WinHttp.WinHttpRequest.5.1")
-    whr.Open("GET", "https://raw.githubusercontent.com/FreeP4lestine/aoeiigrdb/main/map.txt", true)
-    whr.Send()
-    whr.WaitForResponse()
-    return Trim(whr.ResponseText, '`n')
 }
 
 ; https://autohotkey.com/board/topic/66139-ahk-l-calculating-md5sha-checksum-from-file/
