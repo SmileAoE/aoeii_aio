@@ -301,16 +301,16 @@ AoCComReg() {
 
 Manager.AddPicture('xp+194 yp-90', 'DB\000\fe.png')
 Manager.AddText('xp-44 yp+40 cGreen w120 Center', 'Forgotten Empires').SetFont('Bold')
-FECom := Manager.AddDropDownList('xp yp+20 w120')
+FOECom := Manager.AddDropDownList('xp yp+20 w120')
 For Each, Compat in Compatibilities {
-    FECom.Add([Compat[1]])
+    FOECom.Add([Compat[1]])
 }
-FECom.Choose(1)
-FECom.OnEvent("Change", (*) => FEComReg())
-FERun := Manager.AddCheckbox('yp+30 wp hp', 'Run as administrator')
-FERun.OnEvent("Click", (*) => FEComReg())
-FEComReg() {
-    RegVal := Compatibilities[FECom.Value][2] (Compatibilities[FECom.Value][2] ? ' ' : '') (FERun.Value ? 'RUNASADMIN' : '')
+FOECom.Choose(1)
+FOECom.OnEvent("Change", (*) => FOEComReg())
+FOERun := Manager.AddCheckbox('yp+30 wp hp', 'Run as administrator')
+FOERun.OnEvent("Click", (*) => FOEComReg())
+FOEComReg() {
+    RegVal := Compatibilities[FOECom.Value][2] (Compatibilities[FOECom.Value][2] ? ' ' : '') (FOERun.Value ? 'RUNASADMIN' : '')
     If !RegVal {
         Try {
             RegDelete(Layers, ChosenFolder.Value '\age2_x1\age2_x2.exe')
@@ -320,36 +320,87 @@ FEComReg() {
     RegWrite(RegVal, 'REG_SZ', Layers, ChosenFolder.Value '\age2_x1\age2_x2.exe')
 }
 
-_Language_ := Manager.AddGroupBox('xm yp-75 w220 h100 Right', '# Language')
+_Language_ := Manager.AddGroupBox('xm yp-75 w220 h385 Right', '# Language')
 _Language_.SetFont('Bold')
-Language := Manager.AddDropDownList('xp+10 yp+40 w200')
-
+Manager.AddText('xp+10 yp w200 BackgroundTrans')
+Loop Files, 'DB\006\*', 'D' {
+    R := Manager.AddRadio('wp Center', A_LoopFileName)
+    R.SetFont('Underline Bold')
+    R.OnEvent('Click', ApplyLanguage)
+}
+ApplyLanguage(Ctrl, Info) {
+    DisableLanguage(), Sleep(500)
+    If !((Time := FoundDefaultLanguage()) && ((Ctrl.Text = '___Default___'))) {
+        DirCopy('DB\006\' Ctrl.Text, ChosenFolder.Value, 1)
+    } Else {
+        DirCopy(AppDir[2] '\' Time, ChosenFolder.Value, 1)
+    }
+    SoundPlay('DB\000\30 wololo.mp3')
+    EnableLanguage()
+}
 Manager.AddStatusBar(, 'v1.0')
 Manager.Show()
 LoadCurrentSettings()
 Return
 
+LoadCurrentSettings() {
+    If DirExist(GameFolder := IniRead(Config, 'Game', 'Path', '')) {
+        ChosenFolder.Value := GameFolder
+    }
+    DisableGameRun()
+    DisableVersions()
+    DisableCompatibilitys()
+    DisableLanguage()
+    If FileExist(ChosenFolder.Value '\empires2.exe') {
+        EnableAOKVersion()
+        EnableAOKRun()
+        EnableAOKCompatibility()
+        If FileExist(ChosenFolder.Value '\age2_x1\age2_x1.exe') {
+            EnableAOCVersion()
+            EnableAOCRun()
+            EnableAOCCompatibility()
+        }
+        If FileExist(ChosenFolder.Value '\age2_x1\age2_x2.exe') {
+            EnableFOEVersion()
+            EnableFOERun()
+            EnableFOECompatibility()
+        }
+        VersionsLoad()
+        LanguageLoad()
+    }
+    CompatibilityCheck()
+    CopyDefaultLanguage()
+    EnableLanguage()
+}
+
 CompatibilityCheck() {
-    AoKReg := RegRead(Layers, ChosenFolder.Value '\empires2.exe', '')
+    AoKCom.Choose(1)
+    AoKRun.Value := False
+    AoCCom.Choose(1)
+    AoCRun.Value := False
+    FOECom.Choose(1)
+    FOERun.Value := False
+    AoKReg := Trim(RegRead(Layers, ChosenFolder.Value '\empires2.exe', ''), ' ')
     If AoKReg {
         AoKReg := StrSplit(AoKReg, ' ')
         For Each, RegVal in AoKReg {
             If (RegVal = 'RUNASADMIN')
-                AoKRun.Value := 1
+                AoKRun.Value := True
             Else {
                 For Each, Compat in Compatibilities {
-                    If (Compat[2] = RegVal)
+                    If (Compat[2] = RegVal) {
                         AoKCom.Choose(Compat[1])
+                    }
                 }
             }
         }
     }
-    AoCReg := RegRead(Layers, ChosenFolder.Value '\age2_x1\age2_x1.exe', '')
+    AoCReg := Trim(RegRead(Layers, ChosenFolder.Value '\age2_x1\age2_x1.exe', ''), ' ')
     If AoCReg {
         AoCReg := StrSplit(AoCReg, ' ')
         For Each, RegVal in AoCReg {
             If (RegVal = 'RUNASADMIN')
-                AoCRun.Value := 1
+                AoCRun.Value := True
             Else {
                 For Each, Compat in Compatibilities {
                     If (Compat[2] = RegVal)
@@ -358,16 +409,52 @@ CompatibilityCheck() {
             }
         }
     }
-    FEReg := RegRead(Layers, ChosenFolder.Value '\age2_x1\age2_x2.exe', '')
+    FEReg := Trim(RegRead(Layers, ChosenFolder.Value '\age2_x1\age2_x2.exe', ''), ' ')
     If FEReg {
         FEReg := StrSplit(FEReg, ' ')
         For Each, RegVal in FEReg {
             If (RegVal = 'RUNASADMIN')
-                FERun.Value := 1
+                FOERun.Value := True
             Else {
                 For Each, Compat in Compatibilities {
                     If (Compat[2] = RegVal)
-                        FECom.Choose(Compat[1])
+                        FOECom.Choose(Compat[1])
+                }
+            }
+        }
+    }
+}
+
+FoundDefaultLanguage() {
+    Now := ''
+    If NowKeys := IniRead(Config, 'FoundLanguage',, '') {
+        For Every, NowPath in StrSplit(NowKeys, '`n') {
+            NowPathArr := StrSplit(NowPath, '=')
+            If NowPathArr[2] = ChosenFolder.Value {
+                Now := NowPathArr[1]
+                Break
+            }
+        }
+    }
+    Return Now
+}
+
+CopyDefaultLanguage() {
+    If !Now := FoundDefaultLanguage()
+        IniWrite(ChosenFolder.Value, Config, 'FoundLanguage', Now := A_Now)
+    Loop Files, 'DB\006\*', 'D' {
+        LanguageName := A_LoopFileName
+        Loop Files, 'DB\006\' LanguageName '\*.*', 'R' {
+            LngPath := A_LoopFileDir '\' A_LoopFileName
+            GamePath := ChosenFolder.Value StrReplace(LngPath, 'DB\006\' LanguageName)
+            If FileExist(GamePath) {
+                DefPath := StrReplace(LngPath, 'DB\006\' LanguageName, AppDir[2] '\' Now)
+                SplitPath(DefPath,, &OutDir)
+                If !DirExist(OutDir) {
+                    DirCreate(OutDir)
+                }
+                If !FileExist(DefPath) {
+                    FileCopy(GamePath, DefPath)
                 }
             }
         }
@@ -417,31 +504,9 @@ CleanUp(Patch) {
     }
 }
 
-LoadCurrentSettings() {
-    If DirExist(GameFolder := IniRead(Config, 'Game', 'Path', '')) {
-        ChosenFolder.Value := GameFolder
-    }
-    DisableGameRun()
-    DisableVersions()
-    DisableCompatibilitys()
-    If FileExist(ChosenFolder.Value '\empires2.exe') {
-        EnableAOKVersion()
-        EnableAOKRun()
-        EnableAOKCompatibility()
-        If FileExist(ChosenFolder.Value '\age2_x1\age2_x1.exe') {
-            EnableAOCVersion()
-            EnableAOCRun()
-            EnableAOCCompatibility()
-        }
-        If FileExist(ChosenFolder.Value '\age2_x1\age2_x2.exe') {
-            EnableFOEVersion()
-            EnableFOERun()
-            EnableFOECompatibility()
-        }
-        VersionsLoad()
-    }
+LanguageLoad() {
+    
 }
-
 VersionsLoad() {
     Loop Files, 'DB\002\*', 'D' {
         Version := A_LoopFileName
@@ -490,6 +555,25 @@ GameIsRunning() {
         }
     }
     Return False
+}
+
+EnableLanguage() {
+    _Language_.GetPos(&X, &Y, &Width, &Height)
+    For Each, Control in Manager {
+        Control.GetPos(&CX, &CY)
+        If (CX > X && CX < (X + Width)) && (CY > Y && CY < (Y + Height)) {
+            Control.Enabled := True
+        }
+    }
+}
+DisableLanguage() {
+    _Language_.GetPos(&X, &Y, &Width, &Height)
+    For Each, Control in Manager {
+        Control.GetPos(&CX, &CY)
+        If (CX > X && CX < (X + (Width / 3))) && (CY > Y && CY < (Y + Height)) {
+            Control.Enabled := False
+        }
+    }
 }
 
 EnableGameRun() {
@@ -653,6 +737,110 @@ DisableFOEVersion() {
     }
 }
 
-#Include DB\000\lib\ButtonIcon.ahk
-#Include DB\000\lib\HashFile.ahk
-#Include DB\000\lib\ConnectedToInternet.ahk
+; https://www.autohotkey.com/boards/viewtopic.php?f=83&t=115871
+GuiButtonIcon(Handle, File, Index := 1, Options := '') {
+    RegExMatch(Options, 'i)w\K\d+', &W) ? W := W.0 : W := 16
+    RegExMatch(Options, 'i)h\K\d+', &H) ? H := H.0 : H := 16
+    RegExMatch(Options, 'i)s\K\d+', &S) ? W := H := S.0 : ''
+    RegExMatch(Options, 'i)l\K\d+', &L) ? L := L.0 : L := 0
+    RegExMatch(Options, 'i)t\K\d+', &T) ? T := T.0 : T := 0
+    RegExMatch(Options, 'i)r\K\d+', &R) ? R := R.0 : R := 0
+    RegExMatch(Options, 'i)b\K\d+', &B) ? B := B.0 : B := 0
+    RegExMatch(Options, 'i)a\K\d+', &A) ? A := A.0 : A := 4
+    W *= A_ScreenDPI / 96, H *= A_ScreenDPI / 96
+    button_il := Buffer(20 + A_PtrSize)
+    normal_il := DllCall('ImageList_Create', 'Int', W, 'Int', H, 'UInt', 0x21, 'Int', 1, 'Int', 1)
+    NumPut('Ptr', normal_il, button_il, 0)			; Width & Height
+    NumPut('UInt', L, button_il, 0 + A_PtrSize)		; Left Margin
+    NumPut('UInt', T, button_il, 4 + A_PtrSize)		; Top Margin
+    NumPut('UInt', R, button_il, 8 + A_PtrSize)		; Right Margin
+    NumPut('UInt', B, button_il, 12 + A_PtrSize)	; Bottom Margin
+    NumPut('UInt', A, button_il, 16 + A_PtrSize)	; Alignment
+    SendMessage(BCM_SETIMAGELIST := 5634, 0, button_il, Handle)
+    Return IL_Add(normal_il, File, Index)
+}
+
+; https://autohotkey.com/board/topic/66139-ahk-l-calculating-md5sha-checksum-from-file/
+HashFile(filePath, hashType := 2) {
+    static PROV_RSA_AES := 24
+    static CRYPT_VERIFYCONTEXT := 0xF0000000
+    static BUFF_SIZE := 1024 * 1024 ; 1 MB
+    static HP_HASHVAL := 0x0002
+    static HP_HASHSIZE := 0x0004
+
+    switch hashType {
+        case 1: hash_alg := (CALG_MD2 := 32769)
+        case 2: hash_alg := (CALG_MD5 := 32771)
+        case 3: hash_alg := (CALG_SHA := 32772)
+        case 4: hash_alg := (CALG_SHA_256 := 32780)
+        case 5: hash_alg := (CALG_SHA_384 := 32781)
+        case 6: hash_alg := (CALG_SHA_512 := 32782)
+        default: throw ValueError('Invalid hashType', -1, hashType)
+    }
+
+    f := FileOpen(filePath, "r")
+    f.Pos := 0 ; Rewind in case of BOM.
+
+    HCRYPTPROV() => {
+        ptr: 0,
+        __delete: this => this.ptr && DllCall("Advapi32\CryptReleaseContext", "Ptr", this, "UInt", 0)
+    }
+
+    if !DllCall("Advapi32\CryptAcquireContextW"
+        , "Ptr*", hProv := HCRYPTPROV()
+        , "Uint", 0
+        , "Uint", 0
+        , "Uint", PROV_RSA_AES
+        , "UInt", CRYPT_VERIFYCONTEXT)
+        throw OSError()
+
+    HCRYPTHASH() => {
+        ptr: 0,
+        __delete: this => this.ptr && DllCall("Advapi32\CryptDestroyHash", "Ptr", this)
+    }
+
+    if !DllCall("Advapi32\CryptCreateHash"
+        , "Ptr", hProv
+        , "Uint", hash_alg
+        , "Uint", 0
+        , "Uint", 0
+        , "Ptr*", hHash := HCRYPTHASH())
+        throw OSError()
+
+    read_buf := Buffer(BUFF_SIZE, 0)
+
+    While (cbCount := f.RawRead(read_buf, BUFF_SIZE))
+    {
+        if !DllCall("Advapi32\CryptHashData"
+            , "Ptr", hHash
+            , "Ptr", read_buf
+            , "Uint", cbCount
+            , "Uint", 0)
+            throw OSError()
+    }
+
+    if !DllCall("Advapi32\CryptGetHashParam"
+        , "Ptr", hHash
+        , "Uint", HP_HASHSIZE
+        , "Uint*", &HashLen := 0
+        , "Uint*", &HashLenSize := 4
+        , "UInt", 0)
+        throw OSError()
+
+    bHash := Buffer(HashLen, 0)
+    if !DllCall("Advapi32\CryptGetHashParam"
+        , "Ptr", hHash
+        , "Uint", HP_HASHVAL
+        , "Ptr", bHash
+        , "Uint*", &HashLen
+        , "UInt", 0)
+        throw OSError()
+
+    loop HashLen
+        HashVal .= Format('{:02x}', (NumGet(bHash, A_Index - 1, "UChar")) & 0xff)
+
+    return HashVal
+}
+ConnectedToInternet(Flag := 0x40) {
+    Return DllCall("Wininet.dll\InternetGetConnectedState", "Str", Flag, "Int", 0)
+}
