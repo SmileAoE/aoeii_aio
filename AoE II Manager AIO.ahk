@@ -9,6 +9,9 @@ AppDir := ['DB', A_AppData '\aoeii_aio']
 Dots := 0
 Task := 1
 TaskNumber := 12
+DrsTypes := Map('gra', 'graphics.drs'
+              , 'int', 'interfac.drs'
+              , 'ter', 'terrain.drs')
 
 General := Map()
 
@@ -365,6 +368,10 @@ VMList.ModifyCol(1, 'Center')
 Loop Files, 'DB\007\*', 'D' {
     VMList.Add(, A_LoopFileName)
 }
+VMList.OnEvent('ItemCheck', ApplyVM)
+ApplyVM(Ctrl, Item, Checked) {
+    VMName := VMList.GetText(Item)
+}
 
 _VisualMods_.GetPos(, &Y)
 _DataMods_ := Manager.AddGroupBox('xm+460 y' Y ' w220 h280 Center c7d00d1', '# Data Mods')
@@ -403,6 +410,31 @@ LoadCurrentSettings() {
     CompatibilityCheck()
     CopyDefaultLanguage()
     EnableLanguage()
+}
+
+BackUpOrgSlp(VMName) {
+    Slps := []
+    Loop Files, 'DB\007\' VMName '\*.slp' {
+        Slps.Push(A_LoopFileFullPath)
+    }
+    AddPrefix(Slps, 'gra', 5)
+    Loop Files, 'DB\007\' VMName '\*.slp' {
+        Flag := SubStr(A_LoopFileName, 1, 3)
+        If !FileExist('DB\007\' VMName '\U\' A_LoopFileName) {
+            RunWait('DB\000\DrsBuild.exe /e "' ChosenFolder.Value '\Data\' DrsTypes[Flag] '" ' A_LoopFileName ' /o "DB\007\' VMName '\U"',, 'Hide')
+        }
+    }
+}
+
+AddPrefix(Slps, Prefix, NL) {
+    For Each, Slp in Slps {
+        SplitPath(Slp, &OutFileName, &OutDir,, &OutNameNoExt)
+        If (Flag := SubStr(OutFileName, 1, 3)) != 'gra' {
+            Loop (NL - StrLen(OutNameNoExt))
+                OutFileName := '0' OutFileName
+            FileMove(Slp, OutDir '\' Prefix OutFileName)
+        }
+    }
 }
 
 CompatibilityCheck() {
