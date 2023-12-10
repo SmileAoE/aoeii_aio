@@ -8,7 +8,7 @@ Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
 Dots := 0
 Task := 1
-TaskNumber := 8
+TaskNumber := 12
 
 General := Map()
 
@@ -26,6 +26,8 @@ General['AOC']['Combine'] := Map('1.0e No CD' , ['1.0c No CD']
 General['FOE'] := Map()
 General['FOE']['VersionsN'] := Map()
 General['FOE']['Combine'] := Map()
+
+General['LNG'] := Map()
 
 Compatibilities := Map(1 , [ "_____Not Set_____" , ""         ]
                      , 2 , [ "Windows 8"         , "WIN8RTM"  ]
@@ -77,6 +79,14 @@ Try {
         Download(Server '/' User '/' Repo '/main/DB/002.7z.001', 'DB\002.7z.001')
     }
     ++Task
+    If !FileExist('DB\006.7z.001') {
+        Download(Server '/' User '/' Repo '/main/DB/006.7z.001', 'DB\006.7z.001')
+    }
+    ++Task
+    If !FileExist('DB\007.7z.001') {
+        Download(Server '/' User '/' Repo '/main/DB/007.7z.001', 'DB\007.7z.001')
+    }
+    ++Task
     ; Export base files
     If !DirExist('DB\000') {
         RunWait('DB\7za.exe x DB\000.7z.001 -oDB\000', , 'Hide')
@@ -90,7 +100,14 @@ Try {
         RunWait('DB\7za.exe x DB\002.7z.001 -oDB\002', , 'Hide')
     }
     ++Task
-
+    If !DirExist('DB\006') {
+        RunWait('DB\7za.exe x DB\006.7z.001 -oDB\006', , 'Hide')
+    }
+    ++Task
+    If !DirExist('DB\007') {
+        RunWait('DB\7za.exe x DB\007.7z.001 -oDB\007', , 'Hide')
+    }
+    ++Task
     SetTimer(ShowInfo, 0)
     Prepare.Destroy()
 } Catch As Err {
@@ -102,7 +119,7 @@ Manager := Gui(, 'AoE II Manager AIO')
 Manager.OnEvent('Close', (*) => ExitApp())
 Manager.BackColor := 0xFFFFFF
 ; First section: # The Game
-_Game_ := Manager.AddGroupBox('w220 h260 Right', '# The Game')
+_Game_ := Manager.AddGroupBox('w220 h260 Center c7d00d1', '# The Game')
 _Game_.SetFont('Bold')
 GetTheGame := Manager.AddButton('xm+10 ym+25 w200', 'Download AoE II')
 GetTheGame.OnEvent('Click', (*) => DownloadInstallGame())
@@ -208,7 +225,7 @@ SelectTheGame() {
     LoadCurrentSettings()
 }
 ; Second Section: # Versions
-_Version_ := Manager.AddGroupBox('ym w450 h220 Right', '# Versions')
+_Version_ := Manager.AddGroupBox('ym w450 h220 Center c7d00d1', '# Versions')
 _Version_.SetFont('Bold')
 
 Manager.AddPicture('xp+54 ym+25', 'DB\000\aok.png')
@@ -255,7 +272,7 @@ ApplyVersion(Ctrl, Info) {
 Patch := Manager.AddCheckbox('xm+240 ym+200' (IniRead(Config, 'Game', 'Fix', 1) ? ' Checked' : ''), 'Enable fixs after each patching if available')
 Patch.OnEvent('Click', (*) => IniWrite(Patch.Value, Config, 'Game', 'Fix'))
 
-_Compatibility_ := Manager.AddGroupBox('xm+230 ym+225 w450 h140 Right', '# Compatibilities')
+_Compatibility_ := Manager.AddGroupBox('xm+230 ym+225 w450 h140 Center c7d00d1', '# Compatibilities')
 _Compatibility_.SetFont('Bold')
 Manager.AddPicture('xp+54 yp+25', 'DB\000\aok.png')
 Manager.AddText('xp-44 yp+40 cRed w120 Center', 'The Age of Kings').SetFont('Bold')
@@ -320,13 +337,14 @@ FOEComReg() {
     RegWrite(RegVal, 'REG_SZ', Layers, ChosenFolder.Value '\age2_x1\age2_x2.exe')
 }
 
-_Language_ := Manager.AddGroupBox('xm yp-75 w220 h385 Right', '# Language')
+_Language_ := Manager.AddGroupBox('xm yp-75 w220 h385 Center c7d00d1', '# Language')
 _Language_.SetFont('Bold')
 Manager.AddText('xp+10 yp w200 BackgroundTrans')
 Loop Files, 'DB\006\*', 'D' {
-    R := Manager.AddRadio('wp Center', A_LoopFileName)
-    R.SetFont('Underline Bold')
-    R.OnEvent('Click', ApplyLanguage)
+    Handle := Manager.AddRadio('wp Center', A_LoopFileName)
+    Handle.SetFont('Underline Bold')
+    Handle.OnEvent('Click', ApplyLanguage)
+    General['LNG'][A_LoopFileName] := Handle
 }
 ApplyLanguage(Ctrl, Info) {
     DisableLanguage(), Sleep(500)
@@ -338,6 +356,20 @@ ApplyLanguage(Ctrl, Info) {
     SoundPlay('DB\000\30 wololo.mp3')
     EnableLanguage()
 }
+_VisualMods_ := Manager.AddGroupBox('xm+230 yp-255 w220 h280 Center c7d00d1', '# Visual Mods')
+_VisualMods_.SetFont('Bold')
+Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
+VMList := Manager.AddListView('w200 h240 -E0x200 cBlue -Hdr Checked', ['Mod Name'])
+VMList.SetFont('Bold')
+VMList.ModifyCol(1, 'Center')
+Loop Files, 'DB\007\*', 'D' {
+    VMList.Add(, A_LoopFileName)
+}
+
+_VisualMods_.GetPos(, &Y)
+_DataMods_ := Manager.AddGroupBox('xm+460 y' Y ' w220 h280 Center c7d00d1', '# Data Mods')
+_DataMods_.SetFont('Bold')
+
 Manager.AddStatusBar(, 'v1.0')
 Manager.Show()
 LoadCurrentSettings()
@@ -505,8 +537,32 @@ CleanUp(Patch) {
 }
 
 LanguageLoad() {
-    
+    Loop Files, 'DB\006\*', 'D' {
+        If (A_LoopFileName = '___Default___') && (Time := FoundDefaultLanguage()) {
+            Language := AppDir[2] '\' Time
+        } Else {
+            Language := 'DB\006\' A_LoopFileName
+        }
+        Found := True
+        CountedFiles := 0
+        EqualHashCount := 0
+        Loop Files, Language '\*.dll', 'R' {
+            ++CountedFiles
+        }
+        Loop Files, Language '\*.dll', 'R' {
+            LngFile := A_LoopFileDir '\' A_LoopFileName
+            GameFile := ChosenFolder.Value StrReplace(LngFile, Language)
+            If FileExist(GameFile) && (HashFile(LngFile) = HashFile(GameFile)) {
+                ++EqualHashCount
+            }
+        }
+        If CountedFiles && (CountedFiles = EqualHashCount) {
+            General['LNG'][A_LoopFileName].Value := 1
+            Break
+        }
+    }
 }
+
 VersionsLoad() {
     Loop Files, 'DB\002\*', 'D' {
         Version := A_LoopFileName
@@ -519,7 +575,7 @@ VersionsLoad() {
         Loop Files, 'DB\002\' Version '\*.*', 'R' {
             PatchFile := A_LoopFileDir '\' A_LoopFileName
             GameFile := ChosenFolder.Value StrReplace(PatchFile, 'DB\002\' Version)
-            If FileExist(GameFile) && HashFile(PatchFile) = HashFile(GameFile) {
+            If FileExist(GameFile) && (HashFile(PatchFile) = HashFile(GameFile)) {
                 ++EqualHashCount
             }
         }
