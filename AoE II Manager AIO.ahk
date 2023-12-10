@@ -10,21 +10,21 @@ Dots := 0
 Task := 1
 TaskNumber := 12
 DrsTypes := Map('gra', 'graphics.drs'
-              , 'int', 'interfac.drs'
-              , 'ter', 'terrain.drs')
+    , 'int', 'interfac.drs'
+    , 'ter', 'terrain.drs')
 
 General := Map()
 
 General['AOK'] := Map()
 General['AOK']['VersionsN'] := Map()
-General['AOK']['Combine'] := Map('2.0b CD' , ['2.0a No CD'])
+General['AOK']['Combine'] := Map('2.0b CD', ['2.0a No CD'])
 
 General['AOC'] := Map()
 General['AOC']['VersionsN'] := Map()
-General['AOC']['Combine'] := Map('1.0e No CD' , ['1.0c No CD']
-                               , '1.0e No CD' , ['1.0c No CD']
-                               , '1.1  No CD' , ['1.0c No CD']
-                               , '1.5  CD'    , ['1.0c No CD'])
+General['AOC']['Combine'] := Map('1.0e No CD', ['1.0c No CD']
+    , '1.0e No CD', ['1.0c No CD']
+    , '1.1  No CD', ['1.0c No CD']
+    , '1.5  CD', ['1.0c No CD'])
 
 General['FOE'] := Map()
 General['FOE']['VersionsN'] := Map()
@@ -32,15 +32,15 @@ General['FOE']['Combine'] := Map()
 
 General['LNG'] := Map()
 
-Compatibilities := Map(1 , [ "_____Not Set_____" , ""         ]
-                     , 2 , [ "Windows 8"         , "WIN8RTM"  ]
-                     , 3 , [ "Windows 7"         , "WIN7RTM"  ]
-                     , 4 , [ "Windows Vista Sp2" , "VISTASP2" ]
-                     , 5 , [ "Windows Vista Sp1" , "VISTASP1" ]
-                     , 6 , [ "Windows Vista"     , "VISTARTM" ]
-                     , 7 , [ "Windows XP Sp2"    , "WINXPSP2" ]
-                     , 8 , [ "Windows 98"        , "WIN98"    ]
-                     , 9 , [ "Windows 95"        , "WIN95"    ])
+Compatibilities := Map(1, ["_____Not Set_____", ""]
+    , 2, ["Windows 8", "WIN8RTM"]
+    , 3, ["Windows 7", "WIN7RTM"]
+    , 4, ["Windows Vista Sp2", "VISTASP2"]
+    , 5, ["Windows Vista Sp1", "VISTASP1"]
+    , 6, ["Windows Vista", "VISTARTM"]
+    , 7, ["Windows XP Sp2", "WINXPSP2"]
+    , 8, ["Windows 98", "WIN98"]
+    , 9, ["Windows 95", "WIN95"])
 Try {
     Prepare := Gui('-MinimizeBox', 'Preparing...')
     Prepare.OnEvent('Close', (*) => ExitApp())
@@ -49,13 +49,13 @@ Try {
     DoneSteps := Prepare.AddText('Center w400 h30 cRed')
     DoneSteps.SetFont('Bold')
     Prepare.Show()
-    
+
     ShowInfo() {
         Global Dots, Task
-        HoldOn.Text := PW '`n' ((Mod(++Dots, 4) = 0) ? '●' 
-                               : ((Mod(Dots, 4) = 1) ? '●●' 
-                               : ((Mod(Dots, 4) = 2) ? '●●●' 
-                               :                       '●●●●')))
+        HoldOn.Text := PW '`n' ((Mod(++Dots, 4) = 0) ? '●'
+            : ((Mod(Dots, 4) = 1) ? '●●'
+                : ((Mod(Dots, 4) = 2) ? '●●●'
+                    : '●●●●')))
         DoneSteps.Text := Task ' / ' TaskNumber ' of prepare steps (is/are) done'
     }
     SetTimer(ShowInfo, 500)
@@ -362,7 +362,7 @@ ApplyLanguage(Ctrl, Info) {
 _VisualMods_ := Manager.AddGroupBox('xm+230 yp-255 w220 h280 Center c7d00d1', '# Visual Mods')
 _VisualMods_.SetFont('Bold')
 Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
-VMList := Manager.AddListView('w200 h240 -E0x200 cBlue -Hdr Checked', ['Mod Name'])
+VMList := Manager.AddListView('w200 h210 -E0x200 cBlue -Hdr Checked', ['Mod Name'])
 VMList.SetFont('Bold')
 VMList.ModifyCol(1, 'Center')
 Loop Files, 'DB\007\*', 'D' {
@@ -371,6 +371,55 @@ Loop Files, 'DB\007\*', 'D' {
 VMList.OnEvent('ItemCheck', ApplyVM)
 ApplyVM(Ctrl, Item, Checked) {
     VMName := VMList.GetText(Item)
+    SlpDir := Checked ? 'DB\007\' VMName : 'DB\007\' VMName '\U'
+    VMList.Enabled := False
+    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['gra'] '" "' SlpDir '\gra*.slp"', , 'Hide')
+    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['int'] '" "' SlpDir '\int*.slp"', , 'Hide')
+    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['ter'] '" "' SlpDir '\ter*.slp"', , 'Hide')
+    Hash := HashFile(ChosenFolder.Value '\Data\' DrsTypes['gra'])
+        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['int'])
+        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['ter'])
+    CheckedRows := Map(), NCR := 0
+    While (NCR := VMList.GetNext(NCR, 'Checked')) {
+        CheckedRows[NCR] := True
+    }
+    Stat := ''
+    Loop VMList.GetCount() {
+        IniWrite(CheckedRows.Has(A_Index), Config, Hash, VMList.GetText(A_Index))
+    }
+    SoundPlay('DB\000\30 wololo.mp3')
+    VMList.Enabled := True
+}
+LoadVM := Manager.AddButton('wp', 'Load')
+LoadVM.SetFont('Bold')
+LoadVM.OnEvent('Click', (*) => LoadVisualMod())
+LoadVisualMod() {
+    LoadVM.Enabled := False
+    If Selected := FileSelect('D') {
+        SplitPath(Selected, &OutFileName)
+        DirCreate('DB\007\' OutFileName '\U')
+        Loop Files, Selected '\*.slp', 'R' {
+            ID := SubStr(A_LoopFileName, 1, -4)
+            If !IsDigit(ID) {
+                Continue
+            }
+            If (ID < 6000) || ((ID >= 15000) && (ID <= 16000)) || ((ID >= 50000) && (ID <= 54000)) {
+                FileCopy(A_LoopFileFullPath, 'DB\007\' OutFileName '\' A_LoopFileName, 1)
+                RunWait('DB\000\vooblyslpdecode.exe "DB\007\' OutFileName '\' A_LoopFileName '" "DB\007\' OutFileName '\' A_LoopFileName '"', , 'Hide')
+                AddPrefix(['DB\007\' OutFileName '\' A_LoopFileName], 5)
+            }
+        }
+        Loop Files, 'DB\007\*.slp', 'R' {
+            If !InStr(A_LoopFileDir, '\U')
+                || InStr(A_LoopFileDir, OutFileName)
+                Continue
+            If FileExist('DB\007\' OutFileName '\' A_LoopFileName) {
+                FileCopy(A_LoopFileFullPath, 'DB\007\' OutFileName '\U\' A_LoopFileName, 1)
+            }
+        }
+        BackUpOrgSlp(OutFileName)
+    }
+    LoadVM.Enabled := True
 }
 
 _VisualMods_.GetPos(, &Y)
@@ -390,6 +439,7 @@ LoadCurrentSettings() {
     DisableVersions()
     DisableCompatibilitys()
     DisableLanguage()
+    VMList.Enabled := False
     If FileExist(ChosenFolder.Value '\empires2.exe') {
         EnableAOKVersion()
         EnableAOKRun()
@@ -410,6 +460,23 @@ LoadCurrentSettings() {
     CompatibilityCheck()
     CopyDefaultLanguage()
     EnableLanguage()
+    LoadAppliedVM()
+}
+
+LoadAppliedVM() {
+    VMList.Enabled := True
+    Hash := HashFile(ChosenFolder.Value '\Data\' DrsTypes['gra'])
+        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['int'])
+        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['ter'])
+    Loop VMList.GetCount() {
+        VMList.Modify(A_Index, '-Check')
+    }
+    If Values := IniRead(Config, Hash, , '') {
+        For Each, Value in StrSplit(Values, '`n') {
+            If StrSplit(Value, '=')[2]
+                VMList.Modify(Each, '+Check')
+        }
+    }
 }
 
 BackUpOrgSlp(VMName) {
@@ -417,22 +484,32 @@ BackUpOrgSlp(VMName) {
     Loop Files, 'DB\007\' VMName '\*.slp' {
         Slps.Push(A_LoopFileFullPath)
     }
-    AddPrefix(Slps, 'gra', 5)
     Loop Files, 'DB\007\' VMName '\*.slp' {
         Flag := SubStr(A_LoopFileName, 1, 3)
         If !FileExist('DB\007\' VMName '\U\' A_LoopFileName) {
-            RunWait('DB\000\DrsBuild.exe /e "' ChosenFolder.Value '\Data\' DrsTypes[Flag] '" ' A_LoopFileName ' /o "DB\007\' VMName '\U"',, 'Hide')
+            RunWait('DB\000\DrsBuild.exe /e "' ChosenFolder.Value '\Data\' DrsTypes[Flag] '" ' A_LoopFileName ' /o "DB\007\' VMName '\U"', , 'Hide')
         }
     }
 }
 
-AddPrefix(Slps, Prefix, NL) {
+AddPrefix(Slps, NL) {
     For Each, Slp in Slps {
-        SplitPath(Slp, &OutFileName, &OutDir,, &OutNameNoExt)
-        If (Flag := SubStr(OutFileName, 1, 3)) != 'gra' {
+        SplitPath(Slp, &OutFileName, &OutDir, , &OutNameNoExt)
+        ID := OutNameNoExt
+        If ID < 6000 {
+            Prefix := 'gra'
+        } Else If (ID >= 15000) && (ID <= 16000) {
+            Prefix := 'ter'
+        } Else If (ID >= 50000) && (ID <= 54000) {
+            Prefix := 'int'
+        } Else {
+            FileDelete(Slp)
+            Continue
+        }
+        If (Flag := SubStr(OutFileName, 1, 3)) != Prefix {
             Loop (NL - StrLen(OutNameNoExt))
                 OutFileName := '0' OutFileName
-            FileMove(Slp, OutDir '\' Prefix OutFileName)
+            FileMove(Slp, OutDir '\' Prefix OutFileName, 1)
         }
     }
 }
@@ -491,7 +568,7 @@ CompatibilityCheck() {
 
 FoundDefaultLanguage() {
     Now := ''
-    If NowKeys := IniRead(Config, 'FoundLanguage',, '') {
+    If NowKeys := IniRead(Config, 'FoundLanguage', , '') {
         For Every, NowPath in StrSplit(NowKeys, '`n') {
             NowPathArr := StrSplit(NowPath, '=')
             If NowPathArr[2] = ChosenFolder.Value {
@@ -513,7 +590,7 @@ CopyDefaultLanguage() {
             GamePath := ChosenFolder.Value StrReplace(LngPath, 'DB\006\' LanguageName)
             If FileExist(GamePath) {
                 DefPath := StrReplace(LngPath, 'DB\006\' LanguageName, AppDir[2] '\' Now)
-                SplitPath(DefPath,, &OutDir)
+                SplitPath(DefPath, , &OutDir)
                 If !DirExist(OutDir) {
                     DirCreate(OutDir)
                 }
@@ -534,7 +611,7 @@ SetVersion(Version) {
     If General['AOK']['Combine'].Has(Version) {
         For Each, pVersion in General['AOK']['Combine'][Version] {
             DirCopy('DB\002\' pVersion, ChosenFolder.Value, 1)
-        } 
+        }
     }
     DirCopy('DB\002\' Version, ChosenFolder.Value, 1)
     If (Patch.Value) {
@@ -931,4 +1008,11 @@ HashFile(filePath, hashType := 2) {
 }
 ConnectedToInternet(Flag := 0x40) {
     Return DllCall("Wininet.dll\InternetGetConnectedState", "Str", Flag, "Int", 0)
+}
+GetTextFromLink(Link) {
+    whr := ComObject("WinHttp.WinHttpRequest.5.1")
+    whr.Open("GET", Link, true)
+    whr.Send()
+    whr.WaitForResponse()
+    Return whr.ResponseText
 }
