@@ -456,11 +456,11 @@ LoadCurrentSettings() {
         }
         VersionsLoad()
         LanguageLoad()
+        LoadAppliedVM()
+        CompatibilityCheck()
+        CopyDefaultLanguage()
+        EnableLanguage()
     }
-    CompatibilityCheck()
-    CopyDefaultLanguage()
-    EnableLanguage()
-    LoadAppliedVM()
 }
 
 LoadAppliedVM() {
