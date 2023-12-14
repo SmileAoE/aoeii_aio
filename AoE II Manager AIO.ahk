@@ -1,5 +1,8 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
+
+;A_Clipboard := FileToBase64('DB\7za.exe')
+;Base64ToFile(_7za, A_Desktop '\7za.exe')
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
@@ -9,6 +12,11 @@ AppDir := ['DB', A_AppData '\aoeii_aio']
 Dots := 0
 Task := 1
 TaskNumber := 12
+Protocols := Map(1, ['HKEY_LOCAL_MACHINE\SOFTWARE' ((A_PtrSize = 8) ? '\Wow6432Node\' : '\') 'Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp', 'DefaultSecureProtocols', 0xAA0]
+               , 2, ['HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings', 'SecureProtocols', 0xA80]
+               , 3, ['HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings', 'SecureProtocols', 0xA80]
+               , 4, ['HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client', 'DisabledByDefault', 0x0]
+               , 5, ['HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Servers', 'DisabledByDefault', 0x1])
 DrsTypes := Map('gra', 'graphics.drs'
     , 'int', 'interfac.drs'
     , 'ter', 'terrain.drs')
@@ -41,6 +49,7 @@ Compatibilities := Map(1, ["_____Not Set_____", ""]
     , 7, ["Windows XP Sp2", "WINXPSP2"]
     , 8, ["Windows 98", "WIN98"]
     , 9, ["Windows 95", "WIN95"])
+
 Try {
     Prepare := Gui('-MinimizeBox', 'Preparing...')
     Prepare.OnEvent('Close', (*) => ExitApp())
@@ -114,7 +123,8 @@ Try {
     SetTimer(ShowInfo, 0)
     Prepare.Destroy()
 } Catch As Err {
-    MsgBox('There was an error while preparing the necessary files!', 'Oops!', '48 T5')
+    MsgBox('There was an error while preparing the necessary files!', 'Oops!', '48')
+    ; Run installation help page
     ExitApp
 }
 ; Main window
@@ -439,28 +449,42 @@ LoadCurrentSettings() {
     DisableVersions()
     DisableCompatibilitys()
     DisableLanguage()
-    VMList.Enabled := False
-    If FileExist(ChosenFolder.Value '\empires2.exe') {
-        EnableAOKVersion()
-        EnableAOKRun()
-        EnableAOKCompatibility()
-        If FileExist(ChosenFolder.Value '\age2_x1\age2_x1.exe') {
-            EnableAOCVersion()
-            EnableAOCRun()
-            EnableAOCCompatibility()
+    DisableVisualMod()
+    If !FileExist(ChosenFolder.Value '\empires2.exe') {
+        Expected := ChosenFolder.Value
+        Loop Files, Expected '\empires2.exe', 'R' {
+            ChosenFolder.Value := A_LoopFileDir
+            Break
         }
-        If FileExist(ChosenFolder.Value '\age2_x1\age2_x2.exe') {
-            EnableFOEVersion()
-            EnableFOERun()
-            EnableFOECompatibility()
+        If !FileExist(ChosenFolder.Value '\empires2.exe') {
+            SplitPath(Expected,, &Expected)
+            If !FileExist(Expected '\empires2.exe') {
+                Return
+            }
+            ChosenFolder.Value := Expected
         }
-        VersionsLoad()
-        LanguageLoad()
-        LoadAppliedVM()
-        CompatibilityCheck()
-        CopyDefaultLanguage()
-        EnableLanguage()
     }
+    EnableAOKVersion()
+    EnableAOKRun()
+    EnableAOKCompatibility()
+    If FileExist(ChosenFolder.Value '\age2_x1\age2_x1.exe') {
+        EnableAOCVersion()
+        EnableAOCRun()
+        EnableAOCCompatibility()
+    }
+    If FileExist(ChosenFolder.Value '\age2_x1\age2_x2.exe') {
+        EnableFOEVersion()
+        EnableFOERun()
+        EnableFOECompatibility()
+    }
+    VersionsLoad()
+    LanguageLoad()
+    LoadAppliedVM()
+    CompatibilityCheck()
+    CopyDefaultLanguage()
+    EnableLanguage()
+    EnableVisualMod()
+    
 }
 
 LoadAppliedVM() {
@@ -722,7 +746,20 @@ GameIsRunning() {
     Return False
 }
 
+EnableVisualMod() {
+    _VisualMods_.Enabled := True
+    VMList.Enabled := True
+    LoadVM.Enabled := True
+}
+
+DisableVisualMod() {
+    _VisualMods_.Enabled := False
+    VMList.Enabled := False
+    LoadVM.Enabled := False
+}
+
 EnableLanguage() {
+    _Language_.Enabled := True
     _Language_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -732,6 +769,7 @@ EnableLanguage() {
     }
 }
 DisableLanguage() {
+    _Language_.Enabled := False
     _Language_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -777,6 +815,7 @@ EnableCompatibilitys() {
     EnableFOECompatibility()
 }
 EnableAOKCompatibility() {
+    _Compatibility_.Enabled := True
     _Compatibility_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -786,6 +825,7 @@ EnableAOKCompatibility() {
     }
 }
 EnableAOCCompatibility() {
+    _Compatibility_.Enabled := True
     _Compatibility_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -795,6 +835,7 @@ EnableAOCCompatibility() {
     }
 }
 EnableFOECompatibility() {
+    _Compatibility_.Enabled := True
     _Compatibility_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -810,6 +851,7 @@ DisableCompatibilitys() {
     DisableFOECompatibility()
 }
 DisableAOKCompatibility() {
+    _Compatibility_.Enabled := False
     _Compatibility_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -819,6 +861,7 @@ DisableAOKCompatibility() {
     }
 }
 DisableAOCCompatibility() {
+    _Compatibility_.Enabled := False
     _Compatibility_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -828,6 +871,7 @@ DisableAOCCompatibility() {
     }
 }
 DisableFOECompatibility() {
+    _Compatibility_.Enabled := False
     _Compatibility_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -843,6 +887,7 @@ EnableVersions() {
     EnableFOEVersion()
 }
 EnableAOKVersion() {
+    _Version_.Enabled := True
     _Version_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -852,6 +897,7 @@ EnableAOKVersion() {
     }
 }
 EnableAOCVersion() {
+    _Version_.Enabled := True
     _Version_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -861,6 +907,7 @@ EnableAOCVersion() {
     }
 }
 EnableFOEVersion() {
+    _Version_.Enabled := True
     _Version_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -875,6 +922,7 @@ DisableVersions() {
     DisableFOEVersion()
 }
 DisableAOKVersion() {
+    _Version_.Enabled := False
     _Version_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -884,6 +932,7 @@ DisableAOKVersion() {
     }
 }
 DisableAOCVersion() {
+    _Version_.Enabled := False
     _Version_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -893,6 +942,7 @@ DisableAOCVersion() {
     }
 }
 DisableFOEVersion() {
+    _Version_.Enabled := False
     _Version_.GetPos(&X, &Y, &Width, &Height)
     For Each, Control in Manager {
         Control.GetPos(&CX, &CY)
@@ -1015,4 +1065,30 @@ GetTextFromLink(Link) {
     whr.Send()
     whr.WaitForResponse()
     Return whr.ResponseText
+}
+
+BufferToBase64(BufferObj) {
+	if !DllCall('Crypt32.dll\CryptBinaryToString', 'Ptr', BufferObj, 'UInt', BufferObj.Size, 'UInt', 1, 'Ptr', 0, 'UInt*', &numChars := 0)
+		Throw 'Cant compute the destination buffer size, error: ' A_LastError
+    if !DllCall('Crypt32.dll\CryptBinaryToString', 'Ptr', BufferObj, 'UInt', BufferObj.Size, 'UInt', 1, 'Ptr', BufferString := Buffer(numChars * 2), 'UInt*', numChars * 2)
+		Throw 'Cant convert source buffer to base64, error: ' A_LastError
+	return StrGet(BufferString)
+}
+Base64ToBuffer(Base64) {
+    If !DllCall("Crypt32.dll\CryptStringToBinary", "Str", Base64, "UInt", BLen := StrLen(Base64), "UInt", 1, "UInt", 0, "UIntP", &Rqd := 0, "Int", 0, "Int", 0)
+        Throw 'Cant compute the destination buffer size, error: ' A_LastError
+    If !DllCall("Crypt32.dll\CryptStringToBinary", "Str", Base64, "UInt", BLen, "UInt", 1, "Ptr", BufferObj := Buffer(Rqd, 0), "UIntP", Rqd, "Int", 0, "Int", 0)
+        Throw 'Cant convert source base64 to buffer, error: ' A_LastError
+    Return BufferObj
+}
+
+FileToBase64(FileName) {
+    Return BufferToBase64(FileRead(FileName, 'RAW'))
+}
+
+Base64ToFile(Base64, FileName) {
+    BufferObj := Base64ToBuffer(Base64)
+    O := FileOpen(FileName, "w")
+    O.RawWrite(BufferObj, BufferObj.Size)
+    O.Close()
 }
