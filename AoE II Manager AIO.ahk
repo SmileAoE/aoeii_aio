@@ -1,14 +1,14 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
-;A_Clipboard := FileToBase64('DB\7za.exe')
-;Base64ToFile(_7za, A_Desktop '\7za.exe')
+
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
+GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
 Dots := 0
 Task := 1
 TaskNumber := 12
@@ -136,7 +136,7 @@ _Game_ := Manager.AddGroupBox('w220 h260 Center c7d00d1', '# The Game')
 _Game_.SetFont('Bold')
 GetTheGame := Manager.AddButton('xm+10 ym+25 w200', 'Download AoE II')
 GetTheGame.OnEvent('Click', (*) => DownloadInstallGame())
-GuiButtonIcon(GetTheGame, 'DB\000\Down.ico', , 'W16 H16 T2 A1')
+GuiButtonIcon(GetTheGame, 'DB\000\Down.png', , 'W16 H16 T2 A1')
 ProgressBar := Manager.AddProgress('xp yp wp h20 Hidden', 0)
 ProgressInfo := Manager.AddText('xp yp+25 wp Hidden Center')
 DownloadInstallGame() {
@@ -219,18 +219,79 @@ RunFOE := Manager.AddButton('yp wp hp')
 GuiButtonIcon(RunFOE, 'DB\000\fe.png', , 'W32 H32')
 RunFOE.OnEvent('Click', (*) => Run(ChosenFolder.Value '\age2_x1\age2_x2.exe', ChosenFolder.Value '\age2_x1'))
 
-ChooseFolder := Manager.AddButton('xm+10 yp+60 w30 w200', 'Choose')
+ChooseFolder := Manager.AddButton('xm+10 yp+60 w30 w100', 'Choose')
 ChooseFolder.OnEvent('Click', (*) => SelectTheGame())
-GuiButtonIcon(ChooseFolder, 'DB\000\Folder.ico', , 'W16 H16 T2 A1')
+GuiButtonIcon(ChooseFolder, 'DB\000\Folder.png', , 'W16 H16 T1 A1')
+
+LoadGRFolder := Manager.AddButton('xm+180 yp w30 w30')
+LoadGRFolder.OnEvent('Click', (*) => SelectTheGameFromGR())
+GuiButtonIcon(LoadGRFolder, 'DB\000\GR.png', , 'W16 H16')
 
 ChosenFolder := Manager.AddEdit('xm+10 yp+30 w200 Center ReadOnly r4 -VScroll cBlue BackgroundWhite')
 
 OpenTheGameFolder := Manager.AddButton('w200', 'Open')
-GuiButtonIcon(OpenTheGameFolder, 'DB\000\Folder.ico', , 'W16 H16 T2 A1')
+GuiButtonIcon(OpenTheGameFolder, 'DB\000\Folder.png', , 'W16 H16 T1 A1')
 OpenTheGameFolder.OnEvent('Click', (*) => Run(ChosenFolder.Value))
-
 SelectTheGame() {
     ChosenDir := FileSelect('D')
+    If !ChosenDir
+        Return
+    IniWrite(ChosenDir, Config, 'Game', 'Path')
+    ChosenFolder.Value := ChosenDir
+    LoadCurrentSettings()
+}
+SelectTheGameFromGR() {
+    TextFound := LoadGRSettingText()
+    FoundLocations := []
+    AOKDir := ''
+    AOCDir := ''
+    FOEDir := ''
+    ChosenDir := ''
+    If AOKFile := GRGamePath(TextFound, 'empires2.exe') {
+        SplitPath(AOKFile,, &AOKDir)
+        FoundLocations.Push(ChosenDir := AOKDir)
+    }
+    If AOCFile := GRGamePath(TextFound, 'age2_x1.exe') {
+        SplitPath(AOCFile,, &AOCDir)
+        SplitPath(AOCDir,, &AOCDir)
+        FoundLocations.Push(ChosenDir := AOCDir)
+    }
+    If FOEFile := GRGamePath(TextFound, 'age2_x2.exe') {
+        SplitPath(FOEFile,, &FOEDir)
+        SplitPath(FOEDir,, &FOEDir)
+        FoundLocations.Push(ChosenDir := FOEDir)
+    }
+    FoundLocations := RemoveDuplications(FoundLocations)
+    If FoundLocations.Length > 1 {
+        Location := Gui('ToolWindow', 'Pick one location')
+        Location.OnEvent('Close', (*) => DoNothing())
+        DoNothing() {
+            Location.Destroy()
+            Return
+        }
+        Location.AddText('Center r3 w350 cRed', 'Different locations were found for Age of Empires II game`nPlease pick only one`n').SetFont('Bold')
+        For Locatio in FoundLocations {
+            Location.AddRadio('wp Center', Locatio).OnEvent('Click', SetLocation)
+        }
+        SetLocation(Ctrl, Info) {
+            PickedLocation := Ctrl.Text
+        }
+        PickLocation := Location.AddButton('wp', 'OK').OnEvent('Click', (*) => ApplyLocation())
+        PickedLocation := ''
+        ApplyLocation() {
+            If !DirExist(PickedLocation) {
+                MsgBox('Please choose a location first!', 'Nothing was chosen', 48)
+                Return
+            }
+            Location.Destroy()
+            IniWrite(PickedLocation, Config, 'Game', 'Path')
+            ChosenFolder.Value := PickedLocation
+            LoadCurrentSettings()
+            Return
+        }
+        Location.Show()
+        Return
+    }
     If !ChosenDir
         Return
     IniWrite(ChosenDir, Config, 'Game', 'Path')
@@ -442,9 +503,10 @@ LoadCurrentSettings()
 Return
 
 LoadCurrentSettings() {
-    If DirExist(GameFolder := IniRead(Config, 'Game', 'Path', '')) {
-        ChosenFolder.Value := GameFolder
+    If !DirExist(GameFolder := IniRead(Config, 'Game', 'Path', '')) {
+        Return
     }
+    ChosenFolder.Value := GameFolder
     DisableGameRun()
     DisableVersions()
     DisableCompatibilitys()
@@ -1091,4 +1153,35 @@ Base64ToFile(Base64, FileName) {
     O := FileOpen(FileName, "w")
     O.RawWrite(BufferObj, BufferObj.Size)
     O.Close()
+}
+
+LoadGRSettingText() {
+    Setting := FileRead(GRSetting, 'RAW')
+    TextFound := ''
+    Loop Setting.Size {
+        Byte := NumGet(Setting, A_Index - 1, 'UChar')
+        If (32 <= Byte && Byte <= 126) || (Byte = 10) || (Byte = 13)
+            TextFound .= Chr(Byte)
+    }
+    Return TextFound
+}
+
+GRGamePath(TextFound, AppName) {
+    P := InStr(TextFound, LFE := AppName,, -1)
+    Loop {
+        Char := SubStr(TextFound, P - (I := A_Index), 1)
+        LFE := Char LFE
+    } Until (Char = ':' || Ord(Char) = 10 || Ord(Char) = 13)
+    Result := SubStr(TextFound, P - (I + 1), 1) LFE
+    Return (FileExist(Result) ? Result : '')
+}
+
+RemoveDuplications(Arr) {
+    E := ''
+    For Each, Value in Arr {
+        If !InStr(E, Value) {
+            E .= E = '' ? Value : ',' Value
+        }
+    }
+    Return StrSplit(E, ',')
 }
