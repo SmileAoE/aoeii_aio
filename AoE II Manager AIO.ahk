@@ -4,7 +4,7 @@
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := 1.0
+Version := '1.0'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -1182,6 +1182,7 @@ RemoveDuplications(Arr) {
 }
 
 __CheckForUpdates__() {
+    Global Version
     If A_IsCompiled {
         Return
     }
