@@ -1,7 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
-
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
@@ -12,14 +11,8 @@ GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
 Dots := 0
 Task := 1
 TaskNumber := 12
-Protocols := Map(1, ['HKEY_LOCAL_MACHINE\SOFTWARE' ((A_PtrSize = 8) ? '\Wow6432Node\' : '\') 'Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp', 'DefaultSecureProtocols', 0xAA0]
-               , 2, ['HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings', 'SecureProtocols', 0xA80]
-               , 3, ['HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings', 'SecureProtocols', 0xA80]
-               , 4, ['HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client', 'DisabledByDefault', 0x0]
-               , 5, ['HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Servers', 'DisabledByDefault', 0x1])
-DrsTypes := Map('gra', 'graphics.drs'
-    , 'int', 'interfac.drs'
-    , 'ter', 'terrain.drs')
+
+DrsTypes := Map('gra', 'graphics.drs', 'int', 'interfac.drs', 'ter', 'terrain.drs')
 
 General := Map()
 
@@ -29,10 +22,10 @@ General['AOK']['Combine'] := Map('2.0b CD', ['2.0a No CD'])
 
 General['AOC'] := Map()
 General['AOC']['VersionsN'] := Map()
-General['AOC']['Combine'] := Map('1.0e No CD', ['1.0c No CD']
-    , '1.0e No CD', ['1.0c No CD']
-    , '1.1  No CD', ['1.0c No CD']
-    , '1.5  CD', ['1.0c No CD'])
+General['AOC']['Combine'] := Map( '1.0e No CD', ['1.0c No CD']
+                                , '1.0e No CD', ['1.0c No CD']
+                                , '1.1  No CD', ['1.0c No CD']
+                                , '1.5  CD', ['1.0c No CD'])
 
 General['FOE'] := Map()
 General['FOE']['VersionsN'] := Map()
@@ -500,6 +493,7 @@ _DataMods_.SetFont('Bold')
 Manager.AddStatusBar(, 'v1.0')
 Manager.Show()
 LoadCurrentSettings()
+__CheckForUpdates__()
 Return
 
 LoadCurrentSettings() {
@@ -1184,4 +1178,24 @@ RemoveDuplications(Arr) {
         }
     }
     Return StrSplit(E, ',')
+}
+
+__CheckForUpdates__() {
+    If A_IsCompiled {
+        Return
+    }
+    LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20II%20Manager%20AIO.ahk')
+    If !InStr(LastScript, 'AutoHotkey') {
+        Return
+    }
+    CurrentScript := FileRead(A_ScriptName)
+    LastScript := Trim(LastScript)
+    CurrentScript := Trim(CurrentScript)
+    If LastScript != CurrentScript {
+        Choice := MsgBox('New update of the script is available!, download it now?', 'Update', 0x4 + 0x20)
+        If Choice = 'Yes' {
+            FileOpen(A_ScriptName, 'w').Write(LastScript)
+            Reload
+        }
+    }
 }
