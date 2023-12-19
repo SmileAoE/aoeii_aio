@@ -1195,7 +1195,7 @@ __CheckForUpdates__() {
     If LastVersion > Version {
         Choice := MsgBox('New update of the script is available!, download it now?', 'Update', 0x4 + 0x20)
         If Choice = 'Yes' {
-            LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20%II%20%Manager%20%AIO.ahk')
+            LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20II%20Manager%20AIO.ahk')
             FileOpen(A_ScriptName, 'w').Write(LastScript)
             Reload
         }
