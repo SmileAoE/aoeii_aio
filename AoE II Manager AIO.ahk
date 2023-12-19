@@ -1189,8 +1189,8 @@ __CheckForUpdates__() {
         Return
     }
     CurrentScript := FileRead(A_ScriptName)
-    LastScript := Trim(LastScript)
-    CurrentScript := Trim(CurrentScript)
+    LastScript := Trim(LastScript, '`r`n')
+    CurrentScript := Trim(CurrentScript, '`r`n')
     If LastScript != CurrentScript {
         Choice := MsgBox('New update of the script is available!, download it now?', 'Update', 0x4 + 0x20)
         If Choice = 'Yes' {
