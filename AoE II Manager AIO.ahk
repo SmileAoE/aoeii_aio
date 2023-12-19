@@ -4,6 +4,7 @@
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
+Version := 1.0
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -490,7 +491,7 @@ _VisualMods_.GetPos(, &Y)
 _DataMods_ := Manager.AddGroupBox('xm+460 y' Y ' w220 h280 Center c7d00d1', '# Data Mods')
 _DataMods_.SetFont('Bold')
 
-Manager.AddStatusBar(, 'v1.0')
+Manager.AddStatusBar(, Version)
 Manager.Show()
 LoadCurrentSettings()
 __CheckForUpdates__()
@@ -1184,16 +1185,16 @@ __CheckForUpdates__() {
     If A_IsCompiled {
         Return
     }
-    LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20II%20Manager%20AIO.ahk')
-    If !InStr(LastScript, 'AutoHotkey') {
+    LastVersion := GetTextFromLink(Server '/' User '/' Repo '/main/Version.txt')
+    LastVersion := StrReplace(LastVersion, '.')
+    If !IsDigit(LastVersion) {
         Return
     }
-    CurrentScript := FileRead(A_ScriptName)
-    LastScript := Trim(LastScript, '`r`n')
-    CurrentScript := Trim(CurrentScript, '`r`n')
-    If LastScript != CurrentScript {
+    Version := StrReplace(Version, '.')
+    If LastVersion > Version {
         Choice := MsgBox('New update of the script is available!, download it now?', 'Update', 0x4 + 0x20)
         If Choice = 'Yes' {
+            LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20%II%20%Manager%20%AIO.ahk')
             FileOpen(A_ScriptName, 'w').Write(LastScript)
             Reload
         }
