@@ -1239,8 +1239,13 @@ __CheckForUpdates__() {
             Choice := MsgBox('The following needs to be updated`n' UpdatesList '`nUpdate now?', 'Update', 0x4 + 0x20)
             If Choice = 'Yes' {
                 For Each, UpdateFile in FoundUpdates {
+                    SB.SetText(UpdateFile ' - Updating...', 3)
                     DownloadLink := Server '/' User '/' Repo '/main/' StrReplace(StrReplace(UpdateFile, ' ', '%20'), '\', '/')
                     Download(DownloadLink, UpdateFile)
+                    If InStr(UpdateFile, '7z') {
+                        Name := StrSplit(UpdateFile, '.')
+                        RunWait('DB\7za.exe x ' Name[1] '.7z.001 -oDB\' Name[1] ' -aoa', , 'Hide')
+                    }
                 }
                 Reload
             }
