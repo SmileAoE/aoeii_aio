@@ -4,7 +4,7 @@
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.1'
+Version := '1.2'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -1244,8 +1244,10 @@ __CheckForUpdates__() {
                 }
                 Reload
             }
+            SB.SetText('New update is waiting!', 3)
+        } Else {
+            SB.SetText('Up to date!', 3)
         }
-        SB.SetText('Up to date!', 3)
     } Catch As Err {
         SB.SetText('Failed to check for updates!', 3)
     }
