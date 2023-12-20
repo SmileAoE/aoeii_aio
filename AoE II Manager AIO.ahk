@@ -4,7 +4,7 @@
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.0'
+Version := '1.1'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -55,10 +55,10 @@ Try {
 
     ShowInfo() {
         Global Dots, Task
-        HoldOn.Text := PW '`n' ((Mod(++Dots, 4) = 0) ? '●'
-            : ((Mod(Dots, 4) = 1) ? '●●'
-                : ((Mod(Dots, 4) = 2) ? '●●●'
-                    : '●●●●')))
+        HoldOn.Text := PW '`n' ((Mod(++Dots, 4) = 0) ? '?'
+            : ((Mod(Dots, 4) = 1) ? '??'
+                : ((Mod(Dots, 4) = 2) ? '???'
+                    : '????')))
         DoneSteps.Text := Task ' / ' TaskNumber ' of prepare steps (is/are) done'
     }
     SetTimer(ShowInfo, 500)
@@ -1191,8 +1191,8 @@ __CheckForUpdates__() {
     If !IsDigit(LastVersion) {
         Return
     }
-    Version := StrReplace(Version, '.')
-    If LastVersion > Version {
+    ThisVersion := StrReplace(Version, '.')
+    If LastVersion > ThisVersion {
         Choice := MsgBox('New update of the script is available!, download it now?', 'Update', 0x4 + 0x20)
         If Choice = 'Yes' {
             LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20II%20Manager%20AIO.ahk')
