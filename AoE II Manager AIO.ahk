@@ -1216,30 +1216,35 @@ __CheckForUpdates__() {
     }
     Try {
         Hashsums := GetTextFromLink(Server '/' User '/' Repo '/main/Hashsums.ini')
+        HashsumsMap := Map()
+        For Each, Line in StrSplit(Hashsums, '`n') {
+            KeyValue := StrSplit(Line, '=')
+            If KeyValue.Length = 2
+                HashsumsMap[KeyValue[1]] := KeyValue[2]
+        }
         FoundUpdates := []
-        If HashFile(A_ScriptName) != IniRead('Hashsums.ini', 'MD5', A_ScriptName, '') {
+        If HashFile(A_ScriptName) != HashsumsMap[A_ScriptName] {
             FoundUpdates.Push(A_ScriptName)
         }
         Loop Files, 'DB\*7z*', 'R' {
-            If HashFile(A_LoopFileDir '\' A_LoopFileName) != IniRead('Hashsums.ini', 'MD5', A_LoopFileDir '\' A_LoopFileName, '') {
-                FoundUpdates.Push(A_ScriptName)
+            If HashFile(A_LoopFileDir '\' A_LoopFileName) != HashsumsMap[A_LoopFileDir '\' A_LoopFileName] {
+                FoundUpdates.Push(A_LoopFileDir '\' A_LoopFileName)
             }
         }
-        Msgbox FoundUpdates.Length
-        ;LastVersion := GetTextFromLink(Server '/' User '/' Repo '/main/Version.txt')
-        ;LastVersion := StrReplace(LastVersion, '.')
-        ;If !IsDigit(LastVersion) {
-        ;    Return
-        ;}
-        ;ThisVersion := StrReplace(Version, '.')
-        ;If LastVersion > ThisVersion {
-        ;    Choice := MsgBox('New update of the script is available!, download it now?', 'Update', 0x4 + 0x20)
-        ;    If Choice = 'Yes' {
-        ;        LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20II%20Manager%20AIO.ahk')
-        ;        FileOpen(A_ScriptName, 'w').Write(LastScript)
-        ;        Reload
-        ;    }
-        ;}
+        If FoundUpdates.Length {
+            UpdatesList := '`n'
+            For Each, UpdateFile in FoundUpdates{
+                UpdatesList .= '- ' UpdateFile '`n'
+            }
+            Choice := MsgBox('The following needs to be updated`n' UpdatesList '`nUpdate now?', 'Update', 0x4 + 0x20)
+            If Choice = 'Yes' {
+                For Each, UpdateFile in FoundUpdates {
+                    DownloadLink := Server '/' User '/' Repo '/main/' StrReplace(StrReplace(UpdateFile, ' ', '%20'), '\', '/')
+                    Download(DownloadLink, UpdateFile)
+                }
+                Reload
+            }
+        }
         SB.SetText('Up to date!', 3)
     } Catch As Err {
         SB.SetText('Failed to check for updates!', 3)
