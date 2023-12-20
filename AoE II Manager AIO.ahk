@@ -1217,7 +1217,7 @@ __CheckForUpdates__() {
     Try {
         Hashsums := GetTextFromLink(Server '/' User '/' Repo '/main/Hashsums.ini')
         HashsumsMap := Map()
-        For Each, Line in StrSplit(Hashsums, '`n') {
+        For Each, Line in StrSplit(Hashsums, '`r`n') {
             KeyValue := StrSplit(Line, '=')
             If KeyValue.Length = 2
                 HashsumsMap[KeyValue[1]] := KeyValue[2]
