@@ -125,8 +125,9 @@ Try {
 Manager := Gui(, 'AoE II Manager AIO')
 Manager.OnEvent('Close', (*) => ExitApp())
 Manager.BackColor := 0xFFFFFF
+;Manager.MarginX := Manager.MarginY := 5
 ; First section: # The Game
-_Game_ := Manager.AddGroupBox('w220 h260 Center c7d00d1', '# The Game')
+_Game_ := Manager.AddText('w220 h260 Center c800000 BackgroundFFF2E4 Border', '# The Game')
 _Game_.SetFont('Bold')
 GetTheGame := Manager.AddButton('xm+10 ym+25 w200', 'Download AoE II')
 GetTheGame.OnEvent('Click', (*) => DownloadInstallGame())
@@ -293,36 +294,35 @@ SelectTheGameFromGR() {
     LoadCurrentSettings()
 }
 ; Second Section: # Versions
-_Version_ := Manager.AddGroupBox('ym w450 h220 Center c7d00d1', '# Versions')
+_Version_ := Manager.AddText('ym w450 h220 Center c800000 BackgroundFFFFE0 Border', '# Versions')
 _Version_.SetFont('Bold')
 
-Manager.AddPicture('xp+54 ym+25', 'DB\000\aok.png')
-Manager.AddText('xp-44 yp+40 cRed w120 Center', 'The Age of Kings').SetFont('Bold')
-Manager.AddText('xp+20 yp+20 w1 h1')
+Manager.AddPicture('xp+54 ym+25 BackgroundTrans', 'DB\000\aok.png')
+Manager.AddText('xp-44 yp+40 cRed w120 Center BackgroundTrans', 'The Age of Kings').SetFont('Bold')
+Manager.AddText('xp+20 yp+20 w1 h1 BackgroundTrans')
 Loop Files, 'DB\002\2*', 'D' {
-    Handle := Manager.AddRadio('w30 w100', A_LoopFileName)
+    Handle := Manager.AddRadio('w30 w100 BackgroundFFFFE0', A_LoopFileName)
     Handle.SetFont('s10', 'Consolas')
     Handle.OnEvent('Click', ApplyVersion)
     General['AOK']['VersionsN'][A_LoopFileName] := Handle
 }
 
-Manager.AddPicture('xp+174 ym+25', 'DB\000\aoc.png')
-Manager.AddText('xp-44 yp+40 cBlue w120 Center', 'The Conquerors').SetFont('Bold')
-Manager.AddText('xp+20 yp+20 w1 h1')
+Manager.AddPicture('xp+174 ym+25 BackgroundTrans', 'DB\000\aoc.png')
+Manager.AddText('xp-44 yp+40 cBlue w120 Center BackgroundTrans', 'The Conquerors').SetFont('Bold')
+Manager.AddText('xp+20 yp+20 w1 h1 BackgroundTrans')
 Loop Files, 'DB\002\1*', 'D' {
-    Handle := Manager.AddRadio('w30 w100', A_LoopFileName)
+    Handle := Manager.AddRadio('w30 w100 BackgroundFFFFE0', A_LoopFileName)
     Handle.SetFont('s10', 'Consolas')
     Handle.OnEvent('Click', ApplyVersion)
     General['AOC']['VersionsN'][A_LoopFileName] := Handle
 }
 
-Manager.AddPicture('xp+174 ym+25', 'DB\000\fe.png')
-Manager.AddText('xp-44 yp+40 cGreen w120 Center', 'Forgotten Empires').SetFont('Bold')
-Manager.AddText('xp+20 yp+20 w1 h1')
-Handle := Manager.AddRadio('w30 w100 Checked', '2.2  CD')
+Manager.AddPicture('xp+174 ym+25 BackgroundTrans', 'DB\000\fe.png')
+Manager.AddText('xp-44 yp+40 cGreen w120 Center BackgroundTrans', 'Forgotten Empires').SetFont('Bold')
+Manager.AddText('xp+20 yp+20 w1 h1 BackgroundTrans')
+Handle := Manager.AddRadio('w30 w100 Checked BackgroundFFFFE0', '2.2  CD')
 Handle.SetFont('s10', 'Consolas')
 General['FOE']['VersionsN']['2.2  CD'] := Handle
-
 ApplyVersion(Ctrl, Info) {
     DisableGameRun()
     DisableVersions()
@@ -337,20 +337,20 @@ ApplyVersion(Ctrl, Info) {
     SoundPlay('DB\000\30 wololo.mp3')
 }
 
-Patch := Manager.AddCheckbox('xm+240 ym+200' (IniRead(Config, 'Game', 'Fix', 1) ? ' Checked' : ''), 'Enable fixs after each patching if available')
+Patch := Manager.AddCheckbox('BackgroundFFFFE0 xm+240 ym+200' (IniRead(Config, 'Game', 'Fix', 1) ? ' Checked' : ''), 'Enable fixs after each patching if available')
 Patch.OnEvent('Click', (*) => IniWrite(Patch.Value, Config, 'Game', 'Fix'))
 
-_Compatibility_ := Manager.AddGroupBox('xm+230 ym+225 w450 h140 Center c7d00d1', '# Compatibilities')
+_Compatibility_ := Manager.AddText('xm+230 ym+225 w450 h140 Center c800000 BackgroundECFFDA Border', '# Compatibilities')
 _Compatibility_.SetFont('Bold')
-Manager.AddPicture('xp+54 yp+25', 'DB\000\aok.png')
-Manager.AddText('xp-44 yp+40 cRed w120 Center', 'The Age of Kings').SetFont('Bold')
+Manager.AddPicture('xp+54 yp+25 BackgroundTrans', 'DB\000\aok.png')
+Manager.AddText('xp-44 yp+40 cRed w120 Center BackgroundTrans', 'The Age of Kings').SetFont('Bold')
 AoKCom := Manager.AddDropDownList('xp yp+20 w120')
 For Each, Compat in Compatibilities {
     AoKCom.Add([Compat[1]])
 }
 AoKCom.Choose(1)
 AoKCom.OnEvent("Change", (*) => AoKComReg())
-AoKRun := Manager.AddCheckbox('yp+30 wp hp', 'Run as administrator')
+AoKRun := Manager.AddCheckbox('yp+30 wp hp BackgroundECFFDA', 'Run as administrator')
 AoKRun.OnEvent("Click", (*) => AoKComReg())
 AoKComReg() {
     RegVal := Compatibilities[AoKCom.Value][2] (Compatibilities[AoKCom.Value][2] ? ' ' : '') (AoKRun.Value ? 'RUNASADMIN' : '')
@@ -363,15 +363,15 @@ AoKComReg() {
     RegWrite(RegVal, 'REG_SZ', Layers, ChosenFolder.Value '\empires2.exe')
 }
 
-Manager.AddPicture('xp+194 yp-90', 'DB\000\aoc.png')
-Manager.AddText('xp-44 yp+40 cBlue w120 Center', 'The Conquerors').SetFont('Bold')
+Manager.AddPicture('xp+194 yp-90 BackgroundTrans', 'DB\000\aoc.png')
+Manager.AddText('xp-44 yp+40 cBlue w120 Center BackgroundTrans', 'The Conquerors').SetFont('Bold')
 AoCCom := Manager.AddDropDownList('xp yp+20 w120')
 For Each, Compat in Compatibilities {
     AoCCom.Add([Compat[1]])
 }
 AoCCom.Choose(1)
 AoCCom.OnEvent("Change", (*) => AoCComReg())
-AoCRun := Manager.AddCheckbox('yp+30 wp hp', 'Run as administrator')
+AoCRun := Manager.AddCheckbox('yp+30 wp hp BackgroundECFFDA', 'Run as administrator')
 AoCRun.OnEvent("Click", (*) => AoCComReg())
 AoCComReg() {
     RegVal := Compatibilities[AoCCom.Value][2] (Compatibilities[AoCCom.Value][2] ? ' ' : '') (AoCRun.Value ? 'RUNASADMIN' : '')
@@ -384,15 +384,15 @@ AoCComReg() {
     RegWrite(RegVal, 'REG_SZ', Layers, ChosenFolder.Value '\age2_x1\age2_x1.exe')
 }
 
-Manager.AddPicture('xp+194 yp-90', 'DB\000\fe.png')
-Manager.AddText('xp-44 yp+40 cGreen w120 Center', 'Forgotten Empires').SetFont('Bold')
+Manager.AddPicture('xp+194 yp-90 BackgroundTrans', 'DB\000\fe.png')
+Manager.AddText('xp-44 yp+40 cGreen w120 Center BackgroundTrans', 'Forgotten Empires').SetFont('Bold')
 FOECom := Manager.AddDropDownList('xp yp+20 w120')
 For Each, Compat in Compatibilities {
     FOECom.Add([Compat[1]])
 }
 FOECom.Choose(1)
 FOECom.OnEvent("Change", (*) => FOEComReg())
-FOERun := Manager.AddCheckbox('yp+30 wp hp', 'Run as administrator')
+FOERun := Manager.AddCheckbox('yp+30 wp hp BackgroundECFFDA', 'Run as administrator')
 FOERun.OnEvent("Click", (*) => FOEComReg())
 FOEComReg() {
     RegVal := Compatibilities[FOECom.Value][2] (Compatibilities[FOECom.Value][2] ? ' ' : '') (FOERun.Value ? 'RUNASADMIN' : '')
@@ -405,11 +405,11 @@ FOEComReg() {
     RegWrite(RegVal, 'REG_SZ', Layers, ChosenFolder.Value '\age2_x1\age2_x2.exe')
 }
 
-_Language_ := Manager.AddGroupBox('xm yp-75 w220 h385 Center c7d00d1', '# Language')
+_Language_ := Manager.AddText('xm yp-75 w220 h385 Center c800000 BackgroundE8FFF4 Border', '# Languages')
 _Language_.SetFont('Bold')
 Manager.AddText('xp+10 yp w200 BackgroundTrans')
 Loop Files, 'DB\006\*', 'D' {
-    Handle := Manager.AddRadio('wp Center', A_LoopFileName)
+    Handle := Manager.AddRadio('wp Center BackgroundE8FFF4', A_LoopFileName)
     Handle.SetFont('Underline Bold')
     Handle.OnEvent('Click', ApplyLanguage)
     General['LNG'][A_LoopFileName] := Handle
@@ -424,12 +424,11 @@ ApplyLanguage(Ctrl, Info) {
     SoundPlay('DB\000\30 wololo.mp3')
     EnableLanguage()
 }
-_VisualMods_ := Manager.AddGroupBox('xm+230 yp-255 w220 h280 Center c7d00d1', '# Visual Mods')
+_VisualMods_ := Manager.AddText('xm+230 yp-255 w220 h280 Center c800000 BackgroundDCDCFF Border', '# Visual Mods')
 _VisualMods_.SetFont('Bold')
 Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
-VMList := Manager.AddListView('w200 h210 -E0x200 cBlue -Hdr Checked', ['Mod Name'])
+VMList := Manager.AddListView('w200 h210 -E0x200 -Hdr Checked BackgroundDCDCFF', ['Mod Name'])
 VMList.SetFont('Bold')
-VMList.ModifyCol(1, 'Center')
 Loop Files, 'DB\007\*', 'D' {
     VMList.Add(, A_LoopFileName)
 }
@@ -488,13 +487,42 @@ LoadVisualMod() {
 }
 
 _VisualMods_.GetPos(, &Y)
-_DataMods_ := Manager.AddGroupBox('xm+460 y' Y ' w220 h280 Center c7d00d1', '# Data Mods')
+_DataMods_ := Manager.AddText('xm+460 y' Y ' w220 h280 Center c800000 BackgroundF6EEFF Border', '# Data Mods')
 _DataMods_.SetFont('Bold')
 
-Manager.AddStatusBar(, Version)
-Manager.Show()
+AboutText := '| AGE OF EMPIRES II MANAGER ALL IN ONE, '
+           . 'AUTOHOTKEY BASED APP, '
+           . 'CREATED BY SMILE, '
+           . 'TOTALLY SECURE, '
+           . 'TESTED MANY TIMES, '
+           . 'BUT USE ON YOUR OWN RISK, '
+           . 'ANY FEEDBACK WILL BE HELPFUL, '
+           . 'MY EMAIL, '
+           . 'CHANDOUL.MOHAMED26@GMAIL.COM, '
+           . 'WEBSITE FOR THIS APP, '
+           . 'HTTPS://SMILEAOE.GITHUB.IO |'
+;About1 := Manager.AddText('x0 cYellow BackgroundBlack', AboutText)
+;About1.SetFont('Bold', 'Calibri')
+;About1.GetPos(&AX1,, &AW1)
+;About2 := Manager.AddText('xp-' AW1 ' yp cYellow BackgroundBlack', AboutText)
+;About2.SetFont('Bold', 'Calibri')
+;About2.GetPos(&AX2)
+SB := Manager.AddStatusBar('cRed')
+SB.SetFont('Bold', 'Calibri')
+SB.SetParts(10, 50, 200)
+SB.SetText('v' Version, 2)
+SB.SetText('Loading...', 3)
+SB.SetText(A_Tab A_Tab 'A Collective App From The Internet On What I Found Useful About AoE II!    ', 4)
+Manager.Show('w700')
 LoadCurrentSettings()
 __CheckForUpdates__()
+;AX := 0
+;SetTimer(AnimateAbout, 10)
+;AnimateAbout() {
+;    Global AX
+;    About1.Move(AX1 + (++AX))
+;    About2.Move(AX2 + AX)
+;}
 Return
 
 LoadCurrentSettings() {
@@ -541,7 +569,6 @@ LoadCurrentSettings() {
     CopyDefaultLanguage()
     EnableLanguage()
     EnableVisualMod()
-    
 }
 
 LoadAppliedVM() {
@@ -806,6 +833,7 @@ GameIsRunning() {
 EnableVisualMod() {
     _VisualMods_.Enabled := True
     VMList.Enabled := True
+    VMList.Redraw()
     LoadVM.Enabled := True
 }
 
@@ -1186,18 +1214,34 @@ __CheckForUpdates__() {
     If A_IsCompiled {
         Return
     }
-    LastVersion := GetTextFromLink(Server '/' User '/' Repo '/main/Version.txt')
-    LastVersion := StrReplace(LastVersion, '.')
-    If !IsDigit(LastVersion) {
-        Return
-    }
-    ThisVersion := StrReplace(Version, '.')
-    If LastVersion > ThisVersion {
-        Choice := MsgBox('New update of the script is available!, download it now?', 'Update', 0x4 + 0x20)
-        If Choice = 'Yes' {
-            LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20II%20Manager%20AIO.ahk')
-            FileOpen(A_ScriptName, 'w').Write(LastScript)
-            Reload
+    Try {
+        Hashsums := GetTextFromLink(Server '/' User '/' Repo '/main/Hashsums.ini')
+        FoundUpdates := []
+        If HashFile(A_ScriptName) != IniRead('Hashsums.ini', 'MD5', A_ScriptName, '') {
+            FoundUpdates.Push(A_ScriptName)
         }
+        Loop Files, 'DB\*7z*', 'R' {
+            If HashFile(A_LoopFileDir '\' A_LoopFileName) != IniRead('Hashsums.ini', 'MD5', A_LoopFileDir '\' A_LoopFileName, '') {
+                FoundUpdates.Push(A_ScriptName)
+            }
+        }
+        Msgbox FoundUpdates.Length
+        ;LastVersion := GetTextFromLink(Server '/' User '/' Repo '/main/Version.txt')
+        ;LastVersion := StrReplace(LastVersion, '.')
+        ;If !IsDigit(LastVersion) {
+        ;    Return
+        ;}
+        ;ThisVersion := StrReplace(Version, '.')
+        ;If LastVersion > ThisVersion {
+        ;    Choice := MsgBox('New update of the script is available!, download it now?', 'Update', 0x4 + 0x20)
+        ;    If Choice = 'Yes' {
+        ;        LastScript := GetTextFromLink(Server '/' User '/' Repo '/main/AoE%20II%20Manager%20AIO.ahk')
+        ;        FileOpen(A_ScriptName, 'w').Write(LastScript)
+        ;        Reload
+        ;    }
+        ;}
+        SB.SetText('Up to date!', 3)
+    } Catch As Err {
+        SB.SetText('Failed to check for updates!', 3)
     }
 }
