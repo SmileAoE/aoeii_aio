@@ -1244,7 +1244,7 @@ __CheckForUpdates__() {
                     Download(DownloadLink, UpdateFile)
                     If InStr(UpdateFile, '7z') {
                         Name := StrSplit(UpdateFile, '.')
-                        RunWait('DB\7za.exe x ' Name[1] '.7z.001 -oDB\' Name[1] ' -aoa', , 'Hide')
+                        RunWait('DB\7za.exe x ' Name[1] '.7z.001 -o' Name[1] ' -aoa', , 'Hide')
                     }
                 }
                 Reload
