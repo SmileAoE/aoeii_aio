@@ -1,10 +1,10 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.2'
+Version := '1.3'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -14,6 +14,10 @@ Task := 1
 TaskNumber := 12
 
 DrsTypes := Map('gra', 'graphics.drs', 'int', 'interfac.drs', 'ter', 'terrain.drs')
+DrsRange := Map('gra', [2, 5312], 'int', [50100, 53211], 'ter', [15000, 15031])
+IDL := 5
+VCodedSlp := '3713EFBE'
+NormalSlp := '322E304E'
 
 General := Map()
 
@@ -55,10 +59,10 @@ Try {
 
     ShowInfo() {
         Global Dots, Task
-        HoldOn.Text := PW '`n' ((Mod(++Dots, 4) = 0) ? '?'
-            : ((Mod(Dots, 4) = 1) ? '??'
-                : ((Mod(Dots, 4) = 2) ? '???'
-                    : '????')))
+        HoldOn.Text := PW '`n'  ((Mod(++Dots, 4) = 0) ? '●'
+                                : ((Mod(Dots, 4) = 1) ? '●●'
+                                : ((Mod(Dots, 4) = 2) ? '●●●'
+                                :                       '●●●●')))
         DoneSteps.Text := Task ' / ' TaskNumber ' of prepare steps (is/are) done'
     }
     SetTimer(ShowInfo, 500)
@@ -115,7 +119,7 @@ Try {
     }
     ++Task
     SetTimer(ShowInfo, 0)
-    Prepare.Destroy()
+    Prepare.Hide()
 } Catch As Err {
     MsgBox('There was an error while preparing the necessary files!', 'Oops!', '48')
     ; Run installation help page
@@ -434,9 +438,9 @@ Loop Files, 'DB\007\*', 'D' {
 }
 VMList.OnEvent('ItemCheck', ApplyVM)
 ApplyVM(Ctrl, Item, Checked) {
+    DisableVisualMod()
     VMName := VMList.GetText(Item)
     SlpDir := Checked ? 'DB\007\' VMName : 'DB\007\' VMName '\U'
-    VMList.Enabled := False
     RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['gra'] '" "' SlpDir '\gra*.slp"', , 'Hide')
     RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['int'] '" "' SlpDir '\int*.slp"', , 'Hide')
     RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['ter'] '" "' SlpDir '\ter*.slp"', , 'Hide')
@@ -452,36 +456,83 @@ ApplyVM(Ctrl, Item, Checked) {
         IniWrite(CheckedRows.Has(A_Index), Config, Hash, VMList.GetText(A_Index))
     }
     SoundPlay('DB\000\30 wololo.mp3')
-    VMList.Enabled := True
+    EnableVisualMod()
 }
 LoadVM := Manager.AddButton('wp', 'Load')
 LoadVM.SetFont('Bold')
 LoadVM.OnEvent('Click', (*) => LoadVisualMod())
 LoadVisualMod() {
-    LoadVM.Enabled := False
     If Selected := FileSelect('D') {
-        SplitPath(Selected, &OutFileName)
-        DirCreate('DB\007\' OutFileName '\U')
+        SplitPath(Selected, &ModeName)
+        If DirExist('DB\007\' ModeName) {
+            MsgBox(ModeName ' is already loaded!', ModeName, 0x30)
+            Return
+        }
+        DisableVisualMod()
+        DirCreate('DB\007\' ModeName '\U')
         Loop Files, Selected '\*.slp', 'R' {
             ID := SubStr(A_LoopFileName, 1, -4)
             If !IsDigit(ID) {
                 Continue
             }
-            If (ID < 6000) || ((ID >= 15000) && (ID <= 16000)) || ((ID >= 50000) && (ID <= 54000)) {
-                FileCopy(A_LoopFileFullPath, 'DB\007\' OutFileName '\' A_LoopFileName, 1)
-                RunWait('DB\000\vooblyslpdecode.exe "DB\007\' OutFileName '\' A_LoopFileName '" "DB\007\' OutFileName '\' A_LoopFileName '"', , 'Hide')
-                AddPrefix(['DB\007\' OutFileName '\' A_LoopFileName], 5)
+            LZID := Format("{:0" IDL "}", ID)
+            If ID >= DrsRange['gra'][1] && ID <= DrsRange['gra'][2] {
+                Name := 'gra' LZID '.slp'
+            }
+            If ID >= DrsRange['int'][1] && ID <= DrsRange['int'][2] {
+                Name := 'int' LZID '.slp'
+            }
+            If ID >= DrsRange['ter'][1] && ID <= DrsRange['ter'][2] {
+                Name := 'ter' LZID '.slp'
+            }
+            FileCopy(A_LoopFileFullPath, 'DB\007\' ModeName '\' Name, 1)
+            If !DecodeSlp('DB\007\' ModeName '\' Name) {
+                FileDelete('DB\007\' ModeName '\' Name)
             }
         }
-        Loop Files, 'DB\007\*.slp', 'R' {
-            If !InStr(A_LoopFileDir, '\U')
-                || InStr(A_LoopFileDir, OutFileName)
+        Loop Files, 'DB\007\U', 'DR' {
+            If InStr(A_LoopFileDir, ModeName) {
                 Continue
-            If FileExist('DB\007\' OutFileName '\' A_LoopFileName) {
-                FileCopy(A_LoopFileFullPath, 'DB\007\' OutFileName '\U\' A_LoopFileName, 1)
+            }
+            Loop Files, A_LoopFileDir '\U\*.slp' {
+                If FileExist('DB\007\' ModeName '\' A_LoopFileName) {
+                    FileCopy(A_LoopFileFullPath, 'DB\007\' ModeName '\U\' A_LoopFileName, 1)
+                }
             }
         }
-        BackUpOrgSlp(OutFileName)
+        Loop Files, 'DB\007\' ModeName '\*.slp' {
+            Flag := SubStr(A_LoopFileName, 1, 3)
+            If !FileExist('DB\007\' ModeName '\U\' A_LoopFileName) {
+                RunWait('DB\000\DrsBuild.exe /e "' ChosenFolder.Value '\Data\' DrsTypes[Flag] '" ' A_LoopFileName ' /o "DB\007\' ModeName '\U"', , 'Hide')
+            }
+        }
+        VMList.Add(, ModeName)
+        MsgBox(ModeName ' should be added to the list by now!', 'Info', 0x40)
+        EnableVisualMod()
+    }
+    DecodeSlp(FileName) {
+        F := FileRead(FileName, 'RAW m4')
+        H := ''
+        Loop 4 {
+            H .= Format('{:02X}', NumGet(F, A_Index - 1, 'UChar'))
+        }
+        If H = NormalSlp {
+            Return True
+        }
+        If H = VCodedSlp {
+            F := FileRead(FileName, 'RAW')
+            NF := Buffer(F.Size - 4)
+            Loop NF.Size {
+                Byte    := NumGet(F, (A_Index - 1) + 4, 'UChar')
+                Val     := (Byte - 17) ^ 0x23
+                UChar   := Val & 0xFF
+                NByte   := (0x20 * (Val) | (UChar >> 3))
+                NumPut('UChar', NByte, NF, A_Index - 1)
+            }
+            FileOpen(FileName, 'w').RawWrite(NF, NF.Size)
+            Return True
+        }
+        Return True
     }
     LoadVM.Enabled := True
 }
@@ -583,41 +634,6 @@ LoadAppliedVM() {
         For Each, Value in StrSplit(Values, '`n') {
             If StrSplit(Value, '=')[2]
                 VMList.Modify(Each, '+Check')
-        }
-    }
-}
-
-BackUpOrgSlp(VMName) {
-    Slps := []
-    Loop Files, 'DB\007\' VMName '\*.slp' {
-        Slps.Push(A_LoopFileFullPath)
-    }
-    Loop Files, 'DB\007\' VMName '\*.slp' {
-        Flag := SubStr(A_LoopFileName, 1, 3)
-        If !FileExist('DB\007\' VMName '\U\' A_LoopFileName) {
-            RunWait('DB\000\DrsBuild.exe /e "' ChosenFolder.Value '\Data\' DrsTypes[Flag] '" ' A_LoopFileName ' /o "DB\007\' VMName '\U"', , 'Hide')
-        }
-    }
-}
-
-AddPrefix(Slps, NL) {
-    For Each, Slp in Slps {
-        SplitPath(Slp, &OutFileName, &OutDir, , &OutNameNoExt)
-        ID := OutNameNoExt
-        If ID < 6000 {
-            Prefix := 'gra'
-        } Else If (ID >= 15000) && (ID <= 16000) {
-            Prefix := 'ter'
-        } Else If (ID >= 50000) && (ID <= 54000) {
-            Prefix := 'int'
-        } Else {
-            FileDelete(Slp)
-            Continue
-        }
-        If (Flag := SubStr(OutFileName, 1, 3)) != Prefix {
-            Loop (NL - StrLen(OutNameNoExt))
-                OutFileName := '0' OutFileName
-            FileMove(Slp, OutDir '\' Prefix OutFileName, 1)
         }
     }
 }
@@ -1210,7 +1226,7 @@ RemoveDuplications(Arr) {
 }
 
 __CheckForUpdates__() {
-    Global Version
+    Global Version, TaskNumber, Task
     If A_IsCompiled {
         Return
     }
@@ -1238,12 +1254,18 @@ __CheckForUpdates__() {
             }
             Choice := MsgBox('The following needs to be updated`n' UpdatesList '`nUpdate now?', 'Update', 0x4 + 0x20)
             If Choice = 'Yes' {
+                Task := 1
+                TaskNumber := FoundUpdates.Length
+                SetTimer(ShowInfo, 500)
+                Prepare.Show()
+                Manager.Hide()
                 For Each, UpdateFile in FoundUpdates {
-                    SB.SetText(UpdateFile ' - Updating...', 3)
+                    Task := Each
                     DownloadLink := Server '/' User '/' Repo '/main/' StrReplace(StrReplace(UpdateFile, ' ', '%20'), '\', '/')
                     Download(DownloadLink, UpdateFile)
                     If InStr(UpdateFile, '7z') {
                         Name := StrSplit(UpdateFile, '.')
+                        DirDelete(Name[1], 1)
                         RunWait('DB\7za.exe x ' Name[1] '.7z.001 -o' Name[1] ' -aoa', , 'Hide')
                     }
                 }
