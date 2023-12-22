@@ -1,10 +1,17 @@
 ﻿#Requires AutoHotkey v2.0
 #SingleInstance Force
 
+If !A_IsAdmin {
+    MsgBox("- This application is not being ran as administrator`n"
+         . "- This can cause an unexpected behaviour on using any of it's options`n"
+         . "- It is highly recommended that you run it as administrator"
+         , 'Warning', 0x30)
+}
+
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.3'
+Version := '1.4'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -30,7 +37,7 @@ General['AOC']['VersionsN'] := Map()
 General['AOC']['Combine'] := Map( '1.0e No CD', ['1.0c No CD']
                                 , '1.0e No CD', ['1.0c No CD']
                                 , '1.1  No CD', ['1.0c No CD']
-                                , '1.5  CD', ['1.0c No CD'])
+                                , '1.5  CD'   , ['1.0c No CD'])
 
 General['FOE'] := Map()
 General['FOE']['VersionsN'] := Map()
@@ -232,12 +239,15 @@ OpenTheGameFolder := Manager.AddButton('w200', 'Open')
 GuiButtonIcon(OpenTheGameFolder, 'DB\000\Folder.png', , 'W16 H16 T1 A1')
 OpenTheGameFolder.OnEvent('Click', (*) => Run(ChosenFolder.Value))
 SelectTheGame() {
-    ChosenDir := FileSelect('D')
+    SelectAFolder()
+    LoadCurrentSettings()
+}
+SelectAFolder() {
+    ChosenDir := FileSelect('D', 'C:\' (A_Is64bitOS ? 'Program Files (x86)' : 'Program Files') '\Microsoft Games')
     If !ChosenDir
         Return
     IniWrite(ChosenDir, Config, 'Game', 'Path')
     ChosenFolder.Value := ChosenDir
-    LoadCurrentSettings()
 }
 SelectTheGameFromGR() {
     TextFound := LoadGRSettingText()
@@ -262,13 +272,13 @@ SelectTheGameFromGR() {
     }
     FoundLocations := RemoveDuplications(FoundLocations)
     If FoundLocations.Length > 1 {
-        Location := Gui('ToolWindow', 'Pick one location')
+        Location := Gui(, 'Pick one location')
         Location.OnEvent('Close', (*) => DoNothing())
         DoNothing() {
             Location.Destroy()
             Return
         }
-        Location.AddText('Center r3 w350 cRed', 'Different locations were found for Age of Empires II game`nPlease pick only one`n').SetFont('Bold')
+        Location.AddText('Center r4 w350 cRed', 'Different locations were found for Age of Empires II game in GameRanger setting`n`nPlease pick only one`n').SetFont('Bold')
         For Locatio in FoundLocations {
             Location.AddRadio('wp Center', Locatio).OnEvent('Click', SetLocation)
         }
@@ -341,8 +351,18 @@ ApplyVersion(Ctrl, Info) {
     SoundPlay('DB\000\30 wololo.mp3')
 }
 
-Patch := Manager.AddCheckbox('BackgroundFFFFE0 xm+240 ym+200' (IniRead(Config, 'Game', 'Fix', 1) ? ' Checked' : ''), 'Enable fixs after each patching if available')
-Patch.OnEvent('Click', (*) => IniWrite(Patch.Value, Config, 'Game', 'Fix'))
+Patch := Manager.AddDropDownList('xm+240 ym+195 w430', ['Do Not Enable Fixes'])
+Patch.OnEvent('Change', (*) => IniWrite(Patch.Text, Config, 'Game', 'Fix'))
+LoadEnableFixes()
+LoadEnableFixes() {
+    Loop Files, 'DB\001\*', 'D' {
+        Patch.Add([A_loopFileName])
+    }
+    Patch.Choose('Do Not Enable Fixes')
+    If DirExist('DB\001\' Fix := IniRead(Config, 'Game', 'Fix', 'Do Not Enable Fixes')) {
+        Patch.Choose(Fix)
+    }
+}
 
 _Compatibility_ := Manager.AddText('xm+230 ym+225 w450 h140 Center c800000 BackgroundECFFDA Border', '# Compatibilities')
 _Compatibility_.SetFont('Bold')
@@ -577,32 +597,56 @@ __CheckForUpdates__()
 Return
 
 LoadCurrentSettings() {
-    If !DirExist(GameFolder := IniRead(Config, 'Game', 'Path', '')) {
-        Return
-    }
-    ChosenFolder.Value := GameFolder
     DisableGameRun()
     DisableVersions()
     DisableCompatibilitys()
     DisableLanguage()
     DisableVisualMod()
-    If !FileExist(ChosenFolder.Value '\empires2.exe') {
-        Expected := ChosenFolder.Value
-        Loop Files, Expected '\empires2.exe', 'R' {
-            ChosenFolder.Value := A_LoopFileDir
-            Break
-        }
-        If !FileExist(ChosenFolder.Value '\empires2.exe') {
-            SplitPath(Expected,, &Expected)
-            If !FileExist(Expected '\empires2.exe') {
-                Return
-            }
+    ChosenFolder.Value := IniRead(Config, 'Game', 'Path', '')
+    If !ValidGameLocation(ChosenFolder.Value) {
+        SplitPath(ChosenFolder.Value,, &Expected)
+        If FileExist(Expected '\empires2.exe') {
             ChosenFolder.Value := Expected
+            IniWrite(ChosenFolder.Value, Config, 'Game', 'Path')
         }
+    }
+    If !ValidGameLocation(ChosenFolder.Value) {
+        Loop Files, ChosenFolder.Value '\*', 'D' {
+            If FileExist(ChosenFolder.Value '\' A_LoopFileName '\empires2.exe') {
+                ChosenFolder.Value := ChosenFolder.Value '\' A_LoopFileName
+                IniWrite(ChosenFolder.Value, Config, 'Game', 'Path')
+                Break
+            }
+        }
+    }
+    If !ValidGameLocation(ChosenFolder.Value) {
+        SelectAFolder()
+    }
+    If !ValidGameLocation(ChosenFolder.Value) {
+        SplitPath(ChosenFolder.Value,,,,, &Drive)
+        If Drive != '' {
+            Choice := MsgBox('Game location not found!`n`nWant to launch a search in the current drive?', 'Game', 0x4 + 0x20)
+            If Choice = 'Yes' {
+                Loop Files, Drive '\empires2.exe', 'R' {
+                    If !ValidGameLocation(A_LoopFileDir)
+                        Continue
+                    ChosenFolder.Value := A_LoopFileDir
+                    IniWrite(ChosenFolder.Value, Config, 'Game', 'Path')
+                    Break
+                }
+            }
+        }
+    }
+    If !ValidGameLocation(ChosenFolder.Value) {
+        SelectTheGameFromGR()
+    }
+    If !ValidGameLocation(ChosenFolder.Value) {
+        Return
     }
     EnableAOKVersion()
     EnableAOKRun()
     EnableAOKCompatibility()
+    FixCommonIssues()
     If FileExist(ChosenFolder.Value '\age2_x1\age2_x1.exe') {
         EnableAOCVersion()
         EnableAOCRun()
@@ -727,21 +771,37 @@ CopyDefaultLanguage() {
 }
 
 SetVersion(Version) {
-    If General['AOC']['Combine'].Has(Version) {
-        For Each, pVersion in General['AOC']['Combine'][Version] {
-            DirCopy('DB\002\' pVersion, ChosenFolder.Value, 1)
+    Try {
+        If General['AOC']['Combine'].Has(Version) {
+            For Each, pVersion in General['AOC']['Combine'][Version] {
+                DirCopy('DB\002\' pVersion, ChosenFolder.Value, 1)
+            }
         }
-    }
-    If General['AOK']['Combine'].Has(Version) {
-        For Each, pVersion in General['AOK']['Combine'][Version] {
-            DirCopy('DB\002\' pVersion, ChosenFolder.Value, 1)
+        If General['AOK']['Combine'].Has(Version) {
+            For Each, pVersion in General['AOK']['Combine'][Version] {
+                DirCopy('DB\002\' pVersion, ChosenFolder.Value, 1)
+            }
         }
-    }
-    DirCopy('DB\002\' Version, ChosenFolder.Value, 1)
-    If (Patch.Value) {
-        If DirExist('DB\001\' Version) {
-            DirCopy('DB\001\' Version, ChosenFolder.Value, 1)
+        DirCopy('DB\002\' Version, ChosenFolder.Value, 1)
+        If Patch.Value = 1 {
+            Return
         }
+        DirCopy('DB\001\' Patch.Text '\Static' , ChosenFolder.Value, 1)
+        If DirExist('DB\001\' Patch.Text '\' Version) {
+            DirCopy('DB\001\' Patch.Text '\' Version, ChosenFolder.Value, 1)
+            If InStr(Patch.Text, 'v2') {
+                RegWrite(2, 'REG_DWORD', 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Microsoft Games\Age of Empires', 'Aoe2Patch')
+            }
+        }
+    } Catch As Err {
+        MsgBox('Version change is failed!, please make sure the following:`n`n'
+             . '1 - This application is running as adminitrator`n'
+             . '2 - Game is not running`n'
+             . '3 - Game file(s) (is/are) not used by another process (GameRanger.exe)`n'
+             . '4 - In case the game file(s) (is/are) used by another process (GameRanger.exe), close that process`n'
+             . '5 - Try again'
+             , 'Error'
+             , 0x10)
     }
 }
 
@@ -757,16 +817,21 @@ CleanUp(Patch) {
             }
         }
     }
-    Loop Files, 'DB\001\' Edition '*', 'D' {
-        Version := A_LoopFileName
-        Loop Files, 'DB\001\' Version '\*.*', 'R' {
-            PatchFile := A_LoopFileDir '\' A_LoopFileName
-            GameFile := ChosenFolder.Value StrReplace(PatchFile, 'DB\001\' Version)
-            If FileExist(GameFile) {
-                FileDelete(GameFile)
+    Loop Files, 'DB\001\*', 'D' {
+        Fix := A_LoopFileName
+        Loop Files, 'DB\001\' Fix '\' Edition '*', 'D' {
+            Version := A_LoopFileName
+            Loop Files, 'DB\001\' Fix '\' Version '\*.*', 'R' {
+                PatchFile := A_LoopFileDir '\' A_LoopFileName
+                GameFile := ChosenFolder.Value StrReplace(PatchFile, 'DB\001\' Fix '\' Version)
+                If FileExist(GameFile) {
+                    FileDelete(GameFile)
+                }
             }
         }
     }
+    If RegRead('HKEY_CURRENT_USER\SOFTWARE\Microsoft\Microsoft Games\Age of Empires', 'Aoe2Patch', '')
+        RegDelete('HKEY_CURRENT_USER\SOFTWARE\Microsoft\Microsoft Games\Age of Empires', 'Aoe2Patch')
 }
 
 LanguageLoad() {
@@ -797,9 +862,9 @@ LanguageLoad() {
 }
 
 VersionsLoad() {
+    FoundVersions := 0
     Loop Files, 'DB\002\*', 'D' {
         Version := A_LoopFileName
-        Found := True
         CountedFiles := 0
         EqualHashCount := 0
         Loop Files, 'DB\002\' Version '\*.*', 'R' {
@@ -815,9 +880,22 @@ VersionsLoad() {
         If CountedFiles = EqualHashCount {
             Flag := SubStr(Version, 1, 1)
             Switch Flag {
-                Case 1: General['AOC']['VersionsN'][Version].Value := 1
-                Case 2: General['AOK']['VersionsN'][Version].Value := 1
+                Case 1: 
+                    General['AOC']['VersionsN'][Version].Value := 1
+                    ++FoundVersions
+                Case 2: 
+                    General['AOK']['VersionsN'][Version].Value := 1
+                    ++FoundVersions
             }
+        }
+    }
+    If FoundVersions < 2 {
+        Choice := MsgBox('Unable to find out the game version(s)`nWould you like to apply the defaults?', 'Info', 0x4 + 0x20)
+        If Choice = 'Yes' {
+            General['AOK']['VersionsN']['2.0  CD'].Value := 1
+            SetVersion('2.0  CD')
+            General['AOC']['VersionsN']['1.0  CD'].Value := 1
+            SetVersion('1.0  CD')
         }
     }
 }
@@ -1094,6 +1172,10 @@ HashFile(filePath, hashType := 2) {
         default: throw ValueError('Invalid hashType', -1, hashType)
     }
 
+    If !FileExist(filePath) {
+        Return
+    }
+
     f := FileOpen(filePath, "r")
     f.Pos := 0 ; Rewind in case of BOM.
 
@@ -1277,5 +1359,21 @@ __CheckForUpdates__() {
         }
     } Catch As Err {
         SB.SetText('Failed to check for updates!', 3)
+    }
+}
+
+ValidGameLocation(Location) {
+    Return FileExist(Location '\empires2.exe')
+        && FileExist(Location '\language.dll')
+        && FileExist(Location '\Data\graphics.drs')
+        && FileExist(Location '\Data\interfac.drs')
+        && FileExist(Location '\Data\terrain.drs')
+}
+FixCommonIssues() {
+    If FileExist(ChosenFolder.Value '\age2_x1.exe') {
+        If !DirExist(ChosenFolder.Value '\age2_x1') {
+            DirCreate(ChosenFolder.Value '\age2_x1')
+        }
+        FileMove(ChosenFolder.Value '\age2_x1.exe', ChosenFolder.Value '\age2_x1', 1)
     }
 }
