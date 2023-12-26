@@ -1,5 +1,6 @@
 ﻿#Requires AutoHotkey v2
 #SingleInstance Force
+CoordMode('Mouse', 'Screen')
 
 If !A_IsAdmin {
     MsgBox("- This application is not being ran as administrator`n"
@@ -11,7 +12,7 @@ If !A_IsAdmin {
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.6'
+Version := '1.7'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -429,6 +430,11 @@ ApplyLanguage(Ctrl, Info) {
     EnableLanguage()
     SoundPlay('DB\000\30 wololo.mp3')
 }
+ModePic := Gui('-Caption AlwaysOnTop')
+ModePic.MarginX := 3
+ModePic.MarginY := 3
+ModePic.BackColor := 0x000000
+ModeThumb := ModePic.AddPicture('w150 h113')
 _VisualMods_ := Manager.AddText('xm+230 yp-255 w220 h280 Center c800000 BackgroundFFFFFF Border', '# Visual Mods')
 _VisualMods_.SetFont('Bold')
 Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
@@ -436,6 +442,39 @@ VMList := Manager.AddListView('w200 h210 -E0x200 -Hdr Checked BackgroundFFFFFF',
 VMList.SetFont('Bold')
 Loop Files, 'DB\007\*', 'D' {
     VMList.Add(, A_LoopFileName)
+}
+VMList.OnEvent('ItemSelect', ShowModePic)
+ShowModePic(Ctrl, Item, Selected) {
+
+    SetTimer(Follow, 0)
+    VMName := VMList.GetText(Item)
+    Try {
+        Size := imgSize('DB\007\' VMName '\Mode.pic')
+        W := Size.w
+        H := Size.h
+    } Catch As Err {
+        Dummy := Gui()
+        Pic := Dummy.AddPicture(, 'DB\007\' VMName '\Mode.pic')
+        Pic.GetPos(,, &W, &H)
+        Dummy.Destroy()
+    }
+    MouseGetPos(&X, &Y)
+
+    ModeThumb.Move(,, W, H)
+    ModeThumb.Value := 'DB\007\' VMName '\Mode.pic'
+    ModePic.Show('NA x' X + 10 ' y' Y + 5 ' w' W + 6 ' h' H + 6)
+    Show := True
+    SetTimer(Follow, 50)
+    Follow() {
+        MouseGetPos(&X, &Y,, &Ctrl)
+        If Ctrl != 'SysListView321' {
+            SetTimer(Follow, 0)
+            ModePic.Hide()
+            Show := False
+        }
+        If Show
+            ModePic.Show('NA x' X + 10 ' y' Y + 5)
+    }
 }
 VMList.OnEvent('ItemCheck', ApplyVM)
 ApplyVM(Ctrl, Item, Checked) {
@@ -515,48 +554,48 @@ LoadVisualMod() {
 }
 
 _VisualMods_.GetPos(, &Y)
-_DataMods_ := Manager.AddText('xm+460 y' Y ' w220 h280 Center c800000 BackgroundFFFFFF Border', '# Data Mods')
+_DataMods_ := Manager.AddText('xm+460 y' Y ' w220 h280 Center c800000 BackgroundFFFFFF Border', '# Data Mods`n`n(Comming Soon)')
 _DataMods_.SetFont('Bold')
 
-_ATools_ := Manager.AddText('ym w220 h650 Center c800000 BackgroundFFFFFF Border', '# Other Tools')
+_ATools_ := Manager.AddText('ym w220 h650 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n(Comming Soon)')
 _ATools_.SetFont('Bold')
 
-Manager.AddText('xp+10 yp+20 cBlue w220', '1 - Hide All IP [VPN]').SetFont('Bold')
-VPN := Manager.AddButton('w56 h56')
-VPN.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-GuiButtonIcon(VPN, 'DB\000\vpn.png',, 'W48 H48')
-ClearVPNReg := Manager.AddButton('xp+65 yp+2 w130', 'Reset Trial')
-ClearVPNReg.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-VPNCompat := Manager.AddDropDownList('w130')
-
-Manager.AddText('xp-65 yp+40 cBlue w200', '2 - Shortcuts/Keys Remapper').SetFont('Bold')
-KRemap := Manager.AddButton('wp', 'Create/Modify')
-KRemap.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-
-Manager.AddText('yp+40 cBlue w200', '3 - Repair Game Files').SetFont('Bold')
-RepairGame := Manager.AddButton('wp', 'Repair')
-RepairGame.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-
-Manager.AddText('yp+40 cBlue w200', '4 - Repair Record Files (.mgz)').SetFont('Bold')
-FixMgz := Manager.AddButton('wp', 'Repair')
-FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-
-Manager.AddText('yp+40 cBlue w200', '5 - Scenario Files Select').SetFont('Bold')
-FixMgz := Manager.AddButton('wp', 'Select')
-FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
+;Manager.AddText('xp+10 yp+20 cBlue w200 BackgroundTrans Center', '1 - Hide All IP [VPN]').SetFont('Bold')
+;VPN := Manager.AddButton('w56 h56')
+;VPN.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
+;GuiButtonIcon(VPN, 'DB\000\vpn.png',, 'W48 H48')
+;ClearVPNReg := Manager.AddButton('xp+65 yp+2 w130', 'Reset Trial')
+;ClearVPNReg.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
+;VPNCompat := Manager.AddDropDownList('w130')
+;
+;Manager.AddText('xp-65 yp+40 cBlue w200 BackgroundTrans Center', '2 - Shortcuts/Keys Remapper').SetFont('Bold')
+;KRemap := Manager.AddButton('wp', 'Create/Modify')
+;KRemap.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
+;
+;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '3 - Repair Game Files').SetFont('Bold')
+;RepairGame := Manager.AddButton('wp', 'Repair')
+;RepairGame.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
+;
+;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '4 - Repair Record Files (.mgz)').SetFont('Bold')
+;FixMgz := Manager.AddButton('wp', 'Repair')
+;FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
+;
+;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '5 - Scenario Files Select').SetFont('Bold')
+;FixMgz := Manager.AddButton('wp', 'Select')
+;FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
 
 AboutText := ''
-. '| AGE OF EMPIRES II MANAGER ALL IN ONE, '
-. 'AUTOHOTKEY BASED APP, '
-. 'CREATED BY SMILE, '
-. 'TOTALLY SECURE, '
-. 'TESTED MANY TIMES, '
-. 'BUT USE ON YOUR OWN RISK, '
-. 'ANY FEEDBACK WILL BE HELPFUL, '
-. 'MY EMAIL, '
-. 'CHANDOUL.MOHAMED26@GMAIL.COM, '
-. 'WEBSITE FOR THIS APP, '
-. 'HTTPS://SMILEAOE.GITHUB.IO |'
+           . '| AGE OF EMPIRES II MANAGER ALL IN ONE, '
+           . 'AUTOHOTKEY BASED APP, '
+           . 'CREATED BY SMILE, '
+           . 'TOTALLY SECURE, '
+           . 'TESTED MANY TIMES, '
+           . 'BUT USE ON YOUR OWN RISK, '
+           . 'ANY FEEDBACK WILL BE HELPFUL, '
+           . 'MY EMAIL, '
+           . 'CHANDOUL.MOHAMED26@GMAIL.COM, '
+           . 'WEBSITE FOR THIS APP, '
+           . 'HTTPS://SMILEAOE.GITHUB.IO |'
 
 SB := Manager.AddStatusBar()
 SB.SetFont('Bold', 'Calibri')
@@ -639,6 +678,15 @@ LoadCurrentSettings(Browse := False) {
     EnableLanguage()
     EnableVisualMod()
     LoadEnableFixes()
+}
+imgSize(img) { ; https://www.autohotkey.com/boards/viewtopic.php?f=76&t=81665
+    ; Returns an array indicating the image's width (w) and height (h), obtained from the file's properties
+    SplitPath img, &fn, &dir
+    (dir = '' && dir := A_WorkingDir)
+    objShell := ComObject("Shell.Application")
+    objFolder := objShell.NameSpace(dir), objFolderItem := objFolder.ParseName(fn)
+    scale := StrSplit(RegExReplace(objFolder.GetDetailsOf(objFolderItem, 31), ".(.+).", "$1"), " x ")
+    Return { w: scale[1], h: scale[2] }
 }
 LoadAppliedVM() {
     VMList.Enabled := True
