@@ -62,7 +62,8 @@ BasePackages := ['DB/7za.exe'
                , 'DB/001.7z.001'
                , 'DB/002.7z.001'
                , 'DB/006.7z.001'
-               , 'DB/007.7z.001']
+               , 'DB/007.7z.001'
+               , 'DB/008.7z.001']
 Dots := 0
 Task := 1
 TaskNumber := BasePackages.Length
