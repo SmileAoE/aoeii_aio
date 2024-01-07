@@ -22,6 +22,8 @@ DrsRange := Map('gra', [2, 5312], 'int', [50100, 53211], 'ter', [15000, 15031])
 IDL := 5
 VCodedSlp := '3713EFBE'
 NormalSlp := '322E304E'
+DataModesLng := Map('es', 'Spanish'
+                  , 'en', 'English')
 
 SysDrive := EnvGet('SystemDrive')
 ;ProgramFilesDir := EnvGet(A_Is64bitOS ? "ProgramW6432" : "ProgramFiles")
@@ -438,14 +440,13 @@ ModeThumb := ModePic.AddPicture('w150 h113')
 _VisualMods_ := Manager.AddText('xm+230 yp-255 w220 h280 Center c800000 BackgroundFFFFFF Border', '# Visual Mods')
 _VisualMods_.SetFont('Bold')
 Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
-VMList := Manager.AddListView('w200 h210 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mod Name'])
+VMList := Manager.AddListView('w200 h210 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
 VMList.SetFont('Bold')
 Loop Files, 'DB\007\*', 'D' {
     VMList.Add(, A_LoopFileName)
 }
 VMList.OnEvent('ItemSelect', ShowModePic)
 ShowModePic(Ctrl, Item, Selected) {
-
     SetTimer(Follow, 0)
     VMName := VMList.GetText(Item)
     Try {
@@ -459,7 +460,6 @@ ShowModePic(Ctrl, Item, Selected) {
         Dummy.Destroy()
     }
     MouseGetPos(&X, &Y)
-
     ModeThumb.Move(,, W, H)
     ModeThumb.Value := 'DB\007\' VMName '\Mode.pic'
     ModePic.Show('NA x' X + 10 ' y' Y + 5 ' w' W + 6 ' h' H + 6)
@@ -498,14 +498,15 @@ ApplyVM(Ctrl, Item, Checked) {
     EnableVisualMod()
     SoundPlay('DB\000\30 wololo.mp3')
 }
-LoadVM := Manager.AddButton('wp', 'Load')
+LoadVM := Manager.AddButton('wp', 'Import')
 LoadVM.SetFont('Bold')
-LoadVM.OnEvent('Click', (*) => LoadVisualMod())
-LoadVisualMod() {
+LoadVM.OnEvent('Click', (*) => ImportVisualMod())
+ImportVisualMod() {
+    MsgBox('Make sure the visual mod you select is compatible with your game!', 'Notice', 0x40)
     If Selected := FileSelect('D') {
         SplitPath(Selected, &ModeName)
         If DirExist('DB\007\' ModeName) {
-            MsgBox(ModeName ' is already loaded!', ModeName, 0x30)
+            MsgBox(ModeName ' is already imported!', ModeName, 0x30)
             Return
         }
         DisableVisualMod()
@@ -554,12 +555,119 @@ LoadVisualMod() {
 }
 
 _VisualMods_.GetPos(, &Y)
-_DataMods_ := Manager.AddText('xm+460 y' Y ' w220 h280 Center c800000 BackgroundFFFFFF Border', '# Data Mods`n`n(Comming Soon)')
-_DataMods_.SetFont('Bold')
+_DataModes_ := Manager.AddText('xm+460 y' Y ' w220 h280 Center c800000 BackgroundFFFFFF Border', '# Data Mods')
+_DataModes_.SetFont('Bold')
+Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
+DMList := Manager.AddListView('w200 h210 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+DMList.SetFont('Bold')
+For Each, Mode in StrSplit(IniRead('DB\008\DataMode.ini', 'DataMode',, ''), '`n') {
+    DMList.Add(, StrSplit(Mode, '=')[1])
+}
+DMList.OnEvent('ItemCheck', ApplyDM)
+ApplyDM(Ctrl, Item, Checked) {
+    DMName := DMList.GetText(Item)
+    If (Checked) {
+        DisableDataModes()
+        ModeDir := IniRead('DB\008\DataMode.ini', 'DataMode', DMName, '')
+        ModeDir := StrSplit(ModeDir, '|')
+        Parts := StrSplit(ModeDir[2], ',')
+        For Each, Part in Parts {
+            If !FileExist('DB\' ModeDir[1] '.7z.' Part) {
+                Download(Server '/' User '/' Repo '/main/DB/' ModeDir[1] '.7z.' Part, 'DB\' ModeDir[1] '.7z.' Part)
+            }
+        }
+        If !DirExist('DB\' ModeDir[1]) {
+            RunWait('DB\7za.exe x ' 'DB\' ModeDir[1] '.7z.001 -oDB\' ModeDir[1], , 'Hide')
+        }
+        SetVersion('1.5  CD')
+        If !DirExist(ChosenFolder.Value '\Games') {
+            DirCreate(ChosenFolder.Value '\Games')
+        }
+        If !DirExist(ChosenFolder.Value '\Games\' DMName)
+            DirCopy('DB\' ModeDir[1], ChosenFolder.Value '\Games', 1)
+        FileCopy('DB\' ModeDir[1] '\age2_x1.xml', ChosenFolder.Value '\Games\age2_x1.xml', 1)
+        EnableDataModes()
+    } Else If FileExist(ChosenFolder.Value '\Games\age2_x1.xml') {
+        FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
+    }
+}
+VMDM := Gui(, 'Customize')
+VMDMTitle := VMDM.AddText('w220 h280 Center c800000 BackgroundFFFFFF Border', '# Mode Name')
+VMDMTitle.SetFont('Bold')
+VMDM.AddText('xp+10 yp+10 w200 BackgroundTrans')
+VMDMList := VMDM.AddListView('w200 h240 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+VMDMList.SetFont('Bold')
+Loop Files, 'DB\007\*', 'D' {
+    VMDMList.Add(, A_LoopFileName)
+}
+DMList.OnEvent('DoubleClick', ShowVMDMList)
+ShowVMDMList(Ctrl, Item) {
+    DMName := DMList.GetText(Item)
+    VMDMTitle.Text := DMName
+    VMDM.Show()
+}
+VMDMList.OnEvent('ItemCheck', ApplyVMDM)
+ApplyVMDM(Ctrl, Item, Checked) {
+    DisableVisualDataMod()
+    VMName := VMList.GetText(Item)
+    SlpDir := Checked ? 'DB\007\' VMName : 'DB\007\' VMName '\U'
+    RunWait(A_Clipboard := 'DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Games\' VMDMTitle.Text '\Data\gamedata_x1_p1.drs" "' SlpDir '\gra*.slp"', , 'Hide')
+    EnableVisualDataMod()
+    SoundPlay('DB\000\30 wololo.mp3')
+}
+
+ImportDM := Manager.AddButton('wp', 'Import')
+ImportDM.SetFont('Bold')
+ImportDM.OnEvent('Click', (*) => ImportDataMode())
+ImportDataMode() {
+    If Selected := FileSelect('D') {
+        SplitPath(Selected, &ModeName)
+        If IniRead('DB\008\DataMode.ini', 'DataMode', ModeName, '') {
+            MsgBox(ModeName ' is already imported!', ModeName, 0x30)
+            Return
+        }
+        If !DID := AfterLastDBDir()
+            Return
+        Dir := 'DB\' DID
+        If FileExist('.gitignore') {
+            FileAppend('`n' Dir '/', '.gitignore')
+        }
+        DirCreate(Dir '\' ModeName)
+        If !FileExist(Selected '\age2_x1.xml') {
+            MsgBox('Unable to find the "age2_x1.xml"!', 'Import failed!', 0x30)
+            Return
+        }
+        DisableDataModes()
+        DirCopy(Selected, Dir '\' ModeName, 1)
+        If DirExist(Dir '\' ModeName '\Drs') {
+            Loop Files, Dir '\' ModeName '\Drs\*.*', 'R' {
+                ID := SubStr(A_LoopFileName, 1, -4)
+                If !IsDigit(ID) {
+                    Continue
+                }
+                LZID := 'gam' Format("{:0" IDL "}", ID)
+                FileMove(A_LoopFileFullPath,  Dir '\' ModeName '\Drs\' LZID '.' A_LoopFileExt)
+            }
+            RunWait('DB\000\DrsBuild.exe /a "' Dir '\' ModeName '\Data\gamedata_x1_p1.drs" "'  Dir '\' ModeName '\Drs\gam*.*"',, 'Hide')
+            DirDelete(Dir '\' ModeName '\Drs', 1)
+        }
+        FileMove(Dir '\' ModeName '\age2_x1.xml', Dir '\age2_x1.xml')
+        DirCreate(Dir '\' ModeName '\mmods')
+        FileCopy('DB\000\aoc-language-ini.dll', Dir '\' ModeName '\mmods\aoc-language-ini.dll')
+        FileCopy('DB\000\language_x1_p1.dll', Dir '\' ModeName '\Data\language_x1_p1.dll')
+        For Each, Wildcard in ['*.mgz', '*.msz', '*.scx', '*.nfz', '*.bmp', '*.png'] {
+            Loop Files, Dir '\' ModeName '\' Wildcard, 'R' {
+                FileDelete(A_LoopFileFullPath)
+            }
+        }
+        IniWrite(DID, 'DB\008\DataMode.ini', 'DataMode', ModeName)
+        EnableDataModes()
+    }
+}
 
 _ATools_ := Manager.AddText('ym w220 h650 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n(Comming Soon)')
 _ATools_.SetFont('Bold')
-
+Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
 ;Manager.AddText('xp+10 yp+20 cBlue w200 BackgroundTrans Center', '1 - Hide All IP [VPN]').SetFont('Bold')
 ;VPN := Manager.AddButton('w56 h56')
 ;VPN.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
@@ -678,6 +786,21 @@ LoadCurrentSettings(Browse := False) {
     EnableLanguage()
     EnableVisualMod()
     LoadEnableFixes()
+}
+AfterLastDBDir() {
+    Loop 100 {
+        DID := Format('{:03}', A_Index)
+        If !DirExist('DB\' DID) {
+            Return DID
+        }
+    }
+    Return 0
+}
+LoadDataMods() {
+    Names := IniRead('DB\008\DataMods.ini', 'DataMods',, '')
+    For Each, Mod in StrSplit(Names, '`n') {
+
+    }
 }
 imgSize(img) { ; https://www.autohotkey.com/boards/viewtopic.php?f=76&t=81665
     ; Returns an array indicating the image's width (w) and height (h), obtained from the file's properties
@@ -1197,6 +1320,13 @@ GameSectionNormalView() {
     ProgressBar.Visible := False
     ProgressInfo.Visible := False
 }
+DisableVisualDataMod() {
+    VMDMList.Enabled := False
+}
+EnableVisualDataMod() {
+    VMDMList.Enabled := True
+    VMDMList.Redraw()
+}
 DisableVisualMod() {
     VMList.Enabled := False
     LoadVM.Enabled := False
@@ -1205,6 +1335,24 @@ EnableVisualMod() {
     VMList.Enabled := True
     VMList.Redraw()
     LoadVM.Enabled := True
+}
+DisableDataModes() {
+    _DataModes_.GetPos(&X, &Y, &Width, &Height)
+    For Each, Control in Manager {
+        Control.GetPos(&CX, &CY)
+        If (CX > X && CX < (X + (Width / 3))) && (CY > Y && CY < (Y + Height)) {
+            Control.Enabled := False
+        }
+    }
+}
+EnableDataModes() {
+    _DataModes_.GetPos(&X, &Y, &Width, &Height)
+    For Each, Control in Manager {
+        Control.GetPos(&CX, &CY)
+        If (CX > X && CX < (X + Width)) && (CY > Y && CY < (Y + Height)) {
+            Control.Enabled := True
+        }
+    }
 }
 DisableLanguage() {
     _Language_.GetPos(&X, &Y, &Width, &Height)
