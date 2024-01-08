@@ -567,30 +567,49 @@ For Each, Mode in StrSplit(IniRead('DB\008\DataMode.ini', 'DataMode',, ''), '`n'
 DMList.OnEvent('ItemCheck', ApplyDM)
 ApplyDM(Ctrl, Item, Checked) {
     DMName := DMList.GetText(Item)
+    DisableDataModes()
     If (Checked) {
-        DisableDataModes()
         ModeDir := IniRead('DB\008\DataMode.ini', 'DataMode', DMName, '')
         ModeDir := StrSplit(ModeDir, '|')
-        Parts := StrSplit(ModeDir[2], ',')
-        For Each, Part in Parts {
-            If !FileExist('DB\' ModeDir[1] '.7z.' Part) {
-                Download(Server '/' User '/' Repo '/main/DB/' ModeDir[1] '.7z.' Part, 'DB\' ModeDir[1] '.7z.' Part)
+        Progress.Value := 0
+        Progress.Opt('Range1-7')
+        If ModeDir.Length = 2 {
+            Parts := StrSplit(ModeDir[2], ',')
+            Progress.Opt('Range1-' 7 + Parts.Length)
+            SetProgress(1, 'Downloading...')
+            For Each, Part in Parts {
+                SetProgress(1, 'Downloading - ' ModeDir[1] '.7z.' Part)
+                If !FileExist('DB\' ModeDir[1] '.7z.' Part) {
+                    Download(Server '/' User '/' Repo '/main/DB/' ModeDir[1] '.7z.' Part, 'DB\' ModeDir[1] '.7z.' Part)
+                }
+            }
+            SetProgress(1, 'Exporting...')
+            If !DirExist('DB\' ModeDir[1]) {
+                RunWait('DB\7za.exe x ' 'DB\' ModeDir[1] '.7z.001 -oDB\' ModeDir[1], , 'Hide')
             }
         }
-        If !DirExist('DB\' ModeDir[1]) {
-            RunWait('DB\7za.exe x ' 'DB\' ModeDir[1] '.7z.001 -oDB\' ModeDir[1], , 'Hide')
-        }
+        SetProgress(1, 'Applying 1.5 CD version...')
         SetVersion('1.5  CD')
         If !DirExist(ChosenFolder.Value '\Games') {
             DirCreate(ChosenFolder.Value '\Games')
         }
-        If !DirExist(ChosenFolder.Value '\Games\' DMName)
+        UpdatedVersion := StrReplace(Trim(FileRead('DB\' ModeDir[1] '\' DMName '\version.ini'), '`n`r'), '.')
+        InstalledVersion := 0
+        If FileExist(ChosenFolder.Value '\Games\' DMName '\version.ini') {
+            InstalledVersion := StrReplace(Trim(FileRead(ChosenFolder.Value '\Games\' DMName '\version.ini'), '`n`r'), '.')
+        }
+        SetProgress(1, 'Copying the mode...')
+        If !DirExist(ChosenFolder.Value '\Games\' DMName) || (UpdatedVersion > InstalledVersion) {
             DirCopy('DB\' ModeDir[1], ChosenFolder.Value '\Games', 1)
+        }
         FileCopy('DB\' ModeDir[1] '\age2_x1.xml', ChosenFolder.Value '\Games\age2_x1.xml', 1)
-        EnableDataModes()
     } Else If FileExist(ChosenFolder.Value '\Games\age2_x1.xml') {
         FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
     }
+    EnableDataModes()
+    SetProgress(1, 'Loading versions...')
+    VersionsLoad()
+    SetProgress(1, 'Complete!')
 }
 VMDM := Gui(, 'Customize')
 VMDMTitle := VMDM.AddText('w220 h280 Center c800000 BackgroundFFFFFF Border', '# Mode Name')
@@ -666,7 +685,7 @@ ImportDataMode() {
     }
 }
 
-_ATools_ := Manager.AddText('ym w220 h650 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n(Comming Soon)')
+_ATools_ := Manager.AddText('ym w220 h590 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n(Comming Soon)')
 _ATools_.SetFont('Bold')
 Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
 ;Manager.AddText('xp+10 yp+20 cBlue w200 BackgroundTrans Center', '1 - Hide All IP [VPN]').SetFont('Bold')
@@ -692,6 +711,11 @@ Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
 ;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '5 - Scenario Files Select').SetFont('Bold')
 ;FixMgz := Manager.AddButton('wp', 'Select')
 ;FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
+
+_ATools_.GetPos(&X, &Y,, &Height)
+ProgressText := Manager.AddText('x' X ' y' (Y + Height + 10) ' w220 h20 Center BackgroundTrans cBlue', '...')
+ProgressText.SetFont('Bold')
+Progress := Manager.AddProgress('xp yp+20 wp hp -Smooth')
 
 AboutText := ''
            . '| AGE OF EMPIRES II MANAGER ALL IN ONE, '
@@ -787,6 +811,10 @@ LoadCurrentSettings(Browse := False) {
     EnableLanguage()
     EnableVisualMod()
     LoadEnableFixes()
+}
+SetProgress(Value, Text) {
+    Progress.Value += Value
+    ProgressText.Text := Text
 }
 AfterLastDBDir() {
     Loop 100 {
