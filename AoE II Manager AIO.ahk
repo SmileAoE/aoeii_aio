@@ -571,24 +571,15 @@ ApplyDM(Ctrl, Item, Checked) {
     If (Checked) {
         ModeDir := IniRead('DB\008\DataMode.ini', 'DataMode', DMName, '')
         ModeDir := StrSplit(ModeDir, '|')
-        Progress.Value := 0
-        Progress.Opt('Range1-7')
-        If ModeDir.Length = 2 {
-            Parts := StrSplit(ModeDir[2], ',')
-            Progress.Opt('Range1-' 7 + Parts.Length)
-            SetProgress(1, 'Downloading...')
-            For Each, Part in Parts {
-                SetProgress(1, 'Downloading - ' ModeDir[1] '.7z.' Part)
-                If !FileExist('DB\' ModeDir[1] '.7z.' Part) {
-                    Download(Server '/' User '/' Repo '/main/DB/' ModeDir[1] '.7z.' Part, 'DB\' ModeDir[1] '.7z.' Part)
-                }
-            }
-            SetProgress(1, 'Exporting...')
-            If !DirExist('DB\' ModeDir[1]) {
-                RunWait('DB\7za.exe x ' 'DB\' ModeDir[1] '.7z.001 -oDB\' ModeDir[1], , 'Hide')
+        Parts := StrSplit(ModeDir[2], ',')
+        For Each, Part in Parts {
+            If !FileExist('DB\' ModeDir[1] '.7z.' Part) {
+                Download(Server '/' User '/' Repo '/main/DB/' ModeDir[1] '.7z.' Part, 'DB\' ModeDir[1] '.7z.' Part)
             }
         }
-        SetProgress(1, 'Applying 1.5 CD version...')
+        If !DirExist('DB\' ModeDir[1]) {
+            RunWait('DB\7za.exe x ' 'DB\' ModeDir[1] '.7z.001 -oDB\' ModeDir[1], , 'Hide')
+        }
         SetVersion('1.5  CD')
         If !DirExist(ChosenFolder.Value '\Games') {
             DirCreate(ChosenFolder.Value '\Games')
@@ -598,7 +589,6 @@ ApplyDM(Ctrl, Item, Checked) {
         If FileExist(ChosenFolder.Value '\Games\' DMName '\version.ini') {
             InstalledVersion := StrReplace(Trim(FileRead(ChosenFolder.Value '\Games\' DMName '\version.ini'), '`n`r'), '.')
         }
-        SetProgress(1, 'Copying the mode...')
         If !DirExist(ChosenFolder.Value '\Games\' DMName) || (UpdatedVersion > InstalledVersion) {
             DirCopy('DB\' ModeDir[1], ChosenFolder.Value '\Games', 1)
         }
@@ -607,12 +597,11 @@ ApplyDM(Ctrl, Item, Checked) {
         FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
     }
     EnableDataModes()
-    SetProgress(1, 'Loading versions...')
     VersionsLoad()
-    SetProgress(1, 'Complete!')
 }
 VMDM := Gui(, 'Customize')
-VMDMTitle := VMDM.AddText('w220 h280 Center c800000 BackgroundFFFFFF Border', '# Mode Name')
+VMDM.BackColor := 'White'
+VMDMTitle := VMDM.AddText('w220 h280 Center c800000 BackgroundFFFFFF', '# Mode Name')
 VMDMTitle.SetFont('Bold')
 VMDM.AddText('xp+10 yp+10 w200 BackgroundTrans')
 VMDMList := VMDM.AddListView('w200 h240 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
@@ -623,6 +612,9 @@ Loop Files, 'DB\007\*', 'D' {
 DMList.OnEvent('DoubleClick', ShowVMDMList)
 ShowVMDMList(Ctrl, Item) {
     DMName := DMList.GetText(Item)
+    If !DirExist(ChosenFolder.Value '\Games\' DMName ) {
+        Return
+    }
     VMDMTitle.Text := DMName
     VMDM.Show()
 }
@@ -631,7 +623,7 @@ ApplyVMDM(Ctrl, Item, Checked) {
     DisableVisualDataMod()
     VMName := VMList.GetText(Item)
     SlpDir := Checked ? 'DB\007\' VMName : 'DB\007\' VMName '\U'
-    RunWait(A_Clipboard := 'DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Games\' VMDMTitle.Text '\Data\gamedata_x1_p1.drs" "' SlpDir '\gra*.slp"', , 'Hide')
+    RunWait(A_Clipboard := 'DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Games\' VMDMTitle.Text '\Data\gamedata_x1_p1.drs" "' SlpDir '\*.slp"', , 'Hide')
     EnableVisualDataMod()
     SoundPlay('DB\000\30 wololo.mp3')
 }
@@ -1350,9 +1342,11 @@ GameSectionNormalView() {
     ProgressInfo.Visible := False
 }
 DisableVisualDataMod() {
+    VMList.Enabled := False
     VMDMList.Enabled := False
 }
 EnableVisualDataMod() {
+    VMList.Enabled := True
     VMDMList.Enabled := True
     VMDMList.Redraw()
 }
