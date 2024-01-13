@@ -12,7 +12,7 @@ If !A_IsAdmin {
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.7'
+Version := '1.9'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -22,8 +22,10 @@ DrsRange := Map('gra', [2, 5312], 'int', [50100, 53211], 'ter', [15000, 15031])
 IDL := 5
 VCodedSlp := '3713EFBE'
 NormalSlp := '322E304E'
-DataModesLng := Map('es', 'Spanish'
-                  , 'en', 'English')
+GroupAdd('AOKAOC', 'ahk_exe empires2.exe')
+GroupAdd('AOKAOC', 'ahk_exe age2_x1.exe')
+;DataModesLng := Map('es', 'Spanish'
+;                  , 'en', 'English')
 
 SysDrive := EnvGet('SystemDrive')
 ;ProgramFilesDir := EnvGet(A_Is64bitOS ? "ProgramW6432" : "ProgramFiles")
@@ -569,6 +571,15 @@ ApplyDM(Ctrl, Item, Checked) {
     DMName := DMList.GetText(Item)
     DisableDataModes()
     If (Checked) {
+        CurrDM := IniRead(Config, 'Game', 'CurrDM', '') 
+        If CurrDM != '' {
+            Loop DMList.GetCount() {
+                If DMList.GetText(A_Index) = CurrDM {
+                    DMList.Modify(A_Index, '-Check')
+                    Break
+                }
+            }
+        }
         ModeDir := IniRead('DB\008\DataMode.ini', 'DataMode', DMName, '')
         ModeDir := StrSplit(ModeDir, '|')
         Parts := StrSplit(ModeDir[2], ',')
@@ -580,39 +591,73 @@ ApplyDM(Ctrl, Item, Checked) {
         If !DirExist('DB\' ModeDir[1]) {
             RunWait('DB\7za.exe x ' 'DB\' ModeDir[1] '.7z.001 -oDB\' ModeDir[1], , 'Hide')
         }
+        If GameIsRunning()
+            Return
         SetVersion('1.5  CD')
         If !DirExist(ChosenFolder.Value '\Games') {
             DirCreate(ChosenFolder.Value '\Games')
         }
-        UpdatedVersion := StrReplace(Trim(FileRead('DB\' ModeDir[1] '\' DMName '\version.ini'), '`n`r'), '.')
-        InstalledVersion := 0
-        If FileExist(ChosenFolder.Value '\Games\' DMName '\version.ini') {
-            InstalledVersion := StrReplace(Trim(FileRead(ChosenFolder.Value '\Games\' DMName '\version.ini'), '`n`r'), '.')
+        If DMName = 'Sheep VS Wolf 2' {
+            UpdatedVersion := StrReplace(Trim(FileRead('DB\' ModeDir[1] '\svwversion.ini'), '`n`r'), '.')
+            InstalledVersion := 0
+            If FileExist(ChosenFolder.Value '\Games\' DMName '\svwversion.ini') {
+                InstalledVersion := StrReplace(Trim(FileRead(ChosenFolder.Value '\Games\' DMName '\version.ini'), '`n`r'), '.')
+            }
+            BackupStreamSVW(DMName)
+            DirCopy('DB\' ModeDir[1], ChosenFolder.Value, 1)
+            If FileExist(ChosenFolder.Value '\Games\age2_x1.xml')
+                FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
+        } Else {
+            UpdatedVersion := StrReplace(Trim(FileRead('DB\' ModeDir[1] '\' DMName '\version.ini'), '`n`r'), '.')
+            InstalledVersion := 0
+            If FileExist(ChosenFolder.Value '\Games\' DMName '\version.ini') {
+                InstalledVersion := StrReplace(Trim(FileRead(ChosenFolder.Value '\Games\' DMName '\version.ini'), '`n`r'), '.')
+            }
+            If !DirExist(ChosenFolder.Value '\Games\' DMName) || (UpdatedVersion > InstalledVersion) {
+                DirCopy('DB\' ModeDir[1], ChosenFolder.Value '\Games', 1)
+            }
+            FileCopy('DB\' ModeDir[1] '\age2_x1.xml', ChosenFolder.Value '\Games\age2_x1.xml', 1)
         }
-        If !DirExist(ChosenFolder.Value '\Games\' DMName) || (UpdatedVersion > InstalledVersion) {
-            DirCopy('DB\' ModeDir[1], ChosenFolder.Value '\Games', 1)
+        IniWrite(DMName, Config, 'Game', 'CurrDM')
+        IniWrite(ChosenFolder.Value, Config, 'Game', 'CurrDMDir')
+    } Else {
+        If DMName = 'Sheep vs Wolf 2' {
+            If GameIsRunning()
+                Return
+            SetVersion('1.5  CD')
+            DirCopy(AppDir[2] '\' DMName '\Sound\stream', ChosenFolder.Value '\Sound\stream', 1)
+        } Else If FileExist(ChosenFolder.Value '\Games\age2_x1.xml') {
+            FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
         }
-        FileCopy('DB\' ModeDir[1] '\age2_x1.xml', ChosenFolder.Value '\Games\age2_x1.xml', 1)
-    } Else If FileExist(ChosenFolder.Value '\Games\age2_x1.xml') {
-        FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
+        IniDelete(Config, 'Game', 'CurrDM')
+        IniDelete(Config, 'Game', 'CurrDMDir')
     }
     EnableDataModes()
     VersionsLoad()
+    SoundPlay('DB\000\30 wololo.mp3')
 }
 VMDM := Gui(, 'Customize')
 VMDM.BackColor := 'White'
 VMDMTitle := VMDM.AddText('w220 h280 Center c800000 BackgroundFFFFFF', '# Mode Name')
 VMDMTitle.SetFont('Bold')
-VMDM.AddText('xp+10 yp+10 w200 BackgroundTrans')
+VMDM.AddText('xp+10 yp+20 w200 Center cBlue', '1 - Visual modes').SetFont('Bold')
 VMDMList := VMDM.AddListView('w200 h240 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
 VMDMList.SetFont('Bold')
 Loop Files, 'DB\007\*', 'D' {
     VMDMList.Add(, A_LoopFileName)
 }
+;VMDM.AddText('w200 Center cBlue', '2 - Language').SetFont('Bold')
+;VMDML := VMDM.AddDropDownList('w200')
+;VMDML.SetFont('Bold')
+;VMDML.OnEvent('Change', (*) => ApplyDML())
+;ApplyDML() {
+;    FileCopy(DML[VMDML.Text], ChosenFolder.Value '\Games\' VMDMTitle.Text '\language.ini', 1)
+;}
+
 DMList.OnEvent('DoubleClick', ShowVMDMList)
 ShowVMDMList(Ctrl, Item) {
     DMName := DMList.GetText(Item)
-    If !DirExist(ChosenFolder.Value '\Games\' DMName ) {
+    If !DirExist(ChosenFolder.Value '\Games\' DMName) {
         Return
     }
     VMDMTitle.Text := DMName
@@ -677,10 +722,10 @@ ImportDataMode() {
     }
 }
 
-_ATools_ := Manager.AddText('ym w220 h590 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n(Comming Soon)')
+_ATools_ := Manager.AddText('ym w220 h590 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n')
 _ATools_.SetFont('Bold')
 Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
-;Manager.AddText('xp+10 yp+20 cBlue w200 BackgroundTrans Center', '1 - Hide All IP [VPN]').SetFont('Bold')
+Manager.AddText('xp yp+20 w200 BackgroundTrans cBlue Center', '{Left Alt + Right Mouse Button}`n[Send && un-select one unit]').SetFont('Bold Italic')
 ;VPN := Manager.AddButton('w56 h56')
 ;VPN.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
 ;GuiButtonIcon(VPN, 'DB\000\vpn.png',, 'W48 H48')
@@ -730,6 +775,7 @@ SB.SetText('Loading...', 3)
 SB.SetText(A_Tab A_Tab 'A Collective App From The Internet On What I Found Useful About AoE II!    ', 4)
 Manager.Show()
 LoadCurrentSettings()
+LoadEnableFixes()
 __CheckForUpdates__()
 Return
 
@@ -798,15 +844,40 @@ LoadCurrentSettings(Browse := False) {
     VersionsLoad()
     LanguageLoad()
     LoadAppliedVM()
+    LoadCurrentDataModes()
     CompatibilityCheck()
     CopyDefaultLanguage()
     EnableLanguage()
     EnableVisualMod()
-    LoadEnableFixes()
 }
-SetProgress(Value, Text) {
-    Progress.Value += Value
-    ProgressText.Text := Text
+;LoadDMLanguages() {
+;    Global DML := Map()
+;    WorkDir := ChosenFolder.Value '\Games\' VMDMTitle.Text
+;    VMDML.Delete()
+;    If FileExist(WorkDir '\language.ini') {
+;        VMDML.Add(['Default'])
+;        VMDML.Choose('Default')
+;        DML['Default'] := WorkDir '\language_Default.ini'
+;        DefaultMD5 := HashFile(WorkDir '\language.ini')
+;        If !FileExist(WorkDir '\language_Default.ini')
+;            FileCopy(WorkDir '\language.ini', WorkDir '\language_Default.ini')
+;    }
+;    Loop Files, WorkDir '\language_*.ini' {
+;        Abr := StrSplit(SubStr(A_LoopFileName, 1, -4), '_')[2]
+;        If DataModesLng.Has(Abr) {
+;            DML[DataModesLng[Abr]] := A_LoopFileFullPath
+;            VMDML.Add([DataModesLng[Abr]])
+;            If HashFile(DML[DataModesLng[Abr]]) = DefaultMD5 {
+;                VMDML.Choose(DataModesLng[Abr])
+;            }
+;        }
+;    }
+;}
+BackupStreamSVW(Name) {
+    If !DirExist(AppDir[2] '\' Name '\Sound\stream') {
+        DirCreate(AppDir[2] '\' Name '\Sound\stream')
+    }
+    DirCopy(ChosenFolder.Value '\Sound\stream', AppDir[2] '\' Name '\Sound\stream', 1)
 }
 AfterLastDBDir() {
     Loop 100 {
@@ -817,10 +888,20 @@ AfterLastDBDir() {
     }
     Return 0
 }
-LoadDataMods() {
-    Names := IniRead('DB\008\DataMods.ini', 'DataMods',, '')
-    For Each, Mod in StrSplit(Names, '`n') {
-
+LoadCurrentDataModes() {
+    Loop DMList.GetCount() {
+        DMList.Modify(A_Index, '-Check')
+    }
+    CurrDMDir := IniRead(Config, 'Game', 'CurrDMDir', '')
+    If ChosenFolder.Value != CurrDMDir {
+        Return
+    }
+    Name := IniRead(Config, 'Game', 'CurrDM', '')
+    Loop DMList.GetCount() {
+        If DMList.GetText(A_Index) = Name {
+            DMList.Modify(A_Index, 'Check')
+            Break
+        }
     }
 }
 imgSize(img) { ; https://www.autohotkey.com/boards/viewtopic.php?f=76&t=81665
@@ -933,7 +1014,7 @@ CopyDefaultLanguage() {
     }
 }
 GameIsRunning() {
-    For Each, App in ['empires2.exe', 'age2_x1.exe', 'age2_x2.exe'] {
+    For Each, App in ['empires2.exe', 'age2_x1.exe', 'age2_x2.exe', 'Voobly.exe'] {
         If ProcessExist(App) {
             ProcessClose(App)
         }
@@ -1271,6 +1352,12 @@ FixCommonIssues() {
         }
         FileMove(ChosenFolder.Value '\age2_x1.exe', ChosenFolder.Value '\age2_x1', 1)
     }
+    If FileExist(ChosenFolder.Value '\windmode.ini') {
+        FileDelete(ChosenFolder.Value '\windmode.ini')
+    }
+    If FileExist(ChosenFolder.Value '\age2_x1\windmode.ini') {
+        FileDelete(ChosenFolder.Value '\age2_x1\windmode.ini')
+    }
 }
 DecodeSlp(FileName) {
     F := FileRead(FileName, 'RAW m4')
@@ -1298,7 +1385,7 @@ DecodeSlp(FileName) {
 }
 LoadEnableFixes() {
     Loop Files, 'DB\001\*', 'D' {
-        Patch.Add([A_loopFileName])
+        Patch.Add([A_LoopFileName])
     }
     Patch.Choose('Do Not Enable Fixes')
     If DirExist('DB\001\' Fix := IniRead(Config, 'Game', 'Fix', 'Do Not Enable Fixes')) {
@@ -1557,3 +1644,15 @@ DisableAOCRun() {
 DisableFOERun() {
     RunFOE.Enabled := False
 }
+
+; Hotkeys
+#HotIf WinActive('ahk_group AOKAOC')
+!RButton:: {
+    MouseClick('Right', , , , 0)
+    MouseGetPos(&X, &Y)
+    SendInput('{LCtrl Down}')
+    MouseClick('Left', 315, A_ScreenHeight - 130, , 0)
+    SendInput('{Ctrl Up}')
+    MouseMove(X, Y, 0)
+}
+#HotIf
