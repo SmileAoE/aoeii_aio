@@ -12,7 +12,7 @@ If !A_IsAdmin {
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.9'
+Version := '2.0'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 AppDir := ['DB', A_AppData '\aoeii_aio']
@@ -600,10 +600,19 @@ ApplyDM(Ctrl, Item, Checked) {
         If DMName = 'Sheep VS Wolf 2' {
             UpdatedVersion := StrReplace(Trim(FileRead('DB\' ModeDir[1] '\svwversion.ini'), '`n`r'), '.')
             InstalledVersion := 0
-            If FileExist(ChosenFolder.Value '\Games\' DMName '\svwversion.ini') {
-                InstalledVersion := StrReplace(Trim(FileRead(ChosenFolder.Value '\Games\' DMName '\version.ini'), '`n`r'), '.')
+            If FileExist(ChosenFolder.Value '\svwversion.ini') {
+                InstalledVersion := StrReplace(Trim(FileRead(ChosenFolder.Value '\svwversion.ini'), '`n`r'), '.')
             }
             BackupStreamSVW(DMName)
+            DirCopy('DB\' ModeDir[1], ChosenFolder.Value, 1)
+            If FileExist(ChosenFolder.Value '\Games\age2_x1.xml')
+                FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
+        } Else If DMName = 'VUBG' {
+            UpdatedVersion := StrReplace(Trim(FileRead('DB\' ModeDir[1] '\vubgversion.ini'), '`n`r'), '.')
+            InstalledVersion := 0
+            If FileExist(ChosenFolder.Value '\vubgversion.ini') {
+                InstalledVersion := StrReplace(Trim(FileRead(ChosenFolder.Value '\vubgversion.ini'), '`n`r'), '.')
+            }
             DirCopy('DB\' ModeDir[1], ChosenFolder.Value, 1)
             If FileExist(ChosenFolder.Value '\Games\age2_x1.xml')
                 FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
@@ -626,6 +635,10 @@ ApplyDM(Ctrl, Item, Checked) {
                 Return
             SetVersion('1.5  CD')
             DirCopy(AppDir[2] '\' DMName '\Sound\stream', ChosenFolder.Value '\Sound\stream', 1)
+        } Else If DMName = 'VUBG' {
+            If GameIsRunning()
+                Return
+            SetVersion('1.5  CD')
         } Else If FileExist(ChosenFolder.Value '\Games\age2_x1.xml') {
             FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
         }
