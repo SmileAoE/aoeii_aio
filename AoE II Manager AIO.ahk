@@ -237,9 +237,7 @@ DownloadInstallGame() {
     Choice := MsgBox('Done!`n`nGame located at: "' ExportDir '\Age of Empires II"`n`nWanna create shortcuts on your desktop?', 'Question', 0x20 + 0x4)
     If Choice = 'Yes' {
         ChosenFolder.Value := ExportDir '\Age of Empires II'
-        FileCreateShortcut(ExportDir '\Age of Empires II\empires2.exe', A_Desktop '\Age of Empires II The Age of Kings.lnk')
-        FileCreateShortcut(ExportDir '\Age of Empires II\age2_x1\age2_x1.exe', A_Desktop '\Age of Empires II The Conquerors.lnk')
-        FileCreateShortcut(ExportDir '\Age of Empires II\age2_x1\age2_x2.exe', A_Desktop '\Age of Empires II Forgotten Empires.lnk')
+        CreateGameShortcuts()
     }
     Choice := MsgBox('Done!`n`nGame located at: "' ExportDir '\Age of Empires II"`n`nWanna select this game location?', 'Question', 0x20 + 0x4)
     If Choice = 'Yes' {
@@ -249,7 +247,14 @@ DownloadInstallGame() {
     }
     GameSectionNormalView()
 }
-
+CreateGameShortcuts() {
+    If FileExist(ChosenFolder.Value '\empires2.exe')
+        FileCreateShortcut(ChosenFolder.Value '\empires2.exe', A_Desktop '\Age of Empires II.lnk')
+    If FileExist(ChosenFolder.Value '\age2_x1\age2_x1.exe')
+        FileCreateShortcut(ChosenFolder.Value '\age2_x1\age2_x1.exe', A_Desktop '\The Conquerors.lnk')
+    If FileExist(ChosenFolder.Value '\age2_x1\age2_x2.exe')
+        FileCreateShortcut(ChosenFolder.Value '\age2_x1\age2_x2.exe', A_Desktop '\Forgotten Empires.lnk')
+}
 RunAOK := Manager.AddButton('xm+30 yp+20 w48 H48')
 Features['The Game'].Push(RunAOK)
 GuiButtonIcon(RunAOK, 'DB\000\aok.png', , 'W32 H32')
@@ -1200,6 +1205,7 @@ ChargeSettings________(Browse := False) {
         If FileExist(ChosenFolder.Value '\age2_x1\windmode.ini') {
             FileDelete(ChosenFolder.Value '\age2_x1\windmode.ini')
         }
+        CreateGameShortcuts()
     }
     FixCommonIssues_______()
 }
