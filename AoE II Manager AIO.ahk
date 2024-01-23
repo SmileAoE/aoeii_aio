@@ -13,7 +13,7 @@ If !A_IsAdmin {
 Server                      := 'https://raw.githubusercontent.com'
 User                        := 'SmileAoE'
 Repo                        := 'aoeii_aio'
-Version                     := '2.0'
+Version                     := '1.2'
 Layers                      := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config                      := A_AppData '\aoeii_aio\config.ini'
 AppDir                      :=    ['DB'
@@ -48,9 +48,10 @@ Compatibilities             := Map(1            , ["_____Not Set_____"  , ""]
                                  , 4            , ["Windows Vista Sp2"  , "VISTASP2"]
                                  , 5            , ["Windows Vista Sp1"  , "VISTASP1"]
                                  , 6            , ["Windows Vista"      , "VISTARTM"]
-                                 , 7            , ["Windows XP Sp2"     , "WINXPSP2"]
-                                 , 8            , ["Windows 98"         , "WIN98"]
-                                 , 9            , ["Windows 95"         , "WIN95"])
+                                 , 7            , ["Windows XP Sp3"     , "WINXPSP3"]
+                                 , 8            , ["Windows XP Sp2"     , "WINXPSP2"]
+                                 , 9            , ["Windows 98"         , "WIN98"]
+                                 , 10           , ["Windows 95"         , "WIN95"])
 BasePackages                :=   ['DB/000.7z.001'
                                  ,'DB/001.7z.001'
                                  ,'DB/002.7z.001'
@@ -70,7 +71,10 @@ Task                        := 1
 TaskNumber                  := BasePackages.Length
 Features                    := Map()
 ;SysDrive                    := EnvGet('SystemDrive')
-;ProgramFilesDir             := EnvGet(A_Is64bitOS ? "ProgramW6432" : "ProgramFiles")
+ProgramFiles86              := EnvGet(A_Is64bitOS ? "ProgramFiles(x86)" : "ProgramFiles")
+VPNDir                      := ProgramFiles86 '\Hide ALL IP'
+VPNExe                      := 'HideALLIP.exe'
+VPNPath                     := VPNDir '\' VPNExe
 
 ; Preparation
 CoordMode('Mouse', 'Screen')
@@ -1059,17 +1063,96 @@ ImportDataMode() {
     }
 }
 
+; # Other tools
+Features['Other Tools'] := []
 _ATools_ := Manager.AddText('ym w220 h590 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n')
+Features['Other Tools'].Push(_ATools_)
 _ATools_.SetFont('Bold')
-Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
-F1 := Manager.AddText('xp yp+20 w200 BackgroundTrans cBlue Center', '{Left Alt + Right Mouse Button}`n[Send && un-select one unit]')
-F1.SetFont('Bold')
-;VPN := Manager.AddButton('w56 h56')
-;VPN.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-;GuiButtonIcon(VPN, 'DB\000\vpn.png',, 'W48 H48')
-;ClearVPNReg := Manager.AddButton('xp+65 yp+2 w130', 'Reset Trial')
-;ClearVPNReg.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-;VPNCompat := Manager.AddDropDownList('w130')
+_ATools_.GetPos(&X, &Y, &Width, &Height)
+
+H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
+Features['Other Tools'].Push(H)
+
+; # Shortcut send & un-select one unit
+Macro1 := Manager.AddCheckBox('xp yp+20 w200 BackgroundWhite Center' , '{Left Alt + Right Mouse Button}`n[Send && un-select one unit]')
+Features['Other Tools'].Push(Macro1)
+Macro1.SetFont('Bold')
+H := Manager.AddText('x' (X + 1) ' yp+35 w220 0x10')
+Features['Other Tools'].Push(H)
+#HotIf WinActive('ahk_group AOKAOC')
+Hotkey('!RButton', Macro1Action, 'Off')
+Macro1Action(*) {
+    MouseClick('Right', , , , 0)
+    MouseGetPos(&X, &Y)
+    SendInput('{LCtrl Down}')
+    MouseClick('Left', 315, A_ScreenHeight - 130, , 0)
+    SendInput('{Ctrl Up}')
+    MouseMove(X, Y, 0)
+}
+Macro1.OnEvent('Click', (*) => EDMacro1())
+EDMacro1() {
+    IniWrite(Macro1.Value, Config, 'Game', 'Macro1')
+    Hotkey('!RButton', Macro1Action, Macro1.Value ? 'On' : 'Off')
+}
+
+VPN := Manager.AddButton('xp+10 yp+10 w56 h56')
+Features['Other Tools'].Push(VPN)
+GuiButtonIcon(VPN, 'DB\000\vpn.png',, 'W48 H48')
+VPN.OnEvent('Click', (*) => OpenHAI())
+OpenHAI() {
+    If !FileExist(VPNPath) {
+        Choice := MsgBox('Hide All IP does not seem to be installed!`nInstall now?', 'VPN', 0x30 + 0x4 + 0x100)
+        If Choice = 'Yes' {
+            RunWait('DB\000\hideallipsetup.exe', 'DB\000')
+        }
+    }
+    If ProcessExist(VPNExe) {
+        MsgBox('The VPN is already running', 'VPN', 0x40)
+        Return
+    }
+    Run(VPNPath, VPNDir)
+}
+ClearVPNReg := Manager.AddButton('xp+65 yp+2 w130', 'Clear Registry')
+Features['Other Tools'].Push(ClearVPNReg)
+ClearVPNReg.OnEvent('Click', (*) => ClearRegHAI())
+ClearRegHAI() {
+    Try {
+        Log := ""
+        Loop Parse, "HKCU|HKLM", '|' {
+            HK := A_LoopField
+            Loop Parse, "Software\HideAllIP|Software\Wow6432Node\HideAllIP", '|' {
+                Key := A_LoopField
+                Loop Reg, HK "\" Key {
+                    RegKey := A_LoopRegkey
+                    Log .= Log ? "`n" RegKey : RegKey
+                    RegDeleteKey(A_LoopRegkey)
+                }
+            }
+        }
+    } Catch As E {
+        MsgBox('An error occured while trying to clear the registery.', 'Error', 0x10)
+        Return
+    }
+    MsgBox((Log != '') ? "The following key(s) is(are) cleared:`n" Log : "Clear!", 'Clear!', 0x40)
+}
+VPNCompat := Manager.AddDropDownList('w130')
+Features['Other Tools'].Push(VPNCompat)
+For Each, Compat in Compatibilities {
+    VPNCompat.Add([Compat[1]])
+}
+VPNCompat.Choose(1)
+VPNCompat.OnEvent('Change', (*) => SetVPNCompat())
+SetVPNCompat() {
+    If VPNCompat.Value = 1 {
+        Try {
+            RegDelete(Layers, VPNPath)
+        }
+        Return
+    }
+    RegVal := Compatibilities[VPNCompat.Value][2] ' RUNASADMIN'
+    RegWrite(RegVal, 'REG_SZ', Layers, VPNPath)
+}
+
 ;
 ;Manager.AddText('xp-65 yp+40 cBlue w200 BackgroundTrans Center', '2 - Shortcuts/Keys Remapper').SetFont('Bold')
 ;KRemap := Manager.AddButton('wp', 'Create/Modify')
@@ -1086,6 +1169,23 @@ F1.SetFont('Bold')
 ;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '5 - Scenario Files Select').SetFont('Bold')
 ;FixMgz := Manager.AddButton('wp', 'Select')
 ;FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
+
+ChargeOtherTools______() {
+    Macro1On := IniRead(Config, 'Game', 'Macro1', 0)
+    Macro1.Value := Macro1On
+    ;---
+    RegVal := RegRead(Layers, VPNPath, '')
+    If RegVal = '' {
+        VPNCompat.Value := 1
+        Return
+    }
+    For Each, Compat in Compatibilities {
+        If (RegVal = Compat[2] ' RUNASADMIN') {
+            VPNCompat.Choose(Compat[1])
+            Break
+        }
+    }
+}
 
 _ATools_.GetPos(&X, &Y,, &Height)
 ProgressText := Manager.AddText('x' X ' y' (Y + Height + 10) ' w220 h20 Center BackgroundTrans cBlue', '...')
@@ -1133,6 +1233,7 @@ ChargeSettings________(Browse := False) {
     SectionInteract(Features['Language']        , False)
     SectionInteract(Features['Visual Modes']    , False)
     SectionInteract(Features['Data Modes']      , False)
+    SectionInteract(Features['Other Tools']     , False)
     ChosenFolder.Value := IniRead(Config, 'Game', 'Path', '')
     ValidGameLocation(Location) {
         Return FileExist(Location '\empires2.exe')
@@ -1186,12 +1287,14 @@ ChargeSettings________(Browse := False) {
     SectionInteract(Features['Language'])
     SectionInteract(Features['Visual Modes'])
     SectionInteract(Features['Data Modes'])
+    SectionInteract(Features['Other Tools'])
     ChargeVersions________()
     ChargeCompatibilities_()
     ChargeLanguage________()
     ChargeVModes__________()
     ChargeDModes__________()
     BackupDefaultLanguage_()
+    ChargeOtherTools______()
     FixCommonIssues_______() {
         If FileExist(ChosenFolder.Value '\age2_x1.exe') {
             If !DirExist(ChosenFolder.Value '\age2_x1') {
@@ -1387,14 +1490,3 @@ HashFile(FilePath, HashType := 2) {
     F.Close()
     Return HashVal
 }
-; Hotkeys
-#HotIf WinActive('ahk_group AOKAOC')
-!RButton:: {
-    MouseClick('Right', , , , 0)
-    MouseGetPos(&X, &Y)
-    SendInput('{LCtrl Down}')
-    MouseClick('Left', 315, A_ScreenHeight - 130, , 0)
-    SendInput('{Ctrl Up}')
-    MouseMove(X, Y, 0)
-}
-#HotIf
