@@ -3,78 +3,78 @@
 
 If !A_IsAdmin {
     MsgBox("- This application is not being ran as administrator`n"
-         . "- This can cause an unexpected behaviour on using any of it's options`n"
-         . "- It is highly recommended that you run it as administrator"
-         , 'Warning'
-         , 0x30)
+        . "- This can cause an unexpected behaviour on using any of it's options`n"
+        . "- It is highly recommended that you run it as administrator"
+        , 'Warning'
+        , 0x30)
 }
 
 ; Initialization
-Server                      := 'https://raw.githubusercontent.com'
-User                        := 'SmileAoE'
-Repo                        := 'aoeii_aio'
-Version                     := '1.2'
-Layers                      := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
-Config                      := A_AppData '\aoeii_aio\config.ini'
-AppDir                      :=    ['DB'
-                                 , A_AppData '\aoeii_aio']
-GRSetting                   := A_AppData '\GameRanger\GameRanger Prefs\Settings'
-DrsTypes                    := Map('gra'        , 'graphics.drs'
-                                 , 'int'        , 'interfac.drs'
-                                 , 'ter'        , 'terrain.drs')
-DrsRange                    := Map('gra'        , [2, 5312]
-                                 , 'int'        , [50100, 53211]
-                                 , 'ter'        , [15000, 15031])
-IDL                         := 5
-VCodedSlp                   := '3713EFBE'
-NormalSlp                   := '322E304E'
-General                     := Map()
-General['AOK']              := Map()
+Server := 'https://raw.githubusercontent.com'
+User := 'SmileAoE'
+Repo := 'aoeii_aio'
+Version := '1.3'
+Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
+Config := A_AppData '\aoeii_aio\config.ini'
+AppDir := ['DB'
+    , A_AppData '\aoeii_aio']
+GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
+DrsTypes := Map('gra', 'graphics.drs'
+    , 'int', 'interfac.drs'
+    , 'ter', 'terrain.drs')
+DrsRange := Map('gra', [2, 5312]
+    , 'int', [50100, 53211]
+    , 'ter', [15000, 15031])
+IDL := 5
+VCodedSlp := '3713EFBE'
+NormalSlp := '322E304E'
+General := Map()
+General['AOK'] := Map()
 General['AOK']['VersionsN'] := Map()
-General['AOK']['Combine']   := Map('2.0b CD'    , ['2.0a No CD'])
-General['AOC']              := Map()
+General['AOK']['Combine'] := Map('2.0b CD', ['2.0a No CD'])
+General['AOC'] := Map()
 General['AOC']['VersionsN'] := Map()
-General['AOC']['Combine']   := Map('1.0e No CD' , ['1.0c No CD']
-                                  ,'1.0e No CD' , ['1.0c No CD']
-                                  ,'1.1  No CD' , ['1.0c No CD']
-                                  ,'1.5  CD'    , ['1.0c No CD'])
-General['FOE']              := Map()
+General['AOC']['Combine'] := Map('1.0e No CD', ['1.0c No CD']
+    , '1.0e No CD', ['1.0c No CD']
+    , '1.1  No CD', ['1.0c No CD']
+    , '1.5  CD', ['1.0c No CD'])
+General['FOE'] := Map()
 General['FOE']['VersionsN'] := Map()
-General['FOE']['Combine']   := Map()
-General['LNG']              := Map()
-Compatibilities             := Map(1            , ["_____Not Set_____"  , ""]
-                                 , 2            , ["Windows 8"          , "WIN8RTM"]
-                                 , 3            , ["Windows 7"          , "WIN7RTM"]
-                                 , 4            , ["Windows Vista Sp2"  , "VISTASP2"]
-                                 , 5            , ["Windows Vista Sp1"  , "VISTASP1"]
-                                 , 6            , ["Windows Vista"      , "VISTARTM"]
-                                 , 7            , ["Windows XP Sp3"     , "WINXPSP3"]
-                                 , 8            , ["Windows XP Sp2"     , "WINXPSP2"]
-                                 , 9            , ["Windows 98"         , "WIN98"]
-                                 , 10           , ["Windows 95"         , "WIN95"])
-BasePackages                :=   ['DB/000.7z.001'
-                                 ,'DB/001.7z.001'
-                                 ,'DB/002.7z.001'
-                                 ,'DB/006.7z.001'
-                                 ,'DB/007.7z.001'
-                                 ,'DB/008.7z.001']
-GamePackages                :=   ['DB/003.7z.001'
-                                 ,'DB/003.7z.002'
-                                 ,'DB/003.7z.003'
-                                 ,'DB/003.7z.004'
-                                 ,'DB/004.7z.001'
-                                 ,'DB/004.7z.002'
-                                 ,'DB/004.7z.003'
-                                 ,'DB/005.7z.001']
-Dots                        := 0
-Task                        := 1
-TaskNumber                  := BasePackages.Length
-Features                    := Map()
+General['FOE']['Combine'] := Map()
+General['LNG'] := Map()
+Compatibilities := Map(1, ["_____Not Set_____", ""]
+    , 2, ["Windows 8", "WIN8RTM"]
+    , 3, ["Windows 7", "WIN7RTM"]
+    , 4, ["Windows Vista Sp2", "VISTASP2"]
+    , 5, ["Windows Vista Sp1", "VISTASP1"]
+    , 6, ["Windows Vista", "VISTARTM"]
+    , 7, ["Windows XP Sp3", "WINXPSP3"]
+    , 8, ["Windows XP Sp2", "WINXPSP2"]
+    , 9, ["Windows 98", "WIN98"]
+    , 10, ["Windows 95", "WIN95"])
+BasePackages := ['DB/000.7z.001'
+    , 'DB/001.7z.001'
+    , 'DB/002.7z.001'
+    , 'DB/006.7z.001'
+    , 'DB/007.7z.001'
+    , 'DB/008.7z.001']
+GamePackages := ['DB/003.7z.001'
+    , 'DB/003.7z.002'
+    , 'DB/003.7z.003'
+    , 'DB/003.7z.004'
+    , 'DB/004.7z.001'
+    , 'DB/004.7z.002'
+    , 'DB/004.7z.003'
+    , 'DB/005.7z.001']
+Dots := 0
+Task := 1
+TaskNumber := BasePackages.Length
+Features := Map()
 ;SysDrive                    := EnvGet('SystemDrive')
-ProgramFiles86              := EnvGet(A_Is64bitOS ? "ProgramFiles(x86)" : "ProgramFiles")
-VPNDir                      := ProgramFiles86 '\Hide ALL IP'
-VPNExe                      := 'HideALLIP.exe'
-VPNPath                     := VPNDir '\' VPNExe
+ProgramFiles86 := EnvGet(A_Is64bitOS ? "ProgramFiles(x86)" : "ProgramFiles")
+VPNDir := ProgramFiles86 '\Hide ALL IP'
+VPNExe := 'HideALLIP.exe'
+VPNPath := VPNDir '\' VPNExe
 
 ; Preparation
 CoordMode('Mouse', 'Screen')
@@ -87,6 +87,11 @@ For _, Item in AppDir {
         DirCreate(Item)
     }
 }
+
+; Use Gdip
+UseGDIP()
+; Set Default Gui Color
+CreateImageButton("SetDefGuiColor", 0xFFFFFF)
 
 ; Show loading GUI
 Prepare := Gui(, 'Preparing...')
@@ -106,7 +111,7 @@ PrepareTheUnpacker() {
         If (HashFile('DB\7za.exe') != '80014d2b38a815f1a6ea220e679111c6') {
             MsgBox('Un-valid unpacker hashsum!', 'Oops!', '48')
             ; Run installation help page
-            ExitApp 
+            ExitApp
         }
         DoneSteps.Value += 1
         DoneStepsText.Text := 'DB/7za.exe'
@@ -154,7 +159,7 @@ Manager.OnEvent('Close', (*) => ExitApp())
 
 ; # The Game
 Features['The Game'] := []
-_Game_ := Manager.AddText('w220 h260 Center c800000 BackgroundFFFFFF Border', '# The Game')
+_Game_ := Manager.AddText('xm ym w220 h260 Center c800000 BackgroundFFFFFF Border', '# The Game')
 Features['The Game'].Push(_Game_)
 _Game_.SetFont('Bold')
 GetTheGame := Manager.AddButton('xm+10 ym+25 w200', 'Download AoE II')
@@ -173,17 +178,20 @@ GuiButtonIcon(Handle, File, Index := 1, Options := '') {
     W *= A_ScreenDPI / 96, H *= A_ScreenDPI / 96
     button_il := Buffer(20 + A_PtrSize)
     normal_il := DllCall('ImageList_Create', 'Int', W, 'Int', H, 'UInt', 0x21, 'Int', 1, 'Int', 1)
-    NumPut('Ptr', normal_il, button_il, 0)			; Width & Height
-    NumPut('UInt', L, button_il, 0 + A_PtrSize)		; Left Margin
-    NumPut('UInt', T, button_il, 4 + A_PtrSize)		; Top Margin
-    NumPut('UInt', R, button_il, 8 + A_PtrSize)		; Right Margin
-    NumPut('UInt', B, button_il, 12 + A_PtrSize)	; Bottom Margin
-    NumPut('UInt', A, button_il, 16 + A_PtrSize)	; Alignment
+    NumPut('Ptr', normal_il, button_il, 0)		    ; Width & Height
+    NumPut('UInt', L, button_il, 0 + A_PtrSize)	    ; Left Margin
+    NumPut('UInt', T, button_il, 4 + A_PtrSize)	    ; Top Margin
+    NumPut('UInt', R, button_il, 8 + A_PtrSize)	    ; Right Margin
+    NumPut('UInt', B, button_il, 12 + A_PtrSize)    ; Bottom Margin
+    NumPut('UInt', A, button_il, 16 + A_PtrSize)    ; Alignment
     SendMessage(BCM_SETIMAGELIST := 5634, 0, button_il, Handle)
     Return IL_Add(normal_il, File, Index)
 }
-GuiButtonIcon(GetTheGame, 'DB\000\Down.png', , 'W16 H16 T2 A1')
-ProgressBar := Manager.AddProgress('xp yp wp h20 Hidden', 0)
+CreateImageButton(GetTheGame, 0, [['DB\000\download_aoeii_normal.png' ]
+                                , ['DB\000\download_aoeii_hover.png'  ]
+                                , ['DB\000\download_aoeii_click.png'  ]
+                                , ['DB\000\download_aoeii_disable.png']]*)
+ProgressBar := Manager.AddProgress('xp yp wp h20 Hidden cFF9427 Background804000', 0)
 Features['The Game'].Push(ProgressBar)
 ProgressInfo := Manager.AddText('xp yp+25 wp Hidden Center BackgroundTrans cRed')
 Features['The Game'].Push(ProgressInfo)
@@ -194,16 +202,16 @@ DownloadInstallGame() {
     ProgressBar.Opt('Range0-' GamePackages.Length + 3)
     GameSectionInstallView()
     GameSectionInstallView() {
-        GetTheGame.Visible      := False
-        ProgressBar.Visible     := True
-        ProgressInfo.Visible    := True
+        GetTheGame.Visible := False
+        ProgressBar.Visible := True
+        ProgressInfo.Visible := True
     }
     If !ExportDir := FileSelect('D') {
         GameSectionNormalView()
         GameSectionNormalView() {
-            GetTheGame.Visible      := True
-            ProgressBar.Visible     := False
-            ProgressInfo.Visible    := False
+            GetTheGame.Visible := True
+            ProgressBar.Visible := False
+            ProgressInfo.Visible := False
         }
         Return
     }
@@ -229,7 +237,7 @@ DownloadInstallGame() {
         }
         ProgressInfo.Value := 'Unpacking...'
         Loop 3 {
-            RunWait('DB\7za.exe x DB\00' (2 + A_Index) '.7z.001 -o"' ExportDir '\Age of Empires II" -aoa',, 'Hide')
+            RunWait('DB\7za.exe x DB\00' (2 + A_Index) '.7z.001 -o"' ExportDir '\Age of Empires II" -aoa', , 'Hide')
             ProgressBar.Value += 1
             ProgressInfo.Value := 'DB\00' (2 + A_Index) '.7z.001 - Unpacked'
         }
@@ -259,30 +267,45 @@ CreateGameShortcuts() {
     If FileExist(ChosenFolder.Value '\age2_x1\age2_x2.exe')
         FileCreateShortcut(ChosenFolder.Value '\age2_x1\age2_x2.exe', A_Desktop '\Forgotten Empires.lnk')
 }
-RunAOK := Manager.AddButton('xm+30 yp+20 w48 H48')
+RunAOK := Manager.AddButton('xm+50 yp+20 w36 H36')
 Features['The Game'].Push(RunAOK)
-GuiButtonIcon(RunAOK, 'DB\000\aok.png', , 'W32 H32')
+CreateImageButton(RunAOK, 0, [['DB\000\aok_normal.png'  ]
+                            , ['DB\000\aok_hover.png'   ]
+                            , ['DB\000\aok_click.png'   ]
+                            , ['DB\000\aok_disable.png' ]]*)
 RunAOK.OnEvent('Click', (*) => Run(ChosenFolder.Value '\empires2.exe', ChosenFolder.Value))
 
 RunAOC := Manager.AddButton('yp wp hp')
 Features['The Game'].Push(RunAOC)
-GuiButtonIcon(RunAOC, 'DB\000\aoc.png', , 'W32 H32')
+CreateImageButton(RunAOC, 0, [['DB\000\aoc_normal.png'  ]
+                            , ['DB\000\aoc_hover.png'   ]
+                            , ['DB\000\aoc_click.png'   ]
+                            , ['DB\000\aoc_disable.png' ]]*)
 RunAOC.OnEvent('Click', (*) => Run(ChosenFolder.Value '\age2_x1\age2_x1.exe', ChosenFolder.Value '\age2_x1'))
 
 RunFOE := Manager.AddButton('yp wp hp')
 Features['The Game'].Push(RunFOE)
-GuiButtonIcon(RunFOE, 'DB\000\fe.png', , 'W32 H32')
+CreateImageButton(RunFOE, 0, [['DB\000\fe_normal.png'  ]
+                            , ['DB\000\fe_hover.png'   ]
+                            , ['DB\000\fe_click.png'   ]
+                            , ['DB\000\fe_disable.png' ]]*)
 RunFOE.OnEvent('Click', (*) => Run(ChosenFolder.Value '\age2_x1\age2_x2.exe', ChosenFolder.Value '\age2_x1'))
 
-ChooseFolder := Manager.AddButton('xm+10 yp+60 w30 w100', 'Choose')
+ChooseFolder := Manager.AddButton('xm+10 yp+50 w100', 'Choose')
 Features['The Game'].Push(ChooseFolder)
 ChooseFolder.OnEvent('Click', (*) => SelectTheGame())
-GuiButtonIcon(ChooseFolder, 'DB\000\Folder.png', , 'W16 H16 T1 A1')
+CreateImageButton(ChooseFolder, 0, [['DB\000\pick_folder_normal.png'  ]
+                                  , ['DB\000\pick_folder_hover.png'   ]
+                                  , ['DB\000\pick_folder_click.png'   ]
+                                  , ['DB\000\pick_folder_disable.png' ]]*)
 
-LoadGRFolder := Manager.AddButton('xm+180 yp w30 w30')
+LoadGRFolder := Manager.AddButton('xm+180 yp w30')
 Features['The Game'].Push(LoadGRFolder)
 LoadGRFolder.OnEvent('Click', (*) => SelectTheGameFromGR())
-GuiButtonIcon(LoadGRFolder, 'DB\000\GR.png', , 'W16 H16')
+CreateImageButton(LoadGRFolder, 0, [['DB\000\gr_get_normal.png'  ]
+                                  , ['DB\000\gr_get_hover.png'   ]
+                                  , ['DB\000\gr_get_click.png'   ]
+                                  , ['DB\000\gr_get_disable.png' ]]*)
 SelectTheGameFromGR() {
     TextFound := LoadGRSettingText()
     LoadGRSettingText() {
@@ -296,12 +319,12 @@ SelectTheGameFromGR() {
         Return TextFound
     }
     FoundLocations := []
-    AOKDir      := ''
-    AOCDir      := ''
-    FOEDir      := ''
-    ChosenDir   := ''
+    AOKDir := ''
+    AOCDir := ''
+    FOEDir := ''
+    ChosenDir := ''
     GRGamePath(TextFound, AppName) {
-        P := InStr(TextFound, LFE := AppName,, -1)
+        P := InStr(TextFound, LFE := AppName, , -1)
         Loop {
             Char := SubStr(TextFound, P - (I := A_Index), 1)
             LFE := Char LFE
@@ -310,17 +333,17 @@ SelectTheGameFromGR() {
         Return (FileExist(Result) ? Result : '')
     }
     If AOKFile := GRGamePath(TextFound, 'empires2.exe') {
-        SplitPath(AOKFile,, &AOKDir)
+        SplitPath(AOKFile, , &AOKDir)
         FoundLocations.Push(ChosenDir := AOKDir)
     }
     If AOCFile := GRGamePath(TextFound, 'age2_x1.exe') {
-        SplitPath(AOCFile,, &AOCDir)
-        SplitPath(AOCDir,, &AOCDir)
+        SplitPath(AOCFile, , &AOCDir)
+        SplitPath(AOCDir, , &AOCDir)
         FoundLocations.Push(ChosenDir := AOCDir)
     }
     If FOEFile := GRGamePath(TextFound, 'age2_x2.exe') {
-        SplitPath(FOEFile,, &FOEDir)
-        SplitPath(FOEDir,, &FOEDir)
+        SplitPath(FOEFile, , &FOEDir)
+        SplitPath(FOEDir, , &FOEDir)
         FoundLocations.Push(ChosenDir := FOEDir)
     }
     FoundLocations := RemoveDuplications(FoundLocations)
@@ -369,27 +392,32 @@ SelectTheGameFromGR() {
     ChosenFolder.Value := ChosenDir
     ChargeSettings________()
 }
-ChosenFolder := Manager.AddEdit('xm+10 yp+30 w200 Center ReadOnly r4 -VScroll cBlue BackgroundWhite')
+ChosenFolder := Manager.AddEdit('xm+10 yp+30 w200 Center ReadOnly r4 -VScroll Border -E0x200 BackgroundWhite cBlue')
 Features['The Game'].Push(ChosenFolder)
+ChosenFolder.SetFont('Bold')
 OpenTheGameFolder := Manager.AddButton('w200', 'Open')
 Features['The Game'].Push(OpenTheGameFolder)
-GuiButtonIcon(OpenTheGameFolder, 'DB\000\Folder.png', , 'W16 H16 T1 A1')
+CreateImageButton(OpenTheGameFolder, 0, [['DB\000\open_aoeii_normal.png' ]
+                                       , ['DB\000\open_aoeii_hover.png'  ]
+                                       , ['DB\000\open_aoeii_click.png'  ]
+                                       , ['DB\000\open_aoeii_disable.png']]*)
 OpenTheGameFolder.OnEvent('Click', (*) => Run(ChosenFolder.Value))
 SelectTheGame() {
-    SelectAFolder()
-    ChargeSettings________(True)
+    If SelectAFolder()
+        ChargeSettings________(True)
 }
 SelectAFolder() {
     ChosenDir := FileSelect('D', 'C:\' (A_Is64bitOS ? 'Program Files (x86)' : 'Program Files') '\Microsoft Games')
     If !ChosenDir
-        Return
+        Return False
     IniWrite(ChosenDir, Config, 'Game', 'Path')
     ChosenFolder.Value := ChosenDir
+    Return True
 }
 
 ; # Versions
 Features['Versions'] := []
-_Version_ := Manager.AddText('ym w450 h220 Center c800000 BackgroundFFFFFF Border', '# Versions')
+_Version_ := Manager.AddText('xm+230 ym w450 h220 Center c800000 BackgroundFFFFFF Border', '# Versions')
 Features['Versions'].Push(_Version_)
 _Version_.SetFont('Bold')
 H := Manager.AddPicture('xp+54 ym+25 BackgroundTrans', 'DB\000\aok.png')
@@ -452,7 +480,7 @@ CleanUp(Patch) {
         RegDelete('HKEY_CURRENT_USER\SOFTWARE\Microsoft\Microsoft Games\Age of Empires', 'Aoe2Patch')
 }
 GameIsRunning() {
-    Processes := ['empires2.exe', 'age2_x1.exe', 'age2_x2.exe'] 
+    Processes := ['empires2.exe', 'age2_x1.exe', 'age2_x2.exe']
     For Each, Process in Processes {
         If ProcessExist(Process) {
             ProcessClose(Process)
@@ -482,7 +510,7 @@ SetVersion(Version, Select := '') {
     If (Patch.Value = 1) {
         Return
     }
-    DirCopy('DB\001\' Patch.Text '\Static' , ChosenFolder.Value, 1)
+    DirCopy('DB\001\' Patch.Text '\Static', ChosenFolder.Value, 1)
     If DirExist('DB\001\' Patch.Text '\' Version) {
         DirCopy('DB\001\' Patch.Text '\' Version, ChosenFolder.Value, 1)
         If InStr(Patch.Text, 'v2') {
@@ -509,10 +537,10 @@ ChargeVersions________() {
         If CountedFiles = EqualHashCount {
             Flag := SubStr(Version, 1, 1)
             Switch Flag {
-                Case 1: 
+                Case 1:
                     General['AOC']['VersionsN'][Version].Value := 1
                     ++FoundVersions
-                Case 2: 
+                Case 2:
                     General['AOK']['VersionsN'][Version].Value := 1
                     ++FoundVersions
             }
@@ -782,7 +810,7 @@ Features['Visual Modes'].Push(_VisualMods_)
 _VisualMods_.SetFont('Bold')
 H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
 Features['Visual Modes'].Push(H)
-VMList := Manager.AddListView('w200 h210 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+VMList := Manager.AddListView('w200 h240 -E0x200 -Hdr Checked', ['Mode Name'])
 Features['Visual Modes'].Push(VMList)
 VMList.SetFont('Bold')
 Loop Files, 'DB\007\*', 'D' {
@@ -793,12 +821,36 @@ ApplyVM(Ctrl, Item, Checked) {
     SectionInteract(Features['Visual Modes'], False)
     VMName := VMList.GetText(Item)
     SlpDir := Checked ? 'DB\007\' VMName : 'DB\007\' VMName '\U'
-    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['gra'] '" "' SlpDir '\gra*.slp"', , 'Hide')
-    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['int'] '" "' SlpDir '\int*.slp"', , 'Hide')
-    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['ter'] '" "' SlpDir '\ter*.slp"', , 'Hide')
+    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['gra'] '" "' SlpDir '\gra*.slp"',, 'Hide')
+    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['int'] '" "' SlpDir '\int*.slp"',, 'Hide')
+    RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['ter'] '" "' SlpDir '\ter*.slp"',, 'Hide')
+    If FileExist(SlpDir '\Info.ini') {
+        Drs := IniRead(SlpDir '\Info.ini', 'Info', 'Drs', '')
+        FileN := IniRead(SlpDir '\Info.ini', 'Info', 'File', '')
+        Lines := StrSplit(IniRead(SlpDir '\Info.ini', 'Info', 'Line', ''), ',')
+        Values := StrSplit(IniRead(SlpDir '\Info.ini', 'Info', 'Value', ''), ',')
+        RunWait('DB\000\DrsBuild.exe /e "' ChosenFolder.Value '\Data\' Drs '" ' FileN ' /o "' ChosenFolder.Value '\Data"',, 'Hide')
+        OBJ := FileOpen(ChosenFolder.Value '\Data\' FileN, 'r')
+        NValues := Map()
+        While !OBJ.AtEOF {
+            Index := Format('{:03}', A_Index)
+            NValues[Index] := OBJ.ReadLine()
+        }
+        OBJ.Close()
+        For Index, Line in Lines {
+            NValues[Line] := Values[Index]
+        }
+        OBJ := FileOpen(ChosenFolder.Value '\Data\' FileN, 'w')
+        For Index, Line in NValues {
+            OBJ.WriteLine(Line)
+        }
+        OBJ.Close()
+        RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' Drs '" "' ChosenFolder.Value '\Data\' FileN '"',, 'Hide')
+        FileDelete(ChosenFolder.Value '\Data\' FileN)
+    }
     Hash := HashFile(ChosenFolder.Value '\Data\' DrsTypes['gra'])
-        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['int'])
-        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['ter'])
+          . HashFile(ChosenFolder.Value '\Data\' DrsTypes['int'])
+          . HashFile(ChosenFolder.Value '\Data\' DrsTypes['ter'])
     CheckedRows := Map(), NCR := 0
     While (NCR := VMList.GetNext(NCR, 'Checked')) {
         CheckedRows[NCR] := True
@@ -810,9 +862,9 @@ ApplyVM(Ctrl, Item, Checked) {
     SectionInteract(Features['Visual Modes'])
     SoundPlay('DB\000\30 wololo.mp3')
 }
-LoadVM := Manager.AddButton('wp Disabled', 'Import')
-LoadVM.SetFont('Bold')
-LoadVM.OnEvent('Click', (*) => ImportVisualMod())
+;LoadVM := Manager.AddButton('wp Disabled', 'Import')
+;LoadVM.SetFont('Bold')
+;LoadVM.OnEvent('Click', (*) => ImportVisualMod())
 ImportVisualMod() {
     MsgBox('Make sure the visual mod you select is compatible with your game!', 'Notice', 0x40)
     If Selected := FileSelect('D') {
@@ -852,10 +904,10 @@ ImportVisualMod() {
                     F := FileRead(FileName, 'RAW')
                     NF := Buffer(F.Size - 4)
                     Loop NF.Size {
-                        Byte    := NumGet(F, (A_Index - 1) + 4, 'UChar')
-                        Val     := (Byte - 17) ^ 0x23
-                        UChar   := Val & 0xFF
-                        NByte   := (0x20 * (Val) | (UChar >> 3))
+                        Byte := NumGet(F, (A_Index - 1) + 4, 'UChar')
+                        Val := (Byte - 17) ^ 0x23
+                        UChar := Val & 0xFF
+                        NByte := (0x20 * (Val) | (UChar >> 3))
                         NumPut('UChar', NByte, NF, A_Index - 1)
                     }
                     FileOpen(FileName, 'w').RawWrite(NF, NF.Size)
@@ -887,7 +939,6 @@ ImportVisualMod() {
         MsgBox(ModeName ' should be added to the list by now!', 'Info', 0x40)
         SectionInteract(Features['Visual Modes'])
     }
-    LoadVM.Enabled := True
 }
 
 ; # Data Modes
@@ -898,10 +949,10 @@ Features['Data Modes'].Push(_DataModes_)
 _DataModes_.SetFont('Bold')
 H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
 Features['Data Modes'].Push(H)
-DMList := Manager.AddListView('w200 h210 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+DMList := Manager.AddListView('w200 h240 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
 Features['Data Modes'].Push(DMList)
 DMList.SetFont('Bold')
-For Each, Mode in StrSplit(IniRead('DB\008\DataMode.ini', 'DataMode',, ''), '`n') {
+For Each, Mode in StrSplit(IniRead('DB\008\DataMode.ini', 'DataMode', , ''), '`n') {
     DMList.Add(, StrSplit(Mode, '=')[1])
 }
 DMList.OnEvent('ItemCheck', ApplyDM)
@@ -914,7 +965,7 @@ ApplyDM(Ctrl, Item, Checked) {
     If (Checked) {
         ModeDir := IniRead('DB\008\DataMode.ini', 'DataMode', DMName, '')
         ModeDir := StrSplit(ModeDir, '|')
-        Parts   := StrSplit(ModeDir[2], ',')
+        Parts := StrSplit(ModeDir[2], ',')
         If !PrepareTheDataMode() {
             DMList.Modify(Item, '-Check')
             Return
@@ -929,9 +980,9 @@ ApplyDM(Ctrl, Item, Checked) {
                         }
                     }
                 }
-                If !DirExist('DB\' ModeDir[1]) 
+                If !DirExist('DB\' ModeDir[1])
                     && RunWait('DB\7za.exe x ' 'DB\' ModeDir[1] '.7z.001 -oDB\' ModeDir[1], , 'Hide') {
-                    Return False
+                        Return False
                 }
                 Return True
             } Catch As Err {
@@ -1005,9 +1056,9 @@ ApplyVMDM(Ctrl, Item, Checked) {
     SectionInteract(Features['Data Modes'])
     SoundPlay('DB\000\30 wololo.mp3')
 }
-ImportDM := Manager.AddButton('wp Disabled', 'Import')
-ImportDM.SetFont('Bold')
-ImportDM.OnEvent('Click', (*) => ImportDataMode())
+;ImportDM := Manager.AddButton('wp Disabled', 'Import')
+;ImportDM.SetFont('Bold')
+;ImportDM.OnEvent('Click', (*) => ImportDataMode())
 ImportDataMode() {
     If Selected := FileSelect('D') {
         SplitPath(Selected, &ModeName)
@@ -1044,9 +1095,9 @@ ImportDataMode() {
                     Continue
                 }
                 LZID := 'gam' Format("{:0" IDL "}", ID)
-                FileMove(A_LoopFileFullPath,  Dir '\' ModeName '\Drs\' LZID '.' A_LoopFileExt)
+                FileMove(A_LoopFileFullPath, Dir '\' ModeName '\Drs\' LZID '.' A_LoopFileExt)
             }
-            RunWait('DB\000\DrsBuild.exe /a "' Dir '\' ModeName '\Data\gamedata_x1_p1.drs" "'  Dir '\' ModeName '\Drs\gam*.*"',, 'Hide')
+            RunWait('DB\000\DrsBuild.exe /a "' Dir '\' ModeName '\Data\gamedata_x1_p1.drs" "' Dir '\' ModeName '\Drs\gam*.*"', , 'Hide')
             DirDelete(Dir '\' ModeName '\Drs', 1)
         }
         FileMove(Dir '\' ModeName '\age2_x1.xml', Dir '\age2_x1.xml')
@@ -1065,7 +1116,7 @@ ImportDataMode() {
 
 ; # Other tools
 Features['Other Tools'] := []
-_ATools_ := Manager.AddText('ym w220 h590 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n')
+_ATools_ := Manager.AddText('xm+690 ym w220 h650 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n')
 Features['Other Tools'].Push(_ATools_)
 _ATools_.SetFont('Bold')
 _ATools_.GetPos(&X, &Y, &Width, &Height)
@@ -1074,7 +1125,7 @@ H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
 Features['Other Tools'].Push(H)
 
 ; # Shortcut send & un-select one unit
-Macro1 := Manager.AddCheckBox('xp yp+20 w200 BackgroundWhite Center' , '{Left Alt + Right Mouse Button}`n[Send && un-select one unit]')
+Macro1 := Manager.AddCheckBox('xp yp+20 w200 BackgroundWhite Center', '{Left Alt + Right Mouse Button}`n[Send && un-select one unit]')
 Features['Other Tools'].Push(Macro1)
 Macro1.SetFont('Bold')
 H := Manager.AddText('x' (X + 1) ' yp+35 w220 0x10')
@@ -1097,7 +1148,10 @@ EDMacro1() {
 
 VPN := Manager.AddButton('xp+10 yp+10 w56 h56')
 Features['Other Tools'].Push(VPN)
-GuiButtonIcon(VPN, 'DB\000\vpn.png',, 'W48 H48')
+CreateImageButton(VPN, 0, [['DB\000\vpn_normal.png'  ]
+                         , ['DB\000\vpn_hover.png'   ]
+                         , ['DB\000\vpn_click.png'   ]
+                         , ['DB\000\vpn_disable.png' ]]*)
 VPN.OnEvent('Click', (*) => OpenHAI())
 OpenHAI() {
     If !FileExist(VPNPath) {
@@ -1113,6 +1167,10 @@ OpenHAI() {
     Run(VPNPath, VPNDir)
 }
 ClearVPNReg := Manager.AddButton('xp+65 yp+2 w130', 'Clear Registry')
+CreateImageButton(ClearVPNReg, 0, [['DB\000\clear_vpn_normal.png'  ]
+                                 , ['DB\000\clear_vpn_hover.png'   ]
+                                 , ['DB\000\clear_vpn_click.png'   ]
+                                 , ['DB\000\clear_vpn_disable.png' ]]*)
 Features['Other Tools'].Push(ClearVPNReg)
 ClearVPNReg.OnEvent('Click', (*) => ClearRegHAI())
 ClearRegHAI() {
@@ -1187,23 +1245,18 @@ ChargeOtherTools______() {
     }
 }
 
-_ATools_.GetPos(&X, &Y,, &Height)
-ProgressText := Manager.AddText('x' X ' y' (Y + Height + 10) ' w220 h20 Center BackgroundTrans cBlue', '...')
-ProgressText.SetFont('Bold')
-Progress := Manager.AddProgress('xp yp+20 wp hp -Smooth')
-
 AboutText := ''
-           . '| AGE OF EMPIRES II MANAGER ALL IN ONE, '
-           . 'AUTOHOTKEY BASED APP, '
-           . 'CREATED BY SMILE, '
-           . 'TOTALLY SECURE, '
-           . 'TESTED MANY TIMES, '
-           . 'BUT USE ON YOUR OWN RISK, '
-           . 'ANY FEEDBACK WILL BE HELPFUL, '
-           . 'MY EMAIL, '
-           . 'CHANDOUL.MOHAMED26@GMAIL.COM, '
-           . 'WEBSITE FOR THIS APP, '
-           . 'HTTPS://SMILEAOE.GITHUB.IO |'
+    . '| AGE OF EMPIRES II MANAGER ALL IN ONE, '
+    . 'AUTOHOTKEY BASED APP, '
+    . 'CREATED BY SMILE, '
+    . 'TOTALLY SECURE, '
+    . 'TESTED MANY TIMES, '
+    . 'BUT USE ON YOUR OWN RISK, '
+    . 'ANY FEEDBACK WILL BE HELPFUL, '
+    . 'MY EMAIL, '
+    . 'CHANDOUL.MOHAMED26@GMAIL.COM, '
+    . 'WEBSITE FOR THIS APP, '
+    . 'HTTPS://SMILEAOE.GITHUB.IO |'
 
 SB := Manager.AddStatusBar()
 SB.SetFont('Bold', 'Calibri')
@@ -1211,8 +1264,7 @@ SB.SetParts(10, 50, 200)
 SB.SetText('v' Version, 2)
 SB.SetText('Loading...', 3)
 SB.SetText(A_Tab A_Tab 'A Collective App From The Internet On What I Found Useful About AoE II!    ', 4)
-Manager.Show()
-ChargeSettings________()
+Manager.Show('x10 y10 w930 h680')
 ChargeEnableFixes_____() {
     Loop Files, 'DB\001\*', 'D' {
         Patch.Add([A_LoopFileName])
@@ -1223,17 +1275,18 @@ ChargeEnableFixes_____() {
     }
 }
 ChargeEnableFixes_____()
+ChargeSettings________()
 CheckForUpdates_______()
 Return
 
 ChargeSettings________(Browse := False) {
     SoundPlay('DB\000\30 wololo.mp3')
-    SectionInteract(Features['Versions']        , False)
-    SectionInteract(Features['Compatibilities'] , False)
-    SectionInteract(Features['Language']        , False)
-    SectionInteract(Features['Visual Modes']    , False)
-    SectionInteract(Features['Data Modes']      , False)
-    SectionInteract(Features['Other Tools']     , False)
+    SectionInteract(Features['Versions'], False)
+    SectionInteract(Features['Compatibilities'], False)
+    SectionInteract(Features['Language'], False)
+    SectionInteract(Features['Visual Modes'], False)
+    SectionInteract(Features['Data Modes'], False)
+    SectionInteract(Features['Other Tools'], False)
     ChosenFolder.Value := IniRead(Config, 'Game', 'Path', '')
     ValidGameLocation(Location) {
         Return FileExist(Location '\empires2.exe')
@@ -1243,7 +1296,7 @@ ChargeSettings________(Browse := False) {
             && FileExist(Location '\Data\terrain.drs')
     }
     If !ValidGameLocation(ChosenFolder.Value) {
-        SplitPath(ChosenFolder.Value,, &Expected)
+        SplitPath(ChosenFolder.Value, , &Expected)
         If FileExist(Expected '\empires2.exe') {
             ChosenFolder.Value := Expected
             IniWrite(ChosenFolder.Value, Config, 'Game', 'Path')
@@ -1262,7 +1315,7 @@ ChargeSettings________(Browse := False) {
         SelectAFolder()
     }
     If !ValidGameLocation(ChosenFolder.Value) {
-        SplitPath(ChosenFolder.Value,,,,, &Drive)
+        SplitPath(ChosenFolder.Value, , , , , &Drive)
         If Drive != '' {
             Choice := MsgBox('Game location not found!`n`nWant to launch a search in the current drive?', 'Game', 0x4 + 0x20)
             If Choice = 'Yes' {
@@ -1368,14 +1421,14 @@ CheckForUpdates_______() {
             FoundUpdates.Push(A_ScriptName)
         }
         Loop Files, 'DB\*.7z.*', 'R' {
-            If HashsumsMap.Has(A_LoopFileDir '\' A_LoopFileName) 
+            If HashsumsMap.Has(A_LoopFileDir '\' A_LoopFileName)
                 && (HashFile(A_LoopFileDir '\' A_LoopFileName) != HashsumsMap[A_LoopFileDir '\' A_LoopFileName]) {
-                FoundUpdates.Push(A_LoopFileDir '\' A_LoopFileName)
+                    FoundUpdates.Push(A_LoopFileDir '\' A_LoopFileName)
             }
         }
         If FoundUpdates.Length {
             UpdatesList := '`n=======================`n`n'
-            For Each, UpdateFile in FoundUpdates{
+            For Each, UpdateFile in FoundUpdates {
                 UpdatesList .= Each ' - ' UpdateFile '`n'
             }
             UpdatesList .= '`n=======================`n'
@@ -1393,14 +1446,14 @@ CheckForUpdates_______() {
                     Download(DownloadLink, UpdateFile)
                     If !PackageIsValid(PackagePath)
                         Reload
-                    Buff    := FileRead(UpdateFile, 'RAW')
-                    Str     := StrGet(Buff, 2, '')
+                    Buff := FileRead(UpdateFile, 'RAW')
+                    Str := StrGet(Buff, 2, '')
                     If (Str != '7z') {
                         Continue
                     }
                     Name := StrSplit(UpdateFile, '.')
                     DirDelete(Name[1], 1)
-                    RunWait('DB\7za.exe x ' Name[1] '.7z.001 -o' Name[1] ' -aoa',, 'Hide')
+                    RunWait('DB\7za.exe x ' Name[1] '.7z.001 -o' Name[1] ' -aoa', , 'Hide')
                     DoneSteps.Value += 1
                     DoneStepsText.Text := UpdateFile
                 }
@@ -1489,4 +1542,580 @@ HashFile(FilePath, HashType := 2) {
         HashVal .= Format('{:02x}', (NumGet(bHash, A_Index - 1, "UChar")) & 0xff)
     F.Close()
     Return HashVal
+}
+
+; ======================================================================================================================
+; Name:              CreateImageButton()
+; Function:          Create images and assign them to pushbuttons.
+; Tested with:       AHK 2.0.11 (U32/U64)
+; Tested on:         Win 10 (x64)
+; Change history:    1.0.01/2024-01-01/just me   - Use Gui.Backcolor as default for the background if available
+;                    1.0.00/2023-02-03/just me   - Initial stable release for AHK v2
+; Credits:           THX tic for GDIP.AHK, tkoi for ILBUTTON.AHK
+; ======================================================================================================================
+; How to use:
+;     1. Call UseGDIP() to initialize the Gdiplus.dll before the first call of this function.
+;     2. Create a push button (e.g. "MyGui.AddButton("option", "caption").
+;     3. If you want to want to use another color than the GUI's current Backcolor for the background of the images
+;        - especially for rounded buttons - call CreateImageButton("SetDefGuiColor", NewColor) where NewColor is a RGB
+;        integer value (0xRRGGBB) or a HTML color name ("Red"). You can also change the default text color by calling
+;        CreateImageButton("SetDefTxtColor", NewColor).
+;        To reset the colors to the AHK/system default pass "*DEF*" in NewColor, to reset the background to use
+;        Gui.Backcolor pass "*GUI*".
+;     4. To create an image button call CreateImageButton() passing two or more parameters:
+;        GuiBtn      -  Gui.Button object.
+;        Mode        -  The mode used to create the bitmaps:
+;                       0  -  unicolored or bitmap
+;                       1  -  vertical bicolored
+;                       2  -  horizontal bicolored
+;                       3  -  vertical gradient
+;                       4  -  horizontal gradient
+;                       5  -  vertical gradient using StartColor at both borders and TargetColor at the center
+;                       6  -  horizontal gradient using StartColor at both borders and TargetColor at the center
+;                       7  -  'raised' style
+;                       8  -  forward diagonal gradient from the upper-left corner to the lower-right corner
+;                       9  -  backward diagonal gradient from the upper-right corner to the lower-left corner
+;                      -1  -  reset the button
+;        Options*    -  variadic array containing up to 6 option arrays (see below).
+;        ---------------------------------------------------------------------------------------------------------------
+;        The index of each option object determines the corresponding button state on which the bitmap will be shown.
+;        MSDN defines 6 states (http://msdn.microsoft.com/en-us/windows/bb775975):
+;           PBS_NORMAL    = 1
+;	         PBS_HOT       = 2
+;	         PBS_PRESSED   = 3
+;	         PBS_DISABLED  = 4
+;	         PBS_DEFAULTED = 5
+;	         PBS_STYLUSHOT = 6 <- used only on tablet computers (that's false for Windows Vista and 7, see below)
+;        If you don't want the button to be 'animated' on themed GUIs, just pass one option object with index 1.
+;        On Windows Vista and 7 themed bottons are 'animated' using the images of states 5 and 6 after clicked.
+;        ---------------------------------------------------------------------------------------------------------------
+;        Each option array may contain the following values:
+;           Index Value
+;           1     StartColor  mandatory for Option[1], higher indices will inherit the value of Option[1], if omitted:
+;                             -  ARGB integer value (0xAARRGGBB) or HTML color name ("Red").
+;                             -  Path of an image file or HBITMAP handle for mode 0.
+;           2     TargetColor mandatory for Option[1] if Mode > 0. Higher indcices will inherit the color of Option[1],
+;                             if omitted:
+;                             -  ARGB integer value (0xAARRGGBB) or HTML color name ("Red").
+;                             -  String "HICON" if StartColor contains a HICON handle.
+;           3     TextColor   optional, if omitted, the default text color will be used for Option[1], higher indices
+;                             will inherit the color of Option[1]:
+;                             -  ARGB integer value (0xAARRGGBB) or HTML color name ("Red").
+;                                Default: 0xFF000000 (black)
+;           4     Rounded     optional:
+;                             -  Radius of the rounded corners in pixel; the letters 'H' and 'W' may be specified
+;                                also to use the half of the button's height or width respectively.
+;                                Default: 0 - not rounded
+;           5     BorderColor optional, ignored for modes 0 (bitmap) and 7, color of the border:
+;                             -  RGB integer value (0xRRGGBB) or HTML color name ("Red").
+;           6     BorderWidth optional, ignored for modes 0 (bitmap) and 7, width of the border in pixels:
+;                             -  Default: 1
+;        ---------------------------------------------------------------------------------------------------------------
+;        If the the button has a caption it will be drawn upon the bitmaps.
+;     5. Call GdiplusShutDown() to clean up the resources used by GDI+ after the last function call or
+;        before the script terminates.
+; ======================================================================================================================
+; This software is provided 'as-is', without any express or implied warranty.
+; In no event will the authors be held liable for any damages arising from the use of this software.
+; ======================================================================================================================
+; CreateImageButton()
+; ======================================================================================================================
+CreateImageButton(GuiBtn, Mode, Options*) {
+    ; Default colors - COLOR_3DFACE is used by AHK as default Gui background color
+    Static DefGuiColor := SetDefGuiColor("*GUI*"),
+        DefTxtColor := SetDefTxtColor("*DEF*"),
+        GammaCorr := False
+    Static HTML := { BLACK: 0x000000, GRAY: 0x808080, SILVER: 0xC0C0C0, WHITE: 0xFFFFFF,
+        MAROON: 0x800000, PURPLE: 0x800080, FUCHSIA: 0xFF00FF, RED: 0xFF0000,
+        GREEN: 0x008000, OLIVE: 0x808000, YELLOW: 0xFFFF00, LIME: 0x00FF00,
+        NAVY: 0x000080, TEAL: 0x008080, AQUA: 0x00FFFF, BLUE: 0x0000FF }
+    Static MaxBitmaps := 6, MaxOptions := 6
+    Static BitMaps := [], Buttons := Map()
+    Static Bitmap := 0, Graphics := 0, Font := 0, StringFormat := 0, HIML := 0
+    Static BtnCaption := "", BtnStyle := 0
+    Static HWND := 0
+    Bitmap := Graphics := Font := StringFormat := HIML := 0
+    NumBitmaps := 0
+    BtnCaption := ""
+    BtnStyle := 0
+    BtnW := 0
+    BtnH := 0
+    GuiColor := ""
+    TxtColor := ""
+    HWND := 0
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Check for 'special calls'
+    If !IsObject(GuiBtn) {
+        Switch GuiBtn {
+            Case "SetDefGuiColor":
+                DefGuiColor := SetDefGuiColor(Mode)
+                Return True
+            Case "SetDefTxtColor":
+                DefTxtColor := SetDefTxtColor(Mode)
+                Return True
+            Case "SetGammaCorrection":
+                GammaCorr := !!Mode
+                Return True
+        }
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Check the control object
+    If (Type(GuiBtn) != "Gui.Button")
+        Return ErrorExit("Invalid parameter GuiBtn!")
+    HWND := GuiBtn.Hwnd
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Check Mode
+    If !IsInteger(Mode) || (Mode < -1) || (Mode > 9)
+        Return ErrorExit("Invalid parameter Mode!")
+    If (Mode = -1) { ; reset the button
+        If Buttons.Has(HWND) {
+            Btn := Buttons[HWND]
+            BIL := Buffer(20 + A_PtrSize, 0)
+            NumPut("Ptr", -1, BIL) ; BCCL_NOGLYPH
+            SendMessage(0x1602, 0, BIL.Ptr, HWND) ; BCM_SETIMAGELIST
+            IL_Destroy(Btn["HIML"])
+            ControlSetStyle(Btn["Style"], HWND)
+            Buttons.Delete(HWND)
+            Return True
+        }
+        Return False
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Check Options
+    If !(Options Is Array) || !Options.Has(1) || (Options.Length > MaxOptions)
+        Return ErrorExit("Invalid parameter Options!")
+    ; -------------------------------------------------------------------------------------------------------------------
+    HBITMAP := HFORMAT := PBITMAP := PBRUSH := PFONT := PGRAPHICS := PPATH := 0
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Get control's styles
+    BtnStyle := ControlGetStyle(HWND)
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Get the button's font
+    PFONT := 0
+    If (HFONT := SendMessage(0x31, 0, 0, HWND)) { ; WM_GETFONT
+        DC := DllCall("GetDC", "Ptr", HWND, "Ptr")
+        DllCall("SelectObject", "Ptr", DC, "Ptr", HFONT)
+        DllCall("Gdiplus.dll\GdipCreateFontFromDC", "Ptr", DC, "PtrP", &PFONT)
+        DllCall("ReleaseDC", "Ptr", HWND, "Ptr", DC)
+    }
+    If !(Font := PFONT)
+        Return ErrorExit("Couldn't get button's font!")
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Get the button's width and height
+    ControlGetPos(, , &BtnW, &BtnH, HWND)
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Get the button's caption
+    BtnCaption := GuiBtn.Text
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Create a GDI+ bitmap
+    PBITMAP := 0
+    DllCall("Gdiplus.dll\GdipCreateBitmapFromScan0",
+        "Int", BtnW, "Int", BtnH, "Int", 0, "UInt", 0x26200A, "Ptr", 0, "PtrP", &PBITMAP)
+    If !(Bitmap := PBITMAP)
+        Return ErrorExit("Couldn't create the GDI+ bitmap!")
+    ; Get the pointer to its graphics
+    PGRAPHICS := 0
+    DllCall("Gdiplus.dll\GdipGetImageGraphicsContext", "Ptr", PBITMAP, "PtrP", &PGRAPHICS)
+    If !(Graphics := PGRAPHICS)
+        Return ErrorExit("Couldn't get the the GDI+ bitmap's graphics!")
+    ; Quality settings
+    DllCall("Gdiplus.dll\GdipSetSmoothingMode", "Ptr", PGRAPHICS, "UInt", 4)
+    DllCall("Gdiplus.dll\GdipSetInterpolationMode", "Ptr", PGRAPHICS, "Int", 7)
+    DllCall("Gdiplus.dll\GdipSetCompositingQuality", "Ptr", PGRAPHICS, "UInt", 4)
+    DllCall("Gdiplus.dll\GdipSetRenderingOrigin", "Ptr", PGRAPHICS, "Int", 0, "Int", 0)
+    DllCall("Gdiplus.dll\GdipSetPixelOffsetMode", "Ptr", PGRAPHICS, "UInt", 4)
+    DllCall("Gdiplus.dll\GdipSetTextRenderingHint", "Ptr", PGRAPHICS, "Int", 0)
+    ; Create a StringFormat object
+    HFORMAT := 0
+    DllCall("Gdiplus.dll\GdipStringFormatGetGenericTypographic", "PtrP", &HFORMAT)
+    ; Horizontal alignment
+    ; BS_LEFT = 0x0100, BS_RIGHT = 0x0200, BS_CENTER = 0x0300, BS_TOP = 0x0400, BS_BOTTOM = 0x0800, BS_VCENTER = 0x0C00
+    ; SA_LEFT = 0, SA_CENTER = 1, SA_RIGHT = 2
+    HALIGN := (BtnStyle & 0x0300) = 0x0300 ? 1
+        : (BtnStyle & 0x0300) = 0x0200 ? 2
+            : (BtnStyle & 0x0300) = 0x0100 ? 0
+            : 1
+    DllCall("Gdiplus.dll\GdipSetStringFormatAlign", "Ptr", HFORMAT, "Int", HALIGN)
+    ; Vertical alignment
+    VALIGN := (BtnStyle & 0x0C00) = 0x0400 ? 0
+        : (BtnStyle & 0x0C00) = 0x0800 ? 2
+            : 1
+    DllCall("Gdiplus.dll\GdipSetStringFormatLineAlign", "Ptr", HFORMAT, "Int", VALIGN)
+    DllCall("Gdiplus.dll\GdipSetStringFormatHotkeyPrefix", "Ptr", HFORMAT, "UInt", 1) ; THX robodesign
+    StringFormat := HFORMAT
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Create the bitmap(s)
+    BitMaps := []
+    BitMaps.Length := MaxBitmaps
+    Opt1 := Options[1]
+    Opt1.Length := MaxOptions
+    Loop MaxOptions
+        If !Opt1.Has(A_Index)
+            Opt1[A_Index] := ""
+    If (Opt1[3] = "")
+        Opt1[3] := GetARGB(DefTxtColor)
+    For Idx, Opt In Options {
+        If !IsSet(Opt) || !IsObject(Opt) || !(Opt Is Array)
+            Continue
+        BkgColor1 := BkgColor2 := TxtColor := Rounded := GuiColor := Image := ""
+        ; Replace omitted options with the values of Options.1
+        If (Idx > 1) {
+            Opt.Length := MaxOptions
+            Loop MaxOptions {
+                If !Opt.Has(A_Index) || (Opt[A_Index] = "")
+                    Opt[A_Index] := Opt1[A_Index]
+            }
+        }
+        ; ----------------------------------------------------------------------------------------------------------------
+        ; Check option values
+        ; StartColor & TargetColor
+        If (Mode = 0) && BitmapOrIcon(Opt[1], Opt[2])
+            Image := Opt[1]
+        Else {
+            If !IsInteger(Opt[1]) && !HTML.HasOwnProp(Opt[1])
+                Return ErrorExit("Invalid value for StartColor in Options[" . Idx . "]!")
+            BkgColor1 := GetARGB(Opt[1])
+            If (Opt[2] = "")
+                Opt[2] := Opt[1]
+            If !IsInteger(Opt[2]) && !HTML.HasOwnProp(Opt[2])
+                Return ErrorExit("Invalid value for TargetColor in Options[" . Idx . "]!")
+            BkgColor2 := GetARGB(Opt[2])
+        }
+        ; TextColor
+        If (Opt[3] = "")
+            Opt[3] := GetARGB(DefTxtColor)
+        If !IsInteger(Opt[3]) && !HTML.HasOwnProp(Opt[3])
+            Return ErrorExit("Invalid value for TxtColor in Options[" . Idx . "]!")
+        TxtColor := GetARGB(Opt[3])
+        ; Rounded
+        Rounded := Opt[4]
+        If (Rounded = "H")
+            Rounded := BtnH * 0.5
+        If (Rounded = "W")
+            Rounded := BtnW * 0.5
+        If !IsNumber(Rounded)
+            Rounded := 0
+        ; GuiColor
+        If DefGuiColor = "*GUI*"
+            GuiColor := GetARGB(GuiBtn.Gui.Backcolor != "" ? "0x" GuiBtn.Gui.Backcolor : SetDefGuiColor("*DEF*"))
+        Else
+            GuiColor := GetARGB(DefGuiColor)
+        ; BorderColor
+        BorderColor := ""
+        If (Opt[5] != "") {
+            If !IsInteger(Opt[5]) && !HTML.HasOwnProp(Opt[5])
+                Return ErrorExit("Invalid value for BorderColor in Options[" . Idx . "]!")
+            BorderColor := 0xFF000000 | GetARGB(Opt[5]) ; BorderColor must be always opaque
+        }
+        ; BorderWidth
+        BorderWidth := Opt[6] ? Opt[6] : 1
+        ; ----------------------------------------------------------------------------------------------------------------
+        ; Clear the background
+        DllCall("Gdiplus.dll\GdipGraphicsClear", "Ptr", PGRAPHICS, "UInt", GuiColor)
+        ; Create the image
+        If (Image = "") { ; Create a BitMap based on the specified colors
+            PathX := PathY := 0, PathW := BtnW, PathH := BtnH
+            ; Create a GraphicsPath
+            PPATH := 0
+            DllCall("Gdiplus.dll\GdipCreatePath", "UInt", 0, "PtrP", &PPATH)
+            If (Rounded < 1) ; the path is a rectangular rectangle
+                PathAddRectangle(PPATH, PathX, PathY, PathW, PathH)
+            Else ; the path is a rounded rectangle
+                PathAddRoundedRect(PPATH, PathX, PathY, PathW, PathH, Rounded)
+            ; If BorderColor and BorderWidth are specified, 'draw' the border (not for Mode 7)
+            If (BorderColor != "") && (BorderWidth > 0) && (Mode != 7) {
+                ; Create a SolidBrush
+                PBRUSH := 0
+                DllCall("Gdiplus.dll\GdipCreateSolidFill", "UInt", BorderColor, "PtrP", &PBRUSH)
+                ; Fill the path
+                DllCall("Gdiplus.dll\GdipFillPath", "Ptr", PGRAPHICS, "Ptr", PBRUSH, "Ptr", PPATH)
+                ; Free the brush
+                DllCall("Gdiplus.dll\GdipDeleteBrush", "Ptr", PBRUSH)
+                ; Reset the path
+                DllCall("Gdiplus.dll\GdipResetPath", "Ptr", PPATH)
+                ; Add a new 'inner' path
+                PathX := PathY := BorderWidth, PathW -= BorderWidth, PathH -= BorderWidth, Rounded -= BorderWidth
+                If (Rounded < 1) ; the path is a rectangular rectangle
+                    PathAddRectangle(PPATH, PathX, PathY, PathW - PathX, PathH - PathY)
+                Else ; the path is a rounded rectangle
+                    PathAddRoundedRect(PPATH, PathX, PathY, PathW, PathH, Rounded)
+                ; If a BorderColor has been drawn, BkgColors must be opaque
+                BkgColor1 := 0xFF000000 | BkgColor1
+                BkgColor2 := 0xFF000000 | BkgColor2
+            }
+            PathW -= PathX
+            PathH -= PathY
+            PBRUSH := 0
+            RECTF := 0
+            Switch Mode {
+                Case 0:                    ; the background is unicolored
+                    ; Create a SolidBrush
+                    DllCall("Gdiplus.dll\GdipCreateSolidFill", "UInt", BkgColor1, "PtrP", &PBRUSH)
+                    ; Fill the path
+                    DllCall("Gdiplus.dll\GdipFillPath", "Ptr", PGRAPHICS, "Ptr", PBRUSH, "Ptr", PPATH)
+                Case 1, 2:                 ; the background is bicolored
+                    ; Create a LineGradientBrush
+                    SetRectF(&RECTF, PathX, PathY, PathW, PathH)
+                    DllCall("Gdiplus.dll\GdipCreateLineBrushFromRect",
+                        "Ptr", RECTF, "UInt", BkgColor1, "UInt", BkgColor2, "Int", Mode & 1, "Int", 3, "PtrP", &PBRUSH)
+                    DllCall("Gdiplus.dll\GdipSetLineGammaCorrection", "Ptr", PBRUSH, "Int", GammaCorr)
+                    ; Set up colors and positions
+                    SetRect(&COLORS, BkgColor1, BkgColor1, BkgColor2, BkgColor2) ; sorry for function misuse
+                    SetRectF(&POSITIONS, 0, 0.5, 0.5, 1) ; sorry for function misuse
+                    DllCall("Gdiplus.dll\GdipSetLinePresetBlend",
+                        "Ptr", PBRUSH, "Ptr", COLORS, "Ptr", POSITIONS, "Int", 4)
+                    ; Fill the path
+                    DllCall("Gdiplus.dll\GdipFillPath", "Ptr", PGRAPHICS, "Ptr", PBRUSH, "Ptr", PPATH)
+                Case 3, 4, 5, 6, 8, 9:     ; the background is a gradient
+                    ; Determine the brush's width/height
+                    W := Mode = 6 ? PathW / 2 : PathW  ; horizontal
+                    H := Mode = 5 ? PathH / 2 : PathH  ; vertical
+                    ; Create a LineGradientBrush
+                    SetRectF(&RECTF, PathX, PathY, W, H)
+                    LGM := Mode > 6 ? Mode - 6 : Mode & 1 ; LinearGradientMode
+                    DllCall("Gdiplus.dll\GdipCreateLineBrushFromRect",
+                        "Ptr", RECTF, "UInt", BkgColor1, "UInt", BkgColor2, "Int", LGM, "Int", 3, "PtrP", &PBRUSH)
+                    DllCall("Gdiplus.dll\GdipSetLineGammaCorrection", "Ptr", PBRUSH, "Int", GammaCorr)
+                    ; Fill the path
+                    DllCall("Gdiplus.dll\GdipFillPath", "Ptr", PGRAPHICS, "Ptr", PBRUSH, "Ptr", PPATH)
+                Case 7:                    ; raised mode
+                    DllCall("Gdiplus.dll\GdipCreatePathGradientFromPath", "Ptr", PPATH, "PtrP", &PBRUSH)
+                    ; Set Gamma Correction
+                    DllCall("Gdiplus.dll\GdipSetPathGradientGammaCorrection", "Ptr", PBRUSH, "UInt", GammaCorr)
+                    ; Set surround and center colors
+                    ColorArray := Buffer(4, 0)
+                    NumPut("UInt", BkgColor1, ColorArray)
+                    DllCall("Gdiplus.dll\GdipSetPathGradientSurroundColorsWithCount",
+                        "Ptr", PBRUSH, "Ptr", ColorArray, "IntP", 1)
+                    DllCall("Gdiplus.dll\GdipSetPathGradientCenterColor", "Ptr", PBRUSH, "UInt", BkgColor2)
+                    ; Set the FocusScales
+                    FS := (BtnH < BtnW ? BtnH : BtnW) / 3
+                    XScale := (BtnW - FS) / BtnW
+                    YScale := (BtnH - FS) / BtnH
+                    DllCall("Gdiplus.dll\GdipSetPathGradientFocusScales", "Ptr", PBRUSH, "Float", XScale, "Float", YScale)
+                    ; Fill the path
+                    DllCall("Gdiplus.dll\GdipFillPath", "Ptr", PGRAPHICS, "Ptr", PBRUSH, "Ptr", PPATH)
+            }
+            ; Free resources
+            DllCall("Gdiplus.dll\GdipDeleteBrush", "Ptr", PBRUSH)
+            DllCall("Gdiplus.dll\GdipDeletePath", "Ptr", PPATH)
+        }
+        Else { ; Create a bitmap from HBITMAP or file
+            PBM := 0
+            If IsInteger(Image)
+                If (Opt[2] = "HICON")
+                    DllCall("Gdiplus.dll\GdipCreateBitmapFromHICON", "Ptr", Image, "PtrP", &PBM)
+                Else
+                    DllCall("Gdiplus.dll\GdipCreateBitmapFromHBITMAP", "Ptr", Image, "Ptr", 0, "PtrP", &PBM)
+            Else
+                DllCall("Gdiplus.dll\GdipCreateBitmapFromFile", "WStr", Image, "PtrP", &PBM)
+            ; Draw the bitmap
+            DllCall("Gdiplus.dll\GdipDrawImageRectI",
+                "Ptr", PGRAPHICS, "Ptr", PBM, "Int", 0, "Int", 0, "Int", BtnW, "Int", BtnH)
+            ; Free the bitmap
+            DllCall("Gdiplus.dll\GdipDisposeImage", "Ptr", PBM)
+        }
+        ; ----------------------------------------------------------------------------------------------------------------
+        ; Draw the caption
+        If (BtnCaption != "") {
+            ; Text color
+            DllCall("Gdiplus.dll\GdipCreateSolidFill", "UInt", TxtColor, "PtrP", &PBRUSH)
+            ; Set the text's rectangle
+            RECT := Buffer(16, 0)
+            NumPut("Float", BtnW, "Float", BtnH, RECT, 8)
+            ; Draw the text
+            DllCall("Gdiplus.dll\GdipDrawString",
+                "Ptr", PGRAPHICS, "Str", BtnCaption, "Int", -1,
+                "Ptr", PFONT, "Ptr", RECT, "Ptr", HFORMAT, "Ptr", PBRUSH)
+        }
+        ; ----------------------------------------------------------------------------------------------------------------
+        ; Create a HBITMAP handle from the bitmap and add it to the array
+        HBITMAP := 0
+        DllCall("Gdiplus.dll\GdipCreateHBITMAPFromBitmap", "Ptr", PBITMAP, "PtrP", &HBITMAP, "UInt", 0X00FFFFFF)
+        BitMaps[Idx] := HBITMAP
+        NumBitmaps++
+        ; Free resources
+        DllCall("Gdiplus.dll\GdipDeleteBrush", "Ptr", PBRUSH)
+    }
+    ; Now free remaining the GDI+ objects
+    DllCall("Gdiplus.dll\GdipDisposeImage", "Ptr", PBITMAP)
+    DllCall("Gdiplus.dll\GdipDeleteGraphics", "Ptr", PGRAPHICS)
+    DllCall("Gdiplus.dll\GdipDeleteFont", "Ptr", PFONT)
+    DllCall("Gdiplus.dll\GdipDeleteStringFormat", "Ptr", HFORMAT)
+    Bitmap := Graphics := Font := StringFormat := 0
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; Create the ImageList
+    ; ILC_COLOR32 = 0x20
+    HIL := DllCall("Comctl32.dll\ImageList_Create"
+        , "UInt", BtnW, "UInt", BtnH, "UInt", 0x20, "Int", 6, "Int", 0, "Ptr") ; ILC_COLOR32
+    Loop (NumBitmaps > 1) ? MaxBitmaps : 1 {
+        HBITMAP := BitMaps.Has(A_Index) ? BitMaps[A_Index] : BitMaps[1]
+        DllCall("Comctl32.dll\ImageList_Add", "Ptr", HIL, "Ptr", HBITMAP, "Ptr", 0)
+    }
+    ; Create a BUTTON_IMAGELIST structure
+    BIL := Buffer(20 + A_PtrSize, 0)
+    ; Get the currently assigned image list
+    SendMessage(0x1603, 0, BIL.Ptr, HWND) ; BCM_GETIMAGELIST
+    PrevIL := NumGet(BIL, "UPtr")
+    ; Remove the previous image list, if any
+    BIL := Buffer(20 + A_PtrSize, 0)
+    NumPut("Ptr", -1, BIL) ; BCCL_NOGLYPH
+    SendMessage(0x1602, 0, BIL.Ptr, HWND) ; BCM_SETIMAGELIST
+    ; Create a new BUTTON_IMAGELIST structure
+    ; BUTTON_IMAGELIST_ALIGN_LEFT = 0, BUTTON_IMAGELIST_ALIGN_RIGHT = 1, BUTTON_IMAGELIST_ALIGN_CENTER = 4,
+    BIL := Buffer(20 + A_PtrSize, 0)
+    NumPut("Ptr", HIL, BIL)
+    Numput("UInt", 4, BIL, A_PtrSize + 16) ; BUTTON_IMAGELIST_ALIGN_CENTER
+    ControlSetStyle(BtnStyle | 0x0080, HWND) ; BS_BITMAP
+    ; Remove the currently assigned image list, if any
+    If (PrevIL)
+        IL_Destroy(PrevIL)
+    ; Assign the ImageList to the button
+    SendMessage(0x1602, 0, BIL.Ptr, HWND) ; BCM_SETIMAGELIST
+    ; Free the bitmaps
+    FreeBitmaps()
+    NumBitmaps := 0
+    ; -------------------------------------------------------------------------------------------------------------------
+    ; All done successfully
+    Buttons[HWND] := Map("HIML", HIL, "Style", BtnStyle)
+    Return True
+    ; ===================================================================================================================
+    ; Internally used functions
+    ; ===================================================================================================================
+    ; Set the default GUI color.
+    ; GuiColor - RGB integer value (0xRRGGBB) or HTML color name ("Red").
+    ;          - "*GUI*" to use Gui.Backcolor (default)
+    ;          - "*DEF*" to use AHK's default Gui color.
+    SetDefGuiColor(GuiColor) {
+        Static DefColor := DllCall("GetSysColor", "Int", 15, "UInt") ; COLOR_3DFACE
+        Switch
+        {
+            Case (GuiColor = "*GUI*"):
+                Return GuiColor
+            Case (GuiColor = "*DEF*"):
+                Return GetRGB(DefColor)
+            Case IsInteger(GuiColor):
+                Return GuiColor & 0xFFFFFF
+            Case HTML.HasOwnProp(GuiColor):
+                Return HTML.%GuiColor% &0xFFFFFF
+            Default:
+                Throw ValueError("Parameter GuiColor invalid", -1, GuiColor)
+        }
+    }
+    ; ===================================================================================================================
+    ; Set the default text color.
+    ; TxtColor - RGB integer value (0xRRGGBB) or HTML color name ("Red").
+    ;          - "*DEF*" to reset to AHK's default text color.
+    SetDefTxtColor(TxtColor) {
+        Static DefColor := DllCall("GetSysColor", "Int", 18, "UInt") ; COLOR_BTNTEXT
+        Switch
+        {
+            Case (TxtColor = "*DEF*"):
+                Return GetRGB(DefColor)
+            Case IsInteger(TxtColor):
+                Return TxtColor & 0xFFFFFF
+            Case HTML.HasOwnProp(TxtColor):
+                Return HTML.%TxtColor% &0xFFFFFF
+            Default:
+                Throw ValueError("Parameter TxtColor invalid", -1, TxtColor)
+        }
+        Return True
+    }
+    ; ===================================================================================================================
+    ; PRIVATE FUNCTIONS =================================================================================================
+    ; ===================================================================================================================
+    BitmapOrIcon(O1, O2) {
+        ; OBJ_BITMAP = 7
+        Return IsInteger(O1) ? (O2 = "HICON") || (DllCall("GetObjectType", "Ptr", O1, "UInt") = 7) : FileExist(O1)
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    FreeBitmaps() {
+        For HBITMAP In BitMaps
+            IsSet(HBITMAP) ? DllCall("DeleteObject", "Ptr", HBITMAP) : 0
+        BitMaps := []
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    GetARGB(RGB) {
+        ARGB := HTML.HasOwnProp(RGB) ? HTML.%RGB% : RGB
+        Return (ARGB & 0xFF000000) = 0 ? 0xFF000000 | ARGB : ARGB
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    GetRGB(BGR) {
+        Return ((BGR & 0xFF0000) >> 16) | (BGR & 0x00FF00) | ((BGR & 0x0000FF) << 16)
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    PathAddRectangle(Path, X, Y, W, H) {
+        Return DllCall("Gdiplus.dll\GdipAddPathRectangle", "Ptr", Path, "Float", X, "Float", Y, "Float", W, "Float", H)
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    PathAddRoundedRect(Path, X1, Y1, X2, Y2, R) {
+        D := (R * 2), X2 -= D, Y2 -= D
+        DllCall("Gdiplus.dll\GdipAddPathArc",
+            "Ptr", Path, "Float", X1, "Float", Y1, "Float", D, "Float", D, "Float", 180, "Float", 90)
+        DllCall("Gdiplus.dll\GdipAddPathArc",
+            "Ptr", Path, "Float", X2, "Float", Y1, "Float", D, "Float", D, "Float", 270, "Float", 90)
+        DllCall("Gdiplus.dll\GdipAddPathArc",
+            "Ptr", Path, "Float", X2, "Float", Y2, "Float", D, "Float", D, "Float", 0, "Float", 90)
+        DllCall("Gdiplus.dll\GdipAddPathArc",
+            "Ptr", Path, "Float", X1, "Float", Y2, "Float", D, "Float", D, "Float", 90, "Float", 90)
+        Return DllCall("Gdiplus.dll\GdipClosePathFigure", "Ptr", Path)
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    SetRect(&Rect, L := 0, T := 0, R := 0, B := 0) {
+        Rect := Buffer(16, 0)
+        NumPut("Int", L, "Int", T, "Int", R, "Int", B, Rect)
+        Return True
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    SetRectF(&Rect, X := 0, Y := 0, W := 0, H := 0) {
+        Rect := Buffer(16, 0)
+        NumPut("Float", X, "Float", Y, "Float", W, "Float", H, Rect)
+        Return True
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    ErrorExit(ErrMsg) {
+        If (Bitmap)
+            DllCall("Gdiplus.dll\GdipDisposeImage", "Ptr", Bitmap)
+        If (Graphics)
+            DllCall("Gdiplus.dll\GdipDeleteGraphics", "Ptr", Graphics)
+        If (Font)
+            DllCall("Gdiplus.dll\GdipDeleteFont", "Ptr", Font)
+        If (StringFormat)
+            DllCall("Gdiplus.dll\GdipDeleteStringFormat", "Ptr", StringFormat)
+        If (HIML) {
+            BIL := Buffer(20 + A_PtrSize, 0)
+            NumPut("Ptr", -1, BIL) ; BCCL_NOGLYPH
+            DllCall("SendMessage", "Ptr", HWND, "UInt", 0x1602, "Ptr", 0, "Ptr", BIL) ; BCM_SETIMAGELIST
+            IL_Destroy(HIML)
+        }
+        Bitmap := 0
+        Graphics := 0
+        Font := 0
+        StringFormat := 0
+        HIML := 0
+        FreeBitmaps()
+        Throw Error(ErrMsg)
+    }
+}
+
+; ----------------------------------------------------------------------------------------------------------------------
+; Loads and initializes the Gdiplus.dll.
+; Must be called once before you use any of the DLL functions.
+; ----------------------------------------------------------------------------------------------------------------------
+#DllLoad "Gdiplus.dll"
+UseGDIP() {
+    Static GdipObject := 0
+    If !IsObject(GdipObject) {
+        GdipToken := 0
+        SI := Buffer(24, 0) ; size of 64-bit structure
+        NumPut("UInt", 1, SI)
+        If DllCall("Gdiplus.dll\GdiplusStartup", "PtrP", &GdipToken, "Ptr", SI, "Ptr", 0, "UInt") {
+            MsgBox("GDI+ could not be startet!`n`nThe program will exit!", A_ThisFunc, 262160)
+            ExitApp
+        }
+        GdipObject := { __Delete: UseGdipShutDown }
+    }
+    UseGdipShutDown(*) {
+        DllCall("Gdiplus.dll\GdiplusShutdown", "Ptr", GdipToken)
+    }
 }
