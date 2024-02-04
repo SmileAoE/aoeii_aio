@@ -98,11 +98,6 @@ MouseMove(X, Y, 0)
 ProcessWaitClose(A_Args[1])
 ExitApp
 )'
-If !FileExist(AppDir[3] '\001.ahk') || FileRead(AppDir[3] '\001.ahk') != Shortcut1 {
-    O := FileOpen(AppDir[3] '\001.ahk', 'w')
-    O.Write(Shortcut1)
-    O.Close()
-}
 Shortcut2                       := '
 (
 ;Terminates The Game;
@@ -133,11 +128,7 @@ Return False
 ProcessWaitClose(A_Args[1])
 ExitApp
 )'
-If !FileExist(AppDir[3] '\002.ahk') || FileRead(AppDir[3] '\002.ahk') != Shortcut2 {
-    O := FileOpen(AppDir[3] '\002.ahk', 'w')
-    O.Write(Shortcut2)
-    O.Close()
-}
+
 ; Preparation
 
 ; Create app folders
@@ -148,7 +139,16 @@ For _, Item in AppDir {
 }
 
 ; Create Default Shortcuts
-
+If !FileExist(AppDir[3] '\001.ahk') || FileRead(AppDir[3] '\001.ahk') != Shortcut1 {
+    O := FileOpen(AppDir[3] '\001.ahk', 'w')
+    O.Write(Shortcut1)
+    O.Close()
+}
+If !FileExist(AppDir[3] '\002.ahk') || FileRead(AppDir[3] '\002.ahk') != Shortcut2 {
+    O := FileOpen(AppDir[3] '\002.ahk', 'w')
+    O.Write(Shortcut2)
+    O.Close()
+}
 
 ; Use Gdip
 UseGDIP()
@@ -1619,8 +1619,8 @@ CheckForUpdates_______() {
         Return
     }
     SB.SetText('Update check is disabled!', 3)
-    UpdateChk := IniRead(Config, 'Game', 'UpdateChk', 0)
-    If !UpdateChk {
+    UpdateChk := IniRead(Config, 'Game', 'UpdateChk', '')
+    If UpdateChk = '0' {
         Return
     }
     Try {
@@ -1659,7 +1659,7 @@ CheckForUpdates_______() {
             Choice := MsgBox('The following needs to be updated:`n' UpdatesList '`nUpdate now?', 'New Update!', 0x4 + 0x40 + 0x100)
             If Choice = 'Yes' {
                 DoneSteps.Value := 0
-                DoneSteps.Opt('Range1-' FoundUpdates.Length)
+                DoneSteps.Opt('Range1-' FoundUpdates.Length + 1)
                 DoneStepsText.Text := ''
                 Prepare.Show()
                 Manager.Hide()
