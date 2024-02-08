@@ -138,12 +138,14 @@ For _, Item in AppDir {
     }
 }
 
-; Create Default Shortcuts
+; Create Default Shortcuts 1
 If !FileExist(AppDir[3] '\001.ahk') || FileRead(AppDir[3] '\001.ahk') != Shortcut1 {
     O := FileOpen(AppDir[3] '\001.ahk', 'w')
     O.Write(Shortcut1)
     O.Close()
 }
+
+; Create Default Shortcuts 2
 If !FileExist(AppDir[3] '\002.ahk') || FileRead(AppDir[3] '\002.ahk') != Shortcut2 {
     O := FileOpen(AppDir[3] '\002.ahk', 'w')
     O.Write(Shortcut2)
@@ -870,6 +872,9 @@ _VisualMods_.SetFont('Bold')
 H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
 Features['Visual Modes'].Push(H)
 VMList := Manager.AddListView('w200 h320 -E0x200 -Hdr Checked', ['Mode Name'])
+CLV := LV_Colors(VMList)
+CLV.SelectionColors(0x008000, 0xFFFFFF)
+CLV.AlternateRows(0xCCCCCC)
 Features['Visual Modes'].Push(VMList)
 VMList.SetFont('Bold')
 Loop Files, 'DB\007\*', 'D' {
@@ -920,6 +925,21 @@ ApplyVM(Ctrl, Item, Checked) {
     }
     SectionInteract(Features['Visual Modes'])
     SoundPlay('DB\000\30 wololo.mp3')
+}
+ChargeVModes__________() {
+    VMList.Enabled := True
+    Hash := HashFile(ChosenFolder.Value '\Data\' DrsTypes['gra'])
+        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['int'])
+        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['ter'])
+    Loop VMList.GetCount() {
+        VMList.Modify(A_Index, '-Check')
+    }
+    If Values := IniRead(Config, Hash, , '') {
+        For Each, Value in StrSplit(Values, '`n') {
+            If StrSplit(Value, '=')[2]
+                VMList.Modify(Each, '+Check')
+        }
+    }
 }
 ;LoadVM := Manager.AddButton('wp Disabled', 'Import')
 ;LoadVM.SetFont('Bold')
@@ -1008,7 +1028,10 @@ Features['Data Modes'].Push(_DataModes_)
 _DataModes_.SetFont('Bold')
 H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
 Features['Data Modes'].Push(H)
-DMList := Manager.AddListView('w200 h240 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+DMList := Manager.AddListView('w200 h320 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+CLV := LV_Colors(DMList)
+CLV.SelectionColors(0x008000, 0xFFFFFF)
+CLV.AlternateRows(0xCCCCCC)
 Features['Data Modes'].Push(DMList)
 DMList.SetFont('Bold')
 For Each, Mode in StrSplit(IniRead('DB\008\DataMode.ini', 'DataMode', , ''), '`n') {
@@ -1092,7 +1115,10 @@ VMDM.BackColor := 'White'
 VMDMTitle := VMDM.AddText('w220 h280 Center c800000 BackgroundFFFFFF', '# Mode Name')
 VMDMTitle.SetFont('Bold')
 VMDM.AddText('xp+10 yp+20 w200 Center cBlue', '1 - Visual modes').SetFont('Bold')
-VMDMList := VMDM.AddListView('w200 h240 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+VMDMList := VMDM.AddListView('w200 h320 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+CLV := LV_Colors(VMDMList)
+CLV.SelectionColors(0x008000, 0xFFFFFF)
+CLV.AlternateRows(0xCCCCCC)
 VMDMList.SetFont('Bold')
 Loop Files, 'DB\007\*', 'D' {
     VMDMList.Add(, A_LoopFileName)
@@ -1114,6 +1140,22 @@ ApplyVMDM(Ctrl, Item, Checked) {
     RunWait(A_Clipboard := 'DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Games\' VMDMTitle.Text '\Data\gamedata_x1_p1.drs" "' SlpDir '\*.slp"', , 'Hide')
     SectionInteract(Features['Data Modes'])
     SoundPlay('DB\000\30 wololo.mp3')
+}
+ChargeDModes__________() {
+    Loop DMList.GetCount() {
+        DMList.Modify(A_Index, '-Check')
+    }
+    CurrDMDir := IniRead(Config, 'Game', 'CurrDMDir', '')
+    If ChosenFolder.Value != CurrDMDir {
+        Return
+    }
+    Name := IniRead(Config, 'Game', 'CurrDM', '')
+    Loop DMList.GetCount() {
+        If DMList.GetText(A_Index) = Name {
+            DMList.Modify(A_Index, 'Check')
+            Break
+        }
+    }
 }
 ;ImportDM := Manager.AddButton('wp Disabled', 'Import')
 ;ImportDM.SetFont('Bold')
@@ -1193,71 +1235,171 @@ CreateImageButton(Shortcuts, 0, [['DB\000\hotkey_normal.png' ]
                                , ['DB\000\hotkey_disable.png']]*)
 Shortcuts.SetFont('Bold')
 ShortcutsG := Gui(, 'Defined Hotkeys')
-ShortcutList := ShortcutsG.AddListView('w305 r10 Checked', ['Hotkey', 'Comment', 'ID'])
+ShortcutList := ShortcutsG.AddListView('w605 r10 Checked', ['Hotkey', 'Comment', 'ID'])
+CLV := LV_Colors(ShortcutList)
+CLV.SelectionColors(0x008000, 0xFFFFFF)
+CLV.AlternateRows(0xCCCCCC)
 ShortcutList.ModifyCol(3, 0)
 ShortcutList.ModifyCol(4, 0)
-ShortcutList.ModifyCol(1, 100)
-ShortcutList.ModifyCol(2, 200)
+ShortcutList.ModifyCol(1, 200)
+ShortcutList.ModifyCol(2, 400)
 ShortcutList.SetFont('Bold')
-ShortcutAdd := ShortcutsG.AddButton('w150', 'Add')
+ShortcutAdd := ShortcutsG.AddButton('w100', 'Add')
+CreateImageButton(ShortcutAdd, 0, [['DB\000\shortcut_add_normal.png'  ]
+                                 , ['DB\000\shortcut_add_hover.png'   ]
+                                 , ['DB\000\shortcut_add_click.png'   ]
+                                 , ['DB\000\shortcut_add_disable.png' ]]*)
 ShortcutAdd.OnEvent('Click', (*) => AddShortcut())
-ShortcutsGA := Gui(, 'Add A Shortcut')
+AddShortcut() {
+    ShortcutNameA.Value := ''
+    ShortcutCommentA.Value := ''
+    ShortcutActionA.Value := ''
+    ShortcutsGA.Show()
+}
+ShortcutsGA := Gui(, 'Add a hotkey')
 ShortcutsGA.AddText(, '1 - Hotkey Name')
-ShortcutName := ShortcutsGA.AddEdit('w300 cRed')
-ShortcutName.SetFont('Bold')
+ShortcutNameA := ShortcutsGA.AddEdit('w300 cRed')
+ShortcutNameA.SetFont('Bold')
 ShortcutsGA.AddText(, '2 - Hotkey Comment')
-ShortcutComment := ShortcutsGA.AddEdit('w300 cGreen')
-ShortcutComment.SetFont('Bold')
+ShortcutCommentA := ShortcutsGA.AddEdit('w300 cGreen')
+ShortcutCommentA.SetFont('Bold')
 ShortcutsGA.AddText(, '3 - Hotkey Action')
-ShortcutAction := ShortcutsGA.AddEdit('w300 r10 cBlue HScroll')
-ShortcutAction.SetFont('Bold')
-ShortcutAddOK := ShortcutsGA.AddButton('w300', 'Submit')
-ShortcutAddOK.OnEvent('Click', (*) => SaveShortcut())
-SaveShortcut() {
-    If ShortcutName.Value = '' || ShortcutAction.Value = '' || ShortcutComment.Value = '' {
+ShortcutActionA := ShortcutsGA.AddEdit('w600 r10 cBlue HScroll')
+ShortcutActionA.SetFont('s12', 'Calibri')
+ShortcutAddOK := ShortcutsGA.AddButton('w600', 'Submit')
+CreateImageButton(ShortcutAddOK, 0, [['DB\000\shortcut_submit_normal.png'  ]
+                                   , ['DB\000\shortcut_submit_hover.png'   ]
+                                   , ['DB\000\shortcut_submit_click.png'   ]
+                                   , ['DB\000\shortcut_submit_disable.png' ]]*)
+ShortcutAddOK.OnEvent('Click', (*) => SaveShortcutA())
+SaveShortcutA() {
+    If ShortcutNameA.Value = '' || ShortcutActionA.Value = '' || ShortcutCommentA.Value = '' {
         MsgBox('One of the inputs is not being filled!', 'Fill!', 0x30)
         Return
     }
+    Value := IniRead(Config, 'Hotkey', ShortcutNameA.Value, 'NA')
+    If Value != 'NA' {
+        MsgBox('Hotkey already added!', 'Duplication!', 0x30)
+        Return
+    }
     Loop {
-        Index := Format('{:03}', A_Index) '.ahk'
-    } Until !FileExist(AppDir[3] '\' Index)
-    O := FileOpen(AppDir[3] '\' Index, 'w')
-    O.WriteLine(';' ShortcutComment.Value ';')
+        ShortcutFile := Format('{:03}', A_Index) '.ahk'
+        ShortcutFileM := Format('{:03}', A_Index) '.ahkm'
+        If !FileExist(AppDir[3] '\' ShortcutFile) && !FileExist(AppDir[3] '\' ShortcutFileM)
+            Break
+    }
+    O := FileOpen(AppDir[3] '\' ShortcutFile, 'w')
+    O.WriteLine(';' ShortcutCommentA.Value ';')
     O.WriteLine('#Requires AutoHotkey v2')
     O.WriteLine('#SingleInstance Force')
     O.WriteLine("GroupAdd('AOKAOC', 'ahk_exe empires2.exe')")
     O.WriteLine("GroupAdd('AOKAOC', 'ahk_exe age2_x1.exe')")
     O.WriteLine("GroupAdd('AOKAOC', 'ahk_exe age2_x2.exe')")
     O.WriteLine('HotIfWinActive("ahk_group AOKAOC")')
-    O.WriteLine("Hotkey('" ShortcutName.Value "', Action)")
+    O.WriteLine("Hotkey('" ShortcutNameA.Value "', Action)")
     O.WriteLine("Action(*) {")
-    O.WriteLine(ShortcutAction.Value)
+    O.WriteLine(ShortcutActionA.Value)
     O.WriteLine('}')
     O.WriteLine('ProcessWaitClose(A_Args[1])')
     O.Write('ExitApp')
     O.Close()
-    ShortcutList.Add('Check', ShortcutName.Value, ShortcutComment.Value, Index)
-    IniWrite(1, Config, 'Hotkey', ShortcutName.Value)
-    ShortcutName.Value := ''
-    ShortcutAction.Value := ''
+    ShortcutList.Add('Check', ShortcutNameA.Value, ShortcutCommentA.Value, ShortcutFile)
+    IniWrite(1, Config, 'Hotkey', ShortcutNameA.Value)
+    Run(AppDir[3] '\' ShortcutFile ' ' ProcessExist())
     ShortcutsGA.Hide()
 }
-AddShortcut() {
-    ShortcutsGA.Show()
+ShortcutEdit := ShortcutsG.AddButton('w100 yp', 'Edit')
+CreateImageButton(ShortcutEdit, 0, [['DB\000\shortcut_add_normal.png'  ]
+                                  , ['DB\000\shortcut_add_hover.png'   ]
+                                  , ['DB\000\shortcut_add_click.png'   ]
+                                  , ['DB\000\shortcut_add_disable.png' ]]*)
+ShortcutEdit.OnEvent('Click', (*) => EditShortcut())
+EditShortcut() {
+    If !R := ShortcutList.GetNext() {
+        Return
+    }
+    If R <= 2 {
+        Msgbox('You can only un-check this shortcut!', 'Unable to delete!', 0x30)
+        Return
+    }
+    ShortcutNameE.Value := ''
+    ShortcutCommentE.Value := ''
+    ShortcutActionE.Value := ''
+    ShortcutFile := ShortcutList.GetText(R, 3)
+    Info := ShortcutGetInfo(AppDir[3] '\' ShortcutFile)
+    If !Info['ShortcutOK']
+        Return
+    ShortcutNameE.Value := R '|' Info['ShortcutName']
+    ShortcutCommentE.Value := Info['ShortcutComment']
+    ShortcutActionE.Value := Info['ShortcutAction']
+    ShortcutsGE.Show()
 }
-ShortcutRemove := ShortcutsG.AddButton('yp w150', 'Remove')
+ShortcutsGE := Gui(, 'Edit a hotkey')
+ShortcutsGE.AddText(, '1 - Hotkey Name')
+ShortcutNameE := ShortcutsGE.AddEdit('w300 cRed ReadOnly')
+ShortcutNameE.SetFont('Bold')
+ShortcutsGE.AddText(, '2 - Hotkey Comment')
+ShortcutCommentE := ShortcutsGE.AddEdit('w300 cGreen')
+ShortcutCommentE.SetFont('Bold')
+ShortcutsGE.AddText(, '3 - Hotkey Action')
+ShortcutActionE := ShortcutsGE.AddEdit('w600 r10 cBlue HScroll')
+ShortcutActionE.SetFont('s12', 'Calibri')
+ShortcutEditOK := ShortcutsGE.AddButton('w600', 'Submit')
+CreateImageButton(ShortcutEditOK, 0, [['DB\000\shortcut_submit_normal.png'  ]
+                                   , ['DB\000\shortcut_submit_hover.png'   ]
+                                   , ['DB\000\shortcut_submit_click.png'   ]
+                                   , ['DB\000\shortcut_submit_disable.png' ]]*)
+ShortcutEditOK.OnEvent('Click', (*) => SaveShortcutE())
+SaveShortcutE() {
+    If ShortcutNameE.Value = '' || ShortcutActionE.Value = '' || ShortcutCommentE.Value = '' {
+        MsgBox('One of the inputs is not being filled!', 'Fill!', 0x30)
+        Return
+    }
+    ShortcutRef := StrSplit(ShortcutNameE.Value, '|')
+    ShortcutFile := ShortcutList.GetText(ShortcutRef[1], 3)
+    O := FileOpen(AppDir[3] '\' ShortcutFile, 'w')
+    O.WriteLine(';' ShortcutCommentE.Value ';')
+    O.WriteLine('#Requires AutoHotkey v2')
+    O.WriteLine('#SingleInstance Force')
+    O.WriteLine("GroupAdd('AOKAOC', 'ahk_exe empires2.exe')")
+    O.WriteLine("GroupAdd('AOKAOC', 'ahk_exe age2_x1.exe')")
+    O.WriteLine("GroupAdd('AOKAOC', 'ahk_exe age2_x2.exe')")
+    O.WriteLine('HotIfWinActive("ahk_group AOKAOC")')
+    O.WriteLine("Hotkey('" ShortcutRef[2] "', Action)")
+    O.WriteLine("Action(*) {")
+    O.WriteLine(ShortcutActionE.Value)
+    O.WriteLine('}')
+    O.WriteLine('ProcessWaitClose(A_Args[1])')
+    O.Write('ExitApp')
+    O.Close()
+    ShortcutList.Modify(ShortcutRef[1], 'Check', ShortcutRef[2], ShortcutCommentE.Value, ShortcutFile)
+    IniWrite(1, Config, 'Hotkey', ShortcutRef[2])
+    Run(AppDir[3] '\' ShortcutFile ' ' ProcessExist())
+    ShortcutsGE.Hide()
+}
+ShortcutRemove := ShortcutsG.AddButton('xp+400 yp w100', 'Remove')
+CreateImageButton(ShortcutRemove, 0, [['DB\000\shortcut_rem_normal.png'  ]
+                                    , ['DB\000\shortcut_rem_hover.png'   ]
+                                    , ['DB\000\shortcut_rem_click.png'   ]
+                                    , ['DB\000\shortcut_rem_disable.png' ]]*)
 ShortcutRemove.OnEvent('Click', (*) => RemoveShortcut())
 RemoveShortcut() {
     If !R := ShortcutList.GetNext() {
         Return
     }
-    If R = 1 {
+    If R <= 2 {
         Msgbox('You can only un-check this shortcut!', 'Unable to delete!', 0x30)
+        Return
+    }
+    Choice := MsgBox('Are you sure want to remove this hotkey?', 'Remove?', 0x4 + 0x20)
+    If Choice != 'Yes' {
         Return
     }
     ShortcutFile := ShortcutList.GetText(R, 3)
     If FileExist(AppDir[3] '\' ShortcutFile)
         FileDelete(AppDir[3] '\' ShortcutFile)
+    ShortcutName := ShortcutList.GetText(R)
+    IniDelete(Config, 'Hotkey', ShortcutName)
     ShortcutList.Delete(R)
 }
 Shortcuts.OnEvent('Click', (*) => ShowShortcut())
@@ -1267,15 +1409,12 @@ ShowShortcut() {
 LoadShortcuts()
 LoadShortcuts() {
     Loop Files, AppDir[3] '\*.ahk' {
-        SScript := FileRead(A_LoopFileFullPath)
-        If !RegExMatch(SScript, ";(.*);", &ShortcutComment)
+        Info := ShortcutGetInfo(A_LoopFileFullPath)
+        Checked := 0
+        If !Info['ShortcutOK']
             Continue
-        ShortcutComment := ShortcutComment.1
-        If !RegExMatch(SScript, "Hotkey\('(.*)'\, Action\)", &ShortcutName)
-            Continue
-        ShortcutName := ShortcutName.1
-        Item := ShortcutList.Add(, ShortcutName, ShortcutComment, A_LoopFileName)
-        Checked := IniRead(Config, 'Hotkey', ShortcutName, 0)
+        Item := ShortcutList.Add(, Info['ShortcutName'], Info['ShortcutComment'], A_LoopFileName)
+        Checked := IniRead(Config, 'Hotkey', Info['ShortcutName'], 0)
         If Checked {
             Run(A_LoopFileFullPath ' ' ProcessExist())
             ShortcutList.Modify(Item, 'Check')
@@ -1286,6 +1425,33 @@ ShortcutList.OnEvent('ItemCheck', RunShortcut)
 RunShortcut(Ctrl, Item, Checked) {
     ShortcutName := ShortcutList.GetText(Item)
     IniWrite(Checked, Config, 'Hotkey', ShortcutName)
+}
+ShortcutGetInfo(FileN) {
+    ShortcutAction := ''
+    ShortcutComment := ''
+    ShortcutName := ''
+    ShortcutTable := Map('ShortcutOK', False)
+    Loop Read, FileN {
+        If InStr(A_LoopReadLine, ';') {
+            ShortcutComment := Trim(A_LoopReadLine, ';')
+        }
+        If InStr(A_LoopReadLine, 'Hotkey(') {
+            ShortcutName := SubStr(A_LoopReadLine
+                                 , L := InStr(A_LoopReadLine, "'") + 1
+                                 , InStr(A_LoopReadLine, "',") - L)
+        }
+        If (ShortcutName = '') || InStr(A_LoopReadLine, 'Action')
+            Continue
+        If (A_LoopReadLine != '}')
+            ShortcutAction .= (ShortcutAction = '') ? A_LoopReadLine : '`n' A_LoopReadLine
+        Else {
+            ShortcutTable := Map('ShortcutName', ShortcutName
+                               , 'ShortcutComment', ShortcutComment
+                               , 'ShortcutAction', ShortcutAction
+                               , 'ShortcutOK', (ShortcutName != '') && (ShortcutComment != '') && (ShortcutAction != ''))
+        }
+    }
+    Return ShortcutTable
 }
 H := Manager.AddText('x' (X + 1) ' yp+35 w220 0x10')
 VPN := Manager.AddButton('xp+10 yp+10 w56 h56')
@@ -1370,13 +1536,11 @@ CancelRecordFix() {
    Global Cancel := True
 }
 FixRecords() {
+    Records := FileSelect('M', ChosenFolder.Value '\SaveGame', 'Select a record(s)', 'AoE II record games (*.mgl; *.mgx)')
+    If !Records.Length
+        Return
     Global Cancel := False
     RecordFixG.Show()
-    Records := []
-    Loop Files, ChosenFolder.Value '\SaveGame\*.mg*' {
-        If (A_LoopFileExt = 'MGX' || A_LoopFileExt = 'MGL') && !InStr(A_LoopFileName, 'aoeii_aio_fix')
-            Records.Push(A_LoopFileFullPath)
-    }
     RecordFixText.Text := 0 ' / ' Records.Length
     RecordFixProgress.Value := 0
     RecordFixProgress.Opt('Range1-' Records.Length)
@@ -1387,12 +1551,18 @@ FixRecords() {
         RunWait('DB\000\MgxFix.exe -f "' Record '"',, 'Hide')
         RunWait('DB\000\RevealFix.exe "' Record '"',, 'Hide')
         SplitPath(Record,, &Dir, &Ext, &Name)
-        FileMove(Record, Dir '\' Name '_aoeii_aio_fix.' Ext)
+        If !InStr(Record, 'aoeii_aio_fix')
+            FileMove(Record, Dir '\' Name '_aoeii_aio_fix.' Ext)
         RecordFixText.Text := Each ' / ' Records.Length
         RecordFixProgress.Value += 1
     }
     RecordsCheck__________()
     RecordFixG.Hide()
+}
+RecordsCheck__________() {
+    CountRecords__________()
+    CountFixedRecords_____()
+    CountUnknownRecords___()
 }
 RecordCount := Manager.AddText('xp yp+30 w200 BackgroundTrans', '0 Records Found')
 RecordCount.SetFont('Bold')
@@ -1441,21 +1611,6 @@ H := Manager.AddText('x' (X + 1) ' yp+25 w220 0x10')
 ;FixMgz := Manager.AddButton('wp', 'Select')
 ;FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
 
-ChargeOtherTools______() {
-    ;---
-    RegVal := RegRead(Layers, VPNPath, '')
-    If RegVal = '' {
-        VPNCompat.Value := 1
-        Return
-    }
-    For Each, Compat in Compatibilities {
-        If (RegVal = Compat[2] ' RUNASADMIN') {
-            VPNCompat.Choose(Compat[1])
-            Break
-        }
-    }
-}
-
 ; '| AGE OF EMPIRES II MANAGER ALL IN ONE, '
 ; 'AUTOHOTKEY BASED APP, '
 ; 'CREATED BY SMILE, '
@@ -1474,7 +1629,8 @@ SB.SetParts(10, 50, 200)
 SB.SetText('v' Version, 2)
 SB.SetText('Loading...', 3)
 SB.SetText(A_Tab A_Tab 'A Collective App From The Internet On What I Found Useful About AoE II!    ', 4)
-Manager.Show('x10 y10 w930 h690')
+Manager.Show('w930 h690')
+ChargeEnableFixes_____()
 ChargeEnableFixes_____() {
     Loop Files, 'DB\001\*', 'D' {
         Patch.Add([A_LoopFileName])
@@ -1484,10 +1640,83 @@ ChargeEnableFixes_____() {
         Patch.Choose(Fix)
     }
 }
-ChargeEnableFixes_____()
 ChargeSettings________()
 CheckForUpdates_______()
-Return
+CheckForUpdates_______() {
+    If A_IsCompiled {
+        Return
+    }
+    SB.SetText('Update check is disabled!', 3)
+    UpdateChk := IniRead(Config, 'Game', 'UpdateChk', '')
+    If UpdateChk = '0' {
+        Return
+    }
+    Try {
+        SB.SetText('Checking for updates...', 3)
+        GetTextFromLink(Link) {
+            whr := ComObject("WinHttp.WinHttpRequest.5.1")
+            whr.Open("GET", Link, true)
+            whr.Send()
+            whr.WaitForResponse()
+            Return whr.ResponseText
+        }
+        Hashsums := GetTextFromLink(Server '/' User '/' Repo '/main/Hashsums.ini')
+        HashsumsMap := Map()
+        For Each, Line in StrSplit(Hashsums, '`n') {
+            KeyValue := StrSplit(Line, '=')
+            If KeyValue.Length = 2
+                HashsumsMap[KeyValue[1]] := KeyValue[2]
+        }
+        FoundUpdates := []
+        If HashFile(A_ScriptName) != HashsumsMap[A_ScriptName] {
+            FoundUpdates.Push(A_ScriptName)
+        }
+        Loop Files, 'DB\*.7z.*', 'R' {
+            If HashsumsMap.Has(A_LoopFileDir '\' A_LoopFileName)
+                && (HashFile(A_LoopFileDir '\' A_LoopFileName) != HashsumsMap[A_LoopFileDir '\' A_LoopFileName]) {
+                    FoundUpdates.Push(A_LoopFileDir '\' A_LoopFileName)
+            }
+        }
+        If FoundUpdates.Length {
+            UpdatesList := '`n=======================`n`n'
+            For Each, UpdateFile in FoundUpdates {
+                UpdatesList .= Each ' - ' UpdateFile '`n'
+            }
+            UpdatesList .= '`n=======================`n'
+            SB.SetText('Update found!', 3)
+            Choice := MsgBox('The following needs to be updated:`n' UpdatesList '`nUpdate now?', 'New Update!', 0x4 + 0x40 + 0x100)
+            If Choice = 'Yes' {
+                DoneSteps.Value := 0
+                DoneSteps.Opt('Range1-' FoundUpdates.Length + 1)
+                DoneStepsText.Text := ''
+                Prepare.Show()
+                Manager.Hide()
+                PrepareTheUnpacker()
+                For Each, UpdateFile in FoundUpdates {
+                    DownloadLink := Server '/' User '/' Repo '/main/' StrReplace(StrReplace(UpdateFile, ' ', '%20'), '\', '/')
+                    Download(DownloadLink, UpdateFile)
+                    If !PackageIsValid(PackagePath)
+                        Reload
+                    Buff := FileRead(UpdateFile, 'RAW')
+                    Str := StrGet(Buff, 2, 'cp0')
+                    If (Str = '7z') {
+                        Name := StrSplit(UpdateFile, '.')
+                        DirDelete(Name[1], 1)
+                        RunWait('DB\7za.exe x ' Name[1] '.7z.001 -o' Name[1] ' -aoa', , 'Hide')
+                    }
+                    DoneSteps.Value += 1
+                    DoneStepsText.Text := UpdateFile
+                }
+                Reload
+            }
+            SB.SetText('New update is waiting!', 3)
+        } Else {
+            SB.SetText('Up to date!', 3)
+        }
+    } Catch As Err {
+        SB.SetText('Failed to check for updates!', 3)
+    }
+}
 
 ChargeSettings________(Browse := False) {
     SoundPlay('DB\000\30 wololo.mp3')
@@ -1558,6 +1787,20 @@ ChargeSettings________(Browse := False) {
     ChargeDModes__________()
     BackupDefaultLanguage_()
     ChargeOtherTools______()
+    ChargeOtherTools______() {
+        ;---
+        RegVal := RegRead(Layers, VPNPath, '')
+        If RegVal = '' {
+            VPNCompat.Value := 1
+            Return
+        }
+        For Each, Compat in Compatibilities {
+            If (RegVal = Compat[2] ' RUNASADMIN') {
+                VPNCompat.Choose(Compat[1])
+                Break
+            }
+        }
+    }
     FixCommonIssues_______() {
         If FileExist(ChosenFolder.Value '\age2_x1.exe') {
             If !DirExist(ChosenFolder.Value '\age2_x1') {
@@ -1575,120 +1818,6 @@ ChargeSettings________(Browse := False) {
     }
     FixCommonIssues_______()
     RecordsCheck__________()
-}
-
-RecordsCheck__________() {
-    CountRecords__________()
-    CountFixedRecords_____()
-    CountUnknownRecords___()
-}
-
-ChargeDModes__________() {
-    Loop DMList.GetCount() {
-        DMList.Modify(A_Index, '-Check')
-    }
-    CurrDMDir := IniRead(Config, 'Game', 'CurrDMDir', '')
-    If ChosenFolder.Value != CurrDMDir {
-        Return
-    }
-    Name := IniRead(Config, 'Game', 'CurrDM', '')
-    Loop DMList.GetCount() {
-        If DMList.GetText(A_Index) = Name {
-            DMList.Modify(A_Index, 'Check')
-            Break
-        }
-    }
-}
-ChargeVModes__________() {
-    VMList.Enabled := True
-    Hash := HashFile(ChosenFolder.Value '\Data\' DrsTypes['gra'])
-        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['int'])
-        . HashFile(ChosenFolder.Value '\Data\' DrsTypes['ter'])
-    Loop VMList.GetCount() {
-        VMList.Modify(A_Index, '-Check')
-    }
-    If Values := IniRead(Config, Hash, , '') {
-        For Each, Value in StrSplit(Values, '`n') {
-            If StrSplit(Value, '=')[2]
-                VMList.Modify(Each, '+Check')
-        }
-    }
-}
-CheckForUpdates_______() {
-    If A_IsCompiled {
-        Return
-    }
-    SB.SetText('Update check is disabled!', 3)
-    UpdateChk := IniRead(Config, 'Game', 'UpdateChk', '')
-    If UpdateChk = '0' {
-        Return
-    }
-    Try {
-        SB.SetText('Checking for updates...', 3)
-        GetTextFromLink(Link) {
-            whr := ComObject("WinHttp.WinHttpRequest.5.1")
-            whr.Open("GET", Link, true)
-            whr.Send()
-            whr.WaitForResponse()
-            Return whr.ResponseText
-        }
-        Hashsums := GetTextFromLink(Server '/' User '/' Repo '/main/Hashsums.ini')
-        HashsumsMap := Map()
-        For Each, Line in StrSplit(Hashsums, '`n') {
-            KeyValue := StrSplit(Line, '=')
-            If KeyValue.Length = 2
-                HashsumsMap[KeyValue[1]] := KeyValue[2]
-        }
-        FoundUpdates := []
-        If HashFile(A_ScriptName) != HashsumsMap[A_ScriptName] {
-            FoundUpdates.Push(A_ScriptName)
-        }
-        Loop Files, 'DB\*.7z.*', 'R' {
-            If HashsumsMap.Has(A_LoopFileDir '\' A_LoopFileName)
-                && (HashFile(A_LoopFileDir '\' A_LoopFileName) != HashsumsMap[A_LoopFileDir '\' A_LoopFileName]) {
-                    FoundUpdates.Push(A_LoopFileDir '\' A_LoopFileName)
-            }
-        }
-        If FoundUpdates.Length {
-            UpdatesList := '`n=======================`n`n'
-            For Each, UpdateFile in FoundUpdates {
-                UpdatesList .= Each ' - ' UpdateFile '`n'
-            }
-            UpdatesList .= '`n=======================`n'
-            SB.SetText('Update found!', 3)
-            Choice := MsgBox('The following needs to be updated:`n' UpdatesList '`nUpdate now?', 'New Update!', 0x4 + 0x40 + 0x100)
-            If Choice = 'Yes' {
-                DoneSteps.Value := 0
-                DoneSteps.Opt('Range1-' FoundUpdates.Length + 1)
-                DoneStepsText.Text := ''
-                Prepare.Show()
-                Manager.Hide()
-                PrepareTheUnpacker()
-                For Each, UpdateFile in FoundUpdates {
-                    DownloadLink := Server '/' User '/' Repo '/main/' StrReplace(StrReplace(UpdateFile, ' ', '%20'), '\', '/')
-                    Download(DownloadLink, UpdateFile)
-                    If !PackageIsValid(PackagePath)
-                        Reload
-                    Buff := FileRead(UpdateFile, 'RAW')
-                    Str := StrGet(Buff, 2, '')
-                    If (Str != '7z') {
-                        Continue
-                    }
-                    Name := StrSplit(UpdateFile, '.')
-                    DirDelete(Name[1], 1)
-                    RunWait('DB\7za.exe x ' Name[1] '.7z.001 -o' Name[1] ' -aoa', , 'Hide')
-                    DoneSteps.Value += 1
-                    DoneStepsText.Text := UpdateFile
-                }
-                Reload
-            }
-            SB.SetText('New update is waiting!', 3)
-        } Else {
-            SB.SetText('Up to date!', 3)
-        }
-    } Catch As Err {
-        SB.SetText('Failed to check for updates!', 3)
-    }
 }
 SectionInteract(Items, Default := True) {
     Status := Default ? True : False
@@ -2340,5 +2469,357 @@ UseGDIP() {
     }
     UseGdipShutDown(*) {
         DllCall("Gdiplus.dll\GdiplusShutdown", "Ptr", GdipToken)
+    }
+}
+
+; ======================================================================================================================
+; Namespace:      LV_Colors
+; Function:       Individual row and cell coloring for AHK ListView controls.
+; Tested with:    AHK 2.0.2 (U32/U64)
+; Tested on:      Win 10 (x64)
+; Changelog:      2023-01-04/2.0.0/just me   Initial release of the AHK v2 version
+; ======================================================================================================================
+; CLASS LV_Colors
+;
+; The class provides methods to set individual colors for rows and/or cells, to clear all colors, to prevent/allow
+; sorting and rezising of columns dynamically, and to deactivate/activate the notification handler for NM_CUSTOMDRAW
+; notifications (see below).
+;
+; A message handler for NM_CUSTOMDRAW notifications will be activated for the specified ListView whenever a new
+; instance is created. If you want to temporarily disable coloring call MyInstance.ShowColors(False). This must
+; be done also before you try to destroy the instance. To enable it again, call MyInstance.ShowColors().
+;
+; To avoid the loss of Gui events and messages the message handler is set 'critical'. To prevent 'freezing' of the
+; list-view or the whole GUI this script requires AHK v2.0.1+.
+; ======================================================================================================================
+Class LV_Colors {
+    ; ===================================================================================================================
+    ; __New()         Constructor - Create a new LV_Colors instance for the given ListView
+    ; Parameters:     HWND        -  ListView's HWND.
+    ;                 Optional ------------------------------------------------------------------------------------------
+    ;                 StaticMode  -  Static color assignment, i.e. the colors will be assigned permanently to the row
+    ;                                contents rather than to the row number.
+    ;                                Values:  True/False
+    ;                                Default: False
+    ;                 NoSort      -  Prevent sorting by click on a header item.
+    ;                                Values:  True/False
+    ;                                Default: False
+    ;                 NoSizing    -  Prevent resizing of columns.
+    ;                                Values:  True/False
+    ;                                Default: False
+    ; ===================================================================================================================
+    __New(LV, StaticMode := False, NoSort := False, NoSizing := False) {
+        If (LV.Type != "ListView")
+            Throw TypeError("LV_Colors requires a ListView control!", -1, LV.Type)
+        ; ----------------------------------------------------------------------------------------------------------------
+        ; Set LVS_EX_DOUBLEBUFFER (0x010000) style to avoid drawing issues.
+        LV.Opt("+LV0x010000")
+        ; Get the default colors
+        BkClr := SendMessage(0x1025, 0, 0, LV) ; LVM_GETTEXTBKCOLOR
+        TxClr := SendMessage(0x1023, 0, 0, LV) ; LVM_GETTEXTCOLOR
+        ; Get the header control
+        Header := SendMessage(0x101F, 0, 0, LV) ; LVM_GETHEADER
+        ; Set other properties
+        This.LV := LV
+        This.HWND := LV.HWND
+        This.Header := Header
+        This.BkClr := BkCLr
+        This.TxClr := Txclr
+        This.IsStatic := !!StaticMode
+        This.AltCols := False
+        This.AltRows := False
+        This.SelColors := False
+        This.NoSort(!!NoSort)
+        This.NoSizing(!!NoSizing)
+        This.ShowColors()
+        This.RowCount := LV.GetCount()
+        This.ColCount := LV.GetCount("Col")
+        This.Rows := Map()
+        This.Rows.Capacity := This.RowCount
+        This.Cells := Map()
+        This.Cells.Capacity := This.RowCount
+    }
+    ; ===================================================================================================================
+    ; __Delete()      Destructor
+    ; ===================================================================================================================
+    __Delete() {
+        This.ShowColors(False)
+        If WinExist(This.HWND)
+            WinRedraw(This.HWND)
+    }
+    ; ===================================================================================================================
+    ; Clear()         Clears all row and cell colors.
+    ; Parameters:     AltRows     -  Reset alternate row coloring (True / False)
+    ;                                Default: False
+    ;                 AltCols     -  Reset alternate column coloring (True / False)
+    ;                                Default: False
+    ; Return Value:   Always True.
+    ; ===================================================================================================================
+    Clear(AltRows := False, AltCols := False) {
+        If (AltCols)
+            This.AltCols := False
+        If (AltRows)
+            This.AltRows := False
+        This.Rows.Clear()
+        This.Rows.Capacity := This.RowCount
+        This.Cells.Clear()
+        This.Cells.Capacity := This.RowCount
+        Return True
+    }
+    ; ===================================================================================================================
+    ; UpdateProps()   Updates the RowCount, ColCount, BkClr, and TxClr properties.
+    ; Return Value:   True on success, otherwise false.
+    ; ===================================================================================================================
+    UpdateProps() {
+        If !(This.HWND)
+            Return False
+        This.BkClr := SendMessage(0x1025, 0, 0, This.LV) ; LVM_GETTEXTBKCOLOR
+        This.TxClr := SendMessage(0x1023, 0, 0, This.LV) ; LVM_GETTEXTCOLOR
+        This.RowCount := This.LV.GetCount()
+        This.Colcount := This.LV.GetCount("Col")
+        If WinExist(This.HWND)
+            WinRedraw(This.HWND)
+        Return True
+    }
+    ; ===================================================================================================================
+    ; AlternateRows() Sets background and/or text color for even row numbers.
+    ; Parameters:     BkColor     -  Background color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> default background color
+    ;                 TxColor     -  Text color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> default text color
+    ; Return Value:   True on success, otherwise false.
+    ; ===================================================================================================================
+    AlternateRows(BkColor := "", TxColor := "") {
+        If !(This.HWND)
+            Return False
+        This.AltRows := False
+        If (BkColor = "") && (TxColor = "")
+            Return True
+        BkBGR := This.BGR(BkColor)
+        TxBGR := This.BGR(TxColor)
+        If (BkBGR = "") && (TxBGR = "")
+            Return False
+        This.ARB := (BkBGR != "") ? BkBGR : This.BkClr
+        This.ART := (TxBGR != "") ? TxBGR : This.TxClr
+        This.AltRows := True
+        Return True
+    }
+    ; ===================================================================================================================
+    ; AlternateCols() Sets background and/or text color for even column numbers.
+    ; Parameters:     BkColor     -  Background color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> default background color
+    ;                 TxColor     -  Text color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> default text color
+    ; Return Value:   True on success, otherwise false.
+    ; ===================================================================================================================
+    AlternateCols(BkColor := "", TxColor := "") {
+        If !(This.HWND)
+            Return False
+        This.AltCols := False
+        If (BkColor = "") && (TxColor = "")
+            Return True
+        BkBGR := This.BGR(BkColor)
+        TxBGR := This.BGR(TxColor)
+        If (BkBGR = "") && (TxBGR = "")
+            Return False
+        This.ACB := (BkBGR != "") ? BkBGR : This.BkClr
+        This.ACT := (TxBGR != "") ? TxBGR : This.TxClr
+        This.AltCols := True
+        Return True
+    }
+    ; ===================================================================================================================
+    ; SelectionColors() Sets background and/or text color for selected rows.
+    ; Parameters:     BkColor     -  Background color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> default selected background color
+    ;                 TxColor     -  Text color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> default selected text color
+    ; Return Value:   True on success, otherwise false.
+    ; ===================================================================================================================
+    SelectionColors(BkColor := "", TxColor := "") {
+        If !(This.HWND)
+            Return False
+        This.SelColors := False
+        If (BkColor = "") && (TxColor = "")
+            Return True
+        BkBGR := This.BGR(BkColor)
+        TxBGR := This.BGR(TxColor)
+        If (BkBGR = "") && (TxBGR = "")
+            Return False
+        This.SELB := BkBGR
+        This.SELT := TxBGR
+        This.SelColors := True
+        Return True
+    }
+    ; ===================================================================================================================
+    ; Row()           Sets background and/or text color for the specified row.
+    ; Parameters:     Row         -  Row number
+    ;                 Optional ------------------------------------------------------------------------------------------
+    ;                 BkColor     -  Background color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> default background color
+    ;                 TxColor     -  Text color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> default text color
+    ; Return Value:   True on success, otherwise false.
+    ; ===================================================================================================================
+    Row(Row, BkColor := "", TxColor := "") {
+        If !(This.HWND)
+            Return False
+        If (Row > This.RowCount)
+            Return False
+        If This.IsStatic
+            Row := This.MapIndexToID(Row)
+        If This.Rows.Has(Row)
+            This.Rows.Delete(Row)
+        If (BkColor = "") && (TxColor = "")
+            Return True
+        BkBGR := This.BGR(BkColor)
+        TxBGR := This.BGR(TxColor)
+        If (BkBGR = "") && (TxBGR = "")
+            Return False
+        ; Colors := {B: (BkBGR != "") ? BkBGR : This.BkClr, T: (TxBGR != "") ? TxBGR : This.TxClr}
+        This.Rows[Row] := Map("B", (BkBGR != "") ? BkBGR : This.BkClr, "T", (TxBGR != "") ? TxBGR : This.TxClr)
+        Return True
+    }
+    ; ===================================================================================================================
+    ; Cell()          Sets background and/or text color for the specified cell.
+    ; Parameters:     Row         -  Row number
+    ;                 Col         -  Column number
+    ;                 Optional ------------------------------------------------------------------------------------------
+    ;                 BkColor     -  Background color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> row's background color
+    ;                 TxColor     -  Text color as RGB color integer (e.g. 0xFF0000 = red) or HTML color name.
+    ;                                Default: Empty -> row's text color
+    ; Return Value:   True on success, otherwise false.
+    ; ===================================================================================================================
+    Cell(Row, Col, BkColor := "", TxColor := "") {
+        If !(This.HWND)
+            Return False
+        If (Row > This.RowCount) || (Col > This.ColCount)
+            Return False
+        If This.IsStatic
+            Row := This.MapIndexToID(Row)
+        If This.Cells.Has(Row) && This.Cells[Row].Has(Col)
+            This.Cells[Row].Delete(Col)
+        If (BkColor = "") && (TxColor = "")
+            Return True
+        BkBGR := This.BGR(BkColor)
+        TxBGR := This.BGR(TxColor)
+        If (BkBGR = "") && (TxBGR = "")
+            Return False
+        If !This.Cells.Has(Row)
+            This.Cells[Row] := [], This.Cells[Row].Capacity := This.ColCount
+        If (Col > This.Cells[Row].Length)
+            This.Cells[Row].Length := Col
+        This.Cells[Row][Col] := Map("B", (BkBGR != "") ? BkBGR : This.BkClr, "T", (TxBGR != "") ? TxBGR : This.TxClr)
+        Return True
+    }
+    ; ===================================================================================================================
+    ; NoSort()        Prevents/allows sorting by click on a header item for this ListView.
+    ; Parameters:     Apply       -  True/False
+    ; Return Value:   True on success, otherwise false.
+    ; ===================================================================================================================
+    NoSort(Apply := True) {
+        If !(This.HWND)
+            Return False
+        This.LV.Opt((Apply ? "+" : "-") . "NoSort")
+        Return True
+    }
+    ; ===================================================================================================================
+    ; NoSizing()      Prevents/allows resizing of columns for this ListView.
+    ; Parameters:     Apply       -  True/False
+    ; Return Value:   True on success, otherwise false.
+    ; ===================================================================================================================
+    NoSizing(Apply := True) {
+        If !(This.Header)
+            Return False
+        ControlSetStyle((Apply ? "+" : "-") . "0x0800", This.Header) ; HDS_NOSIZING = 0x0800
+        Return True
+    }
+    ; ===================================================================================================================
+    ; ShowColors()    Adds/removes a message handler for NM_CUSTOMDRAW notifications of this ListView.
+    ; Parameters:     Apply       -  True/False
+    ; Return Value:   Always True
+    ; ===================================================================================================================
+    ShowColors(Apply := True) {
+        If (Apply) && !This.HasOwnProp("OnNotifyFunc") {
+            This.OnNotifyFunc := ObjBindMethod(This, "NM_CUSTOMDRAW")
+            This.LV.OnNotify(-12, This.OnNotifyFunc)
+            WinRedraw(This.HWND)
+        }
+        Else If !(Apply) && This.HasOwnProp("OnNotifyFunc") {
+            This.LV.OnNotify(-12, This.OnNotifyFunc, 0)
+            This.OnNotifyFunc := ""
+            This.DeleteProp("OnNotifyFunc")
+            WinRedraw(This.HWND)
+        }
+        Return True
+    }
+    ; ===================================================================================================================
+    ; Internally used/called Methods
+    ; ===================================================================================================================
+    NM_CUSTOMDRAW(LV, L) {
+        ; Return values: 0x00 (CDRF_DODEFAULT), 0x20 (CDRF_NOTIFYITEMDRAW / CDRF_NOTIFYSUBITEMDRAW)
+        Static SizeNMHDR := A_PtrSize * 3                  ; Size of NMHDR structure
+        Static SizeNCD := SizeNMHDR + 16 + (A_PtrSize * 5) ; Size of NMCUSTOMDRAW structure
+        Static OffItem := SizeNMHDR + 16 + (A_PtrSize * 2) ; Offset of dwItemSpec (NMCUSTOMDRAW)
+        Static OffItemState := OffItem + A_PtrSize         ; Offset of uItemState  (NMCUSTOMDRAW)
+        Static OffCT := SizeNCD                           ; Offset of clrText (NMLVCUSTOMDRAW)
+        Static OffCB := OffCT + 4                          ; Offset of clrTextBk (NMLVCUSTOMDRAW)
+        Static OffSubItem := OffCB + 4                     ; Offset of iSubItem (NMLVCUSTOMDRAW)
+        Critical -1
+        If !(This.HWND) || (NumGet(L, "UPtr") != This.HWND)
+            Return
+        ; ----------------------------------------------------------------------------------------------------------------
+        DrawStage := NumGet(L + SizeNMHDR, "UInt"),
+            Row := NumGet(L + OffItem, "UPtr") + 1,
+            Col := NumGet(L + OffSubItem, "Int") + 1,
+            Item := Row - 1
+        If This.IsStatic
+            Row := This.MapIndexToID(Row)
+        ; CDDS_SUBITEMPREPAINT = 0x030001 --------------------------------------------------------------------------------
+        If (DrawStage = 0x030001) {
+            UseAltCol := (This.AltCols) && !(Col & 1),
+                ColColors := (This.Cells.Has(Row) && This.Cells[Row].Has(Col)) ? This.Cells[Row][Col] : Map("B", "", "T", ""),
+                ColB := (ColColors["B"] != "") ? ColColors["B"] : UseAltCol ? This.ACB : This.RowB,
+                    ColT := (ColColors["T"] != "") ? ColColors["T"] : UseAltCol ? This.ACT : This.RowT,
+                        NumPut("UInt", ColT, L + OffCT), NumPut("UInt", ColB, L + OffCB)
+            Return (!This.AltCols && (Col > This.Cells[Row].Length)) ? 0x00 : 0x020
+        }
+        ; CDDS_ITEMPREPAINT = 0x010001 -----------------------------------------------------------------------------------
+        If (DrawStage = 0x010001) {
+            ; LVM_GETITEMSTATE = 0x102C, LVIS_SELECTED = 0x0002
+            If (This.SelColors) && SendMessage(0x102C, Item, 0x0002, This.HWND) {
+                ; Remove the CDIS_SELECTED (0x0001) and CDIS_FOCUS (0x0010) states from uItemState and set the colors.
+                NumPut("UInt", NumGet(L + OffItemState, "UInt") & ~0x0011, L + OffItemState)
+                If (This.SELB != "")
+                    NumPut("UInt", This.SELB, L + OffCB)
+                If (This.SELT != "")
+                    NumPut("UInt", This.SELT, L + OffCT)
+                Return 0x02 ; CDRF_NEWFONT
+            }
+            UseAltRow := This.AltRows && (Item & 1),
+                RowColors := This.Rows.Has(Row) ? This.Rows[Row] : "",
+                This.RowB := RowColors ? RowColors["B"] : UseAltRow ? This.ARB : This.BkClr,
+                    This.RowT := RowColors ? RowColors["T"] : UseAltRow ? This.ART : This.TxClr
+            If (This.AltCols || This.Cells.Has(Row))
+                Return 0x20
+            NumPut("UInt", This.RowT, L + OffCT), NumPut("UInt", This.RowB, L + OffCB)
+            Return 0x00
+        }
+        ; CDDS_PREPAINT = 0x000001 ---------------------------------------------------------------------------------------
+        Return (DrawStage = 0x000001) ? 0x20 : 0x00
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    MapIndexToID(Row) { ; provides the unique internal ID of the given row number
+        Return SendMessage(0x10B4, Row - 1, 0, This.HWND) ; LVM_MAPINDEXTOID
+    }
+    ; -------------------------------------------------------------------------------------------------------------------
+    BGR(Color, Default := "") { ; converts colors to BGR
+        ; HTML Colors (BGR)
+        Static HTML := { AQUA: 0xFFFF00, BLACK: 0x000000, BLUE: 0xFF0000, FUCHSIA: 0xFF00FF, GRAY: 0x808080, GREEN: 0x008000
+            , LIME: 0x00FF00, MAROON: 0x000080, NAVY: 0x800000, OLIVE: 0x008080, PURPLE: 0x800080, RED: 0x0000FF
+            , SILVER: 0xC0C0C0, TEAL: 0x808000, WHITE: 0xFFFFFF, YELLOW: 0x00FFFF }
+        If IsInteger(Color)
+            Return ((Color >> 16) & 0xFF) | (Color & 0x00FF00) | ((Color & 0xFF) << 16)
+        Return (HTML.HasOwnProp(Color) ? HTML.%Color% : Default)
     }
 }
