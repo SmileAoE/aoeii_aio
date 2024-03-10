@@ -2,79 +2,51 @@
 #SingleInstance Force
 
 If !A_IsAdmin {
-    MsgBox("- This application is not being ran as administrator`n"
-        . "- This can cause an unexpected behaviour on using any of it's options`n"
-        . "- It is highly recommended that you run it as administrator"
-        , 'Warning'
-        , 0x30)
+    MsgBox("This application is not being ran as administrator`n"
+         . "which can cause an unexpected behaviour on using any of it's options`n"
+         . "`nYou must run it as administrator"
+         , 'Exit'
+         , 0x30)
+    ExitApp
 }
 
 ; Initialization
-Server                          := 'https://raw.githubusercontent.com'
-User                            := 'SmileAoE'
-Repo                            := 'aoeii_aio'
-Version                         := '1.5'
-Layers                          := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
-Config                          := A_AppData '\aoeii_aio\config.ini'
-AppDir                          := ['DB', A_AppData '\aoeii_aio', A_AppData '\aoeii_aio\Hotkeys']
-GRSetting                       := A_AppData '\GameRanger\GameRanger Prefs\Settings'
-DrsTypes                        := Map('gra', 'graphics.drs'
-                                     , 'int', 'interfac.drs'
-                                     , 'ter', 'terrain.drs')
-DrsRange                        := Map('gra', [2, 5312]
-                                     , 'int', [50100, 53211]
-                                     , 'ter', [15000, 15031])
-IDL                             := 5
-VCodedSlp                       := '3713EFBE'
-NormalSlp                       := '322E304E'
-General                         := Map()
-General['AOK']                  := Map()
-General['AOK']['VersionsN']     := Map()
-General['AOK']['Combine']       := Map('2.0b CD'
-                                    , ['2.0a No CD'])
-General['AOC']                  := Map()
-General['AOC']['VersionsN']     := Map()
-General['AOC']['Combine']       := Map('1.0e No CD', ['1.0c No CD']
-                                     , '1.0e No CD', ['1.0c No CD']
-                                     , '1.1  No CD', ['1.0c No CD']
-                                     , '1.5  CD'   , ['1.0c No CD'])
-General['FOE']                  := Map()
-General['FOE']['VersionsN']     := Map()
-General['FOE']['Combine']       := Map()
-General['LNG']                  := Map()
-Compatibilities                 := Map(1 , ["_____Not Set_____" , ""]
-                                     , 2 , ["Windows 8"         , "WIN8RTM"]
-                                     , 3 , ["Windows 7"         , "WIN7RTM"]
-                                     , 4 , ["Windows Vista Sp2" , "VISTASP2"]
-                                     , 5 , ["Windows Vista Sp1" , "VISTASP1"]
-                                     , 6 , ["Windows Vista"     , "VISTARTM"]
-                                     , 7 , ["Windows XP Sp3"    , "WINXPSP3"]
-                                     , 8 , ["Windows XP Sp2"    , "WINXPSP2"]
-                                     , 9 , ["Windows 98"        , "WIN98"]
-                                     , 10, ["Windows 95"        , "WIN95"])
-BasePackages                    := ['DB/000.7z.001'
-                                  , 'DB/001.7z.001'
-                                  , 'DB/002.7z.001'
-                                  , 'DB/006.7z.001'
-                                  , 'DB/007.7z.001'
-                                  , 'DB/008.7z.001']
-GamePackages                    := ['DB/003.7z.001'
-                                  , 'DB/003.7z.002'
-                                  , 'DB/003.7z.003'
-                                  , 'DB/003.7z.004'
-                                  , 'DB/004.7z.001'
-                                  , 'DB/004.7z.002'
-                                  , 'DB/004.7z.003'
-                                  , 'DB/005.7z.001']
-Dots                            := 0
-Task                            := 1
-TaskNumber                      := BasePackages.Length
-
-ProgramFiles86                  := EnvGet(A_Is64bitOS ? "ProgramFiles(x86)" : "ProgramFiles")
-VPNDir                          := ProgramFiles86 '\Hide ALL IP'
-VPNExe                          := 'HideALLIP.exe'
-VPNPath                         := VPNDir '\' VPNExe
-Shortcut1                       := '
+Server := 'https://raw.githubusercontent.com'
+User := 'SmileAoE'
+Repo := 'aoeii_aio'
+Version := '1.6'
+Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
+Config := A_AppData '\aoeii_aio\config.ini'
+AppDir := ['DB', A_AppData '\aoeii_aio', A_AppData '\aoeii_aio\Hotkeys']
+GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
+GRApp := A_AppData '\GameRanger\GameRanger\GameRanger.exe'
+DrsTypes := Map('gra', 'graphics.drs', 'int', 'interfac.drs', 'ter', 'terrain.drs')
+DrsRange := Map('gra', [2, 5312], 'int', [50100, 53211], 'ter', [15000, 15031])
+IDL := 5
+VCodedSlp := '3713EFBE'
+NormalSlp := '322E304E'
+General := Map()
+General['AOK'] := Map()
+General['AOK']['VersionsN'] := Map()
+General['AOK']['Combine'] := Map('2.0b CD', ['2.0a No CD'])
+General['AOC'] := Map()
+General['AOC']['VersionsN'] := Map()
+General['AOC']['Combine'] := Map('1.0e No CD', ['1.0c No CD'], '1.0e No CD', ['1.0c No CD'], '1.1  No CD', ['1.0c No CD'], '1.5  CD'   , ['1.0c No CD'])
+General['FOE'] := Map()
+General['FOE']['VersionsN'] := Map()
+General['FOE']['Combine'] := Map()
+General['LNG'] := Map()
+Compatibilities := Map(1 , ["_____Not Set_____" , ""], 2, ["Windows 8", "WIN8RTM"], 3, ["Windows 7", "WIN7RTM"], 4, ["Windows Vista Sp2" , "VISTASP2"], 5, ["Windows Vista Sp1" , "VISTASP1"], 6, ["Windows Vista", "VISTARTM"], 7, ["Windows XP Sp3", "WINXPSP3"], 8, ["Windows XP Sp2", "WINXPSP2"], 9, ["Windows 98", "WIN98"], 10, ["Windows 95", "WIN95"])
+BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'DB/008.7z.001']
+GamePackages := ['DB/003.7z.001', 'DB/003.7z.002', 'DB/003.7z.003', 'DB/003.7z.004', 'DB/004.7z.001', 'DB/004.7z.002', 'DB/004.7z.003', 'DB/005.7z.001']
+Dots := 0
+Task := 1
+TaskNumber := BasePackages.Length
+ProgramFiles86 := EnvGet(A_Is64bitOS ? "ProgramFiles(x86)" : "ProgramFiles")
+VPNDir := ProgramFiles86 '\Hide ALL IP'
+VPNExe := 'HideALLIP.exe'
+VPNPath := VPNDir '\' VPNExe
+Shortcut1 := '
 (
 ;Fast One Unit Un-Select;
 #Requires AutoHotkey v2
@@ -98,7 +70,7 @@ MouseMove(X, Y, 0)
 ProcessWaitClose(A_Args[1])
 ExitApp
 )'
-Shortcut2                       := '
+Shortcut2 := '
 (
 ;Terminates The Game;
 #Requires AutoHotkey v2
@@ -181,8 +153,10 @@ PrepareTheUnpacker() {
         DoneSteps.Value += 1
         DoneStepsText.Text := 'DB/7za.exe'
     } Catch As Err {
-        MsgBox('An error occured while preparing the unpacker!', 'Oops!', '48')
-        ; Run installation help page
+        Choice := MsgBox('An error occured while preparing the unpacker!`nYou may like to open the help page?', 'Oops!', 0x30 + 0x04)
+        If Choice = 'Yes' {
+            ; Run installation help page
+        }
         ExitApp
     }
 }
@@ -212,34 +186,44 @@ Try {
         DoneStepsText.Text := Package
     }
 } Catch As Err {
-    MsgBox('An error occured while preparing the necessary files!', 'Oops!', '48')
-    ; Run installation help page
+    Choice := MsgBox('An error occured while preparing the unpacker!`nYou may like to open the help page?', 'Oops!', 0x30 + 0x04)
+    If Choice = 'Yes' {
+        ; Run installation help page
+    }
     ExitApp
 }
 Prepare.Hide()
 
 ; Main window
-Manager := Gui(, 'AoE II Manager AIO')
+Manager := Gui('-Caption')
+Manager.SetFont('s11 Bold', 'Consolas')
+Manager.BackColor := 0xEEAA99
+Manager.MarginX := Manager.MarginY := 5
 Manager.OnEvent('Close', (*) => ExitApp())
 
 ; Features
 Features := Map()
 
+; The Game GUI
+GameG := Gui(, '')
+GameG.BackColor := 'White'
+GameGB := Manager.AddButton('ym+95 w100 h100', 'MY GAME')
+GameGB.SetFont('Bold')
+GameGB.OnEvent('Click', (*) => GameG.Show())
+CreateImageButton(GameGB, 0, [['DB\000\main_normal.png'], ['DB\000\main_hover.png'], ['DB\000\main_click.png'], ['DB\000\main_disable.png']]*)
+
 ; # The Game
 Features['The Game'] := []
-_Game_ := Manager.AddText('xm ym w220 h260 Center c800000 BackgroundFFFFFF Border', '# The Game')
+_Game_ := GameG.AddText('ym+10 w220 h260 Center c800000 BackgroundFFFFFF', '# The Game')
 Features['The Game'].Push(_Game_)
 _Game_.SetFont('Bold')
-GetTheGame := Manager.AddButton('xm+10 ym+25 w200 h21', 'Download AoE II')
+GetTheGame := GameG.AddButton('xm+10 ym+35 w200 h21', 'Download AoE II')
 Features['The Game'].Push(GetTheGame)
 GetTheGame.OnEvent('Click', (*) => DownloadInstallGame())
-CreateImageButton(GetTheGame, 0, [['DB\000\download_aoeii_normal.png' ]
-                                , ['DB\000\download_aoeii_hover.png'  ]
-                                , ['DB\000\download_aoeii_click.png'  ]
-                                , ['DB\000\download_aoeii_disable.png']]*)
-ProgressBar := Manager.AddProgress('xp yp wp h20 Hidden cFF9427 Background804000', 0)
+CreateImageButton(GetTheGame, 0, [['DB\000\download_aoeii_normal.png'], ['DB\000\download_aoeii_hover.png'], ['DB\000\download_aoeii_click.png'], ['DB\000\download_aoeii_disable.png']]*)
+ProgressBar := GameG.AddProgress('xp yp wp h20 Hidden cFF9427 Background804000', 0)
 Features['The Game'].Push(ProgressBar)
-ProgressInfo := Manager.AddText('xp yp+25 wp Hidden Center BackgroundTrans cRed')
+ProgressInfo := GameG.AddText('xp yp+25 wp Hidden Center BackgroundTrans cRed')
 Features['The Game'].Push(ProgressInfo)
 DownloadInstallGame() {
     ExportRange := 4
@@ -313,57 +297,32 @@ CreateGameShortcuts() {
     If FileExist(ChosenFolder.Value '\age2_x1\age2_x2.exe')
         FileCreateShortcut(ChosenFolder.Value '\age2_x1\age2_x2.exe', A_Desktop '\Forgotten Empires.lnk')
 }
-RunAOK := Manager.AddButton('xm+50 yp+20 w36 H36')
+RunAOK := GameG.AddButton('xm+55 yp+20 w36 H36')
 Features['The Game'].Push(RunAOK)
-CreateImageButton(RunAOK, 0, [['DB\000\aok_normal.png'  ]
-                            , ['DB\000\aok_hover.png'   ]
-                            , ['DB\000\aok_click.png'   ]
-                            , ['DB\000\aok_disable.png' ]]*)
+CreateImageButton(RunAOK, 0, [['DB\000\aok_normal.png'], ['DB\000\aok_hover.png'], ['DB\000\aok_click.png'], ['DB\000\aok_disable.png']]*)
 RunAOK.OnEvent('Click', (*) => Run(ChosenFolder.Value '\empires2.exe', ChosenFolder.Value))
 
-RunAOC := Manager.AddButton('yp wp hp')
+RunAOC := GameG.AddButton('xp+40 yp wp hp')
 Features['The Game'].Push(RunAOC)
-CreateImageButton(RunAOC, 0, [['DB\000\aoc_normal.png'  ]
-                            , ['DB\000\aoc_hover.png'   ]
-                            , ['DB\000\aoc_click.png'   ]
-                            , ['DB\000\aoc_disable.png' ]]*)
+CreateImageButton(RunAOC, 0, [['DB\000\aoc_normal.png'], ['DB\000\aoc_hover.png'], ['DB\000\aoc_click.png'], ['DB\000\aoc_disable.png']]*)
 RunAOC.OnEvent('Click', (*) => Run(ChosenFolder.Value '\age2_x1\age2_x1.exe', ChosenFolder.Value '\age2_x1'))
 
-RunFOE := Manager.AddButton('yp wp hp')
+RunFOE := GameG.AddButton('xp+40 yp wp hp')
 Features['The Game'].Push(RunFOE)
-CreateImageButton(RunFOE, 0, [['DB\000\fe_normal.png'  ]
-                            , ['DB\000\fe_hover.png'   ]
-                            , ['DB\000\fe_click.png'   ]
-                            , ['DB\000\fe_disable.png' ]]*)
+CreateImageButton(RunFOE, 0, [['DB\000\fe_normal.png'], ['DB\000\fe_hover.png'], ['DB\000\fe_click.png'], ['DB\000\fe_disable.png']]*)
 RunFOE.OnEvent('Click', (*) => Run(ChosenFolder.Value '\age2_x1\age2_x2.exe', ChosenFolder.Value '\age2_x1'))
 
-ChooseFolder := Manager.AddButton('xm+10 yp+50 w100 h21', 'Choose')
+ChooseFolder := GameG.AddButton('xm+10 yp+50 w100 h21', 'Choose')
 Features['The Game'].Push(ChooseFolder)
 ChooseFolder.OnEvent('Click', (*) => SelectTheGame())
-CreateImageButton(ChooseFolder, 0, [['DB\000\pick_folder_normal.png'  ]
-                                  , ['DB\000\pick_folder_hover.png'   ]
-                                  , ['DB\000\pick_folder_click.png'   ]
-                                  , ['DB\000\pick_folder_disable.png' ]]*)
+CreateImageButton(ChooseFolder, 0, [['DB\000\pick_folder_normal.png'], ['DB\000\pick_folder_hover.png'], ['DB\000\pick_folder_click.png'], ['DB\000\pick_folder_disable.png']]*)
 
-LoadGRFolder := Manager.AddButton('xm+180 yp w30 h21')
+LoadGRFolder := GameG.AddButton('xm+150 yp w60 h21')
 Features['The Game'].Push(LoadGRFolder)
 LoadGRFolder.OnEvent('Click', (*) => SelectTheGameFromGR())
-CreateImageButton(LoadGRFolder, 0, [['DB\000\gr_get_normal.png'  ]
-                                  , ['DB\000\gr_get_hover.png'   ]
-                                  , ['DB\000\gr_get_click.png'   ]
-                                  , ['DB\000\gr_get_disable.png' ]]*)
+CreateImageButton(LoadGRFolder, 0, [['DB\000\gr_get_normal.png'], ['DB\000\gr_get_hover.png'], ['DB\000\gr_get_click.png'], ['DB\000\gr_get_disable.png']]*)
 SelectTheGameFromGR() {
-    TextFound := LoadGRSettingText()
-    LoadGRSettingText() {
-        Setting := FileRead(GRSetting, 'RAW')
-        TextFound := ''
-        Loop Setting.Size {
-            Byte := NumGet(Setting, A_Index - 1, 'UChar')
-            If (32 <= Byte && Byte <= 126) || (Byte = 10) || (Byte = 13)
-                TextFound .= Chr(Byte)
-        }
-        Return TextFound
-    }
+    TextFound := LoadGRSettingText()[1]
     FoundLocations := []
     AOKDir := ''
     AOCDir := ''
@@ -438,15 +397,97 @@ SelectTheGameFromGR() {
     ChosenFolder.Value := ChosenDir
     ChargeSettings________()
 }
-ChosenFolder := Manager.AddEdit('xm+10 yp+30 w200 Center ReadOnly r4 -VScroll Border -E0x200 BackgroundWhite cBlue')
+LoadGRSettingText() {
+    Setting := FileRead(GRSetting, 'RAW')
+    TextFound := ''
+    LastTextFound := ''
+    ExeAddrs := Map('age2_x1.exe', []
+                  , 'age2_x2.exe', []
+                  , 'empires2.exe', [])
+    Loop Setting.Size {
+        Address := A_Index - 1
+        Byte := NumGet(Setting, Address, 'UChar')
+        If (32 <= Byte && Byte <= 126) || (Byte = 10) || (Byte = 13) {
+            TextFound .= Chr(Byte)
+            LastTextFound .= Chr(Byte)
+        } Else {
+            TextFound .= '`n'
+            For Exe, Addrs in ExeAddrs {
+                If InStr(LastTextFound, Exe) {
+                    Addrs.Push([Address - StrLen(LastTextFound), LastTextFound])
+                }
+            }
+            LastTextFound := ''
+        }
+    }
+    Return [TextFound, ExeAddrs]
+}
+
+SetGRFolder := GameG.AddButton('xp yp+25 w60 h21 Disabled Hidden')
+Features['The Game'].Push(SetGRFolder)
+CreateImageButton(SetGRFolder, 0, [['DB\000\gr_set_normal.png'], ['DB\000\gr_set_hover.png'], ['DB\000\gr_set_click.png'], ['DB\000\gr_set_disable.png']]*)
+SetGRFolder.OnEvent('Click', (*) => SetGRGamePath())
+SetGRGamePath() {
+    Setting := FileRead(GRSetting, 'RAW')
+    FoundPaths := LoadGRSettingText()[2]
+    For Exe, Addrs in FoundPaths {
+        For Each, Addr in Addrs {
+            Loop StrLen(Addr[2]) {
+                NumPut('UChar', 0, Setting, Addr[1] + A_Index - 1)
+            }
+        }
+    }
+    LastSelections := [0, 0, 0]
+    For Exe, Addrs in FoundPaths {
+        Index := A_Index
+        For Each, Addr in Addrs {
+            If Addr[1] > LastSelections[Index] {
+                LastSelections[Index] := Addr[1]
+            }
+        }
+    }
+    LastSelections[3] := LastSelections[1] - 4 - StrLen(ChosenFolder.Value '\empires2.exe')
+    For Each, Addr in LastSelections {
+        Switch Each {
+            Case 1 : 
+                NumPut('UChar', 55, Setting, Addr)
+                ExePath := ChosenFolder.Value '\age2_x1\age2_x1.exe' 
+            Case 2 : 
+                NumPut('UChar', 55, Setting, Addr)
+                ExePath := ChosenFolder.Value '\age2_x1\age2_x2.exe' 
+            Case 3 : 
+                NumPut('UChar', 48, Setting, Addr)
+                ExePath := ChosenFolder.Value '\empires2.exe' 
+        }
+        Loop Parse, ExePath {
+            NumPut('UChar', Ord(A_LoopField), Setting, Addr + A_Index)
+        }
+    }
+    UpdatedSetting := FileOpen(GRSetting, 'w')
+    UpdatedSetting.RawWrite(Setting)
+    UpdatedSetting.Close()
+}
+FocusControl(Options) {
+    ControlChooseIndex(1, 'SysTabControl321', Options)
+    ControlFocus('SysListView321', Options)
+}
+GetReadyToSet(GRTitle) {
+    If !ProcessExist('GameRanger.exe') {
+        Return False
+    }
+    If !WinExist(GRTitle)
+        Run(GRApp)
+    If !Existed := WinWait(GRTitle,, 3) {
+        Return False
+    }
+    Return True
+}
+ChosenFolder := GameG.AddEdit('xm+10 yp+30 w200 Center ReadOnly r3 -VScroll Border -E0x200 BackgroundWhite cBlue')
 Features['The Game'].Push(ChosenFolder)
 ChosenFolder.SetFont('Bold')
-OpenTheGameFolder := Manager.AddButton('w200 h21', 'Open')
+OpenTheGameFolder := GameG.AddButton('xp yp+50 w200 h21', 'Open')
 Features['The Game'].Push(OpenTheGameFolder)
-CreateImageButton(OpenTheGameFolder, 0, [['DB\000\open_aoeii_normal.png' ]
-                                       , ['DB\000\open_aoeii_hover.png'  ]
-                                       , ['DB\000\open_aoeii_click.png'  ]
-                                       , ['DB\000\open_aoeii_disable.png']]*)
+CreateImageButton(OpenTheGameFolder, 0, [['DB\000\open_aoeii_normal.png'], ['DB\000\open_aoeii_hover.png'], ['DB\000\open_aoeii_click.png'], ['DB\000\open_aoeii_disable.png']]*)
 OpenTheGameFolder.OnEvent('Click', (*) => Run(ChosenFolder.Value))
 SelectTheGame() {
     If SelectAFolder()
@@ -461,66 +502,77 @@ SelectAFolder() {
     Return True
 }
 
+; The App GUI
+AppG := Gui(, '# The App')
+AppG.BackColor := 'White'
+AppGB := Manager.AddButton('yp w100 h100', 'SETTINGS')
+AppGB.SetFont('Bold')
+AppGB.OnEvent('Click', (*) => AppG.Show())
+CreateImageButton(AppGB, 0, [['DB\000\main_normal.png'], ['DB\000\main_hover.png'], ['DB\000\main_click.png'], ['DB\000\main_disable.png']]*)
+
 ; # App
 Features['App'] := []
-_App_ := Manager.AddText('xm+230 ym w40 h280 Center c800000 BackgroundFFFFFF Border', '[ A ]')
+_App_ := AppG.AddText('ym+10 w220 h150 Center c800000 BackgroundFFFFFF', 'OPTIONS')
 Features['App'].Push(_App_)
 _App_.SetFont('Bold')
-OpenDB := Manager.AddButton('xp+5 yp+25 w30 h21')
+OpenDB := AppG.AddButton('xp+5 yp+25 w200 h21 Left', '  Open the app DB folder')
 Features['App'].Push(OpenDB)
 OpenDB.SetFont('Bold')
-CreateImageButton(OpenDB, 0, [['DB\000\open_db_normal.png' ]
-                            , ['DB\000\open_db_hover.png'  ]
-                            , ['DB\000\open_db_click.png'  ]
-                            , ['DB\000\open_db_disable.png']]*)
+CreateImageButton(OpenDB, 0, [['DB\000\open_aoeii_normal.png'], ['DB\000\open_aoeii_hover.png'], ['DB\000\open_aoeii_click.png'], ['DB\000\open_aoeii_disable.png']]*)
 OpenDB.OnEvent('Click', (*) => Run(AppDir[1]))
-OpenSetting := Manager.AddButton('xp yp+25 w30 h21')
+OpenSetting := AppG.AddButton('xp yp+25 w200 h21 Left', '  Open the setting DB folder')
 Features['App'].Push(OpenSetting)
 OpenSetting.SetFont('Bold')
-CreateImageButton(OpenSetting, 0, [['DB\000\open_setting_normal.png' ]
-                                 , ['DB\000\open_setting_hover.png'  ]
-                                 , ['DB\000\open_setting_click.png'  ]
-                                 , ['DB\000\open_setting_disable.png']]*)
+CreateImageButton(OpenSetting, 0, [['DB\000\open_aoeii_normal.png'], ['DB\000\open_aoeii_hover.png'], ['DB\000\open_aoeii_click.png'], ['DB\000\open_aoeii_disable.png']]*)
 OpenSetting.OnEvent('Click', (*) => Run(AppDir[2]))
-EditSetting := Manager.AddButton('xp yp+25 w30 h21')
-Features['App'].Push(EditSetting)
-EditSetting.SetFont('Bold')
-CreateImageButton(EditSetting, 0, [['DB\000\open_opt_normal.png' ]
-                                 , ['DB\000\open_opt_hover.png'  ]
-                                 , ['DB\000\open_opt_click.png'  ]
-                                 , ['DB\000\open_opt_disable.png']]*)
-EditSetting.OnEvent('Click', (*) => ShowOption())
-AppOption := Gui(, 'Options')
-UpdateChk := AppOption.AddCheckbox('w300', '  Check for updates when the app starts')
+;EditSetting := AppG.AddButton('xp yp+25 w30 h21')
+;Features['App'].Push(EditSetting)
+;EditSetting.SetFont('Bold')
+;CreateImageButton(EditSetting, 0, [['DB\000\open_opt_normal.png'], ['DB\000\open_opt_hover.png'], ['DB\000\open_opt_click.png'], ['DB\000\open_opt_disable.png']]*)
+;EditSetting.OnEvent('Click', (*) => ShowOption())
+;AppOption := Gui(, 'Options')
+AtStartUp := AppG.AddCheckbox('xp yp+40 w200', 'Auto launch when windows starts')
+AtStartUp.OnEvent('Click', (*) => StartUpUpdate())
+StartUpUpdate() {
+
+}
+UpdateChk := AppG.AddCheckbox('w200', 'Check for updates when the app starts')
 Check := IniRead(Config, 'Game', 'UpdateChk', 0)
 If Check {
     UpdateChk.Value := 1
 }
 UpdateChk.OnEvent('Click', (*) => IniWrite(UpdateChk.Value, Config, 'Game', 'UpdateChk'))
-ShowOption() {
-    AppOption.Show()
-}
+;ShowOption() {
+;    AppOption.Show()
+;}
+
+; The Version GUI
+VersionG := Gui(, '# The Version')
+VersionGB := Manager.AddButton('yp w100 h100', 'VERSIONS')
+VersionGB.SetFont('Bold')
+VersionGB.OnEvent('Click', (*) => VersionG.Show())
+CreateImageButton(VersionGB, 0, [['DB\000\main_normal.png'], ['DB\000\main_hover.png'], ['DB\000\main_click.png'], ['DB\000\main_disable.png']]*)
 
 ; # Versions
 Features['Versions'] := []
 ; # Compatibilities
 Features['Compatibilities'] := []
-_Version_ := Manager.AddText('xm+280 ym w400 h280 Center c800000 BackgroundFFFFFF Border', '# Versions')
+_Version_ := VersionG.AddText('w400 h280 Center c800000 BackgroundFFFFFF Border', '# Versions')
 Features['Versions'].Push(_Version_)
 _Version_.SetFont('Bold')
-H := Manager.AddPicture('xp+54 ym+25 BackgroundTrans', 'DB\000\aok.png')
+H := VersionG.AddPicture('xp+54 ym+25 BackgroundTrans', 'DB\000\aok.png')
 Features['Versions'].Push(H)
-H := Manager.AddText('xp-44 yp+40 cRed w120 Center BackgroundTrans', 'The Age of Kings')
+H := VersionG.AddText('xp-44 yp+40 cRed w120 Center BackgroundTrans', 'The Age of Kings')
 Features['Versions'].Push(H)
 H.SetFont('Bold')
-AoKCom := Manager.AddDropDownList('w120')
+AoKCom := VersionG.AddDropDownList('w120')
 Features['Compatibilities'].Push(AoKCom)
 For Each, Compat in Compatibilities {
     AoKCom.Add([Compat[1]])
 }
 AoKCom.Choose(1)
 AoKCom.OnEvent("Change", (*) => AoKComReg())
-AoKRun := Manager.AddCheckbox('xp yp+30 wp hp BackgroundFFFFFF', 'Run as administrator')
+AoKRun := VersionG.AddCheckbox('xp yp+30 wp hp BackgroundFFFFFF', 'Run as administrator')
 Features['Compatibilities'].Push(AoKRun)
 AoKRun.OnEvent("Click", (*) => AoKComReg())
 AoKComReg() {
@@ -534,7 +586,7 @@ AoKComReg() {
     RegWrite(RegVal, 'REG_SZ', Layers, ChosenFolder.Value '\empires2.exe')
 }
 Loop Files, 'DB\002\2*', 'D' {
-    Handle := Manager.AddRadio('w30 w100 BackgroundFFFFFF', A_LoopFileName)
+    Handle := VersionG.AddRadio('w30 w100 BackgroundFFFFFF', A_LoopFileName)
     Features['Versions'].Push(Handle)
     Handle.SetFont('s10', 'Consolas')
     Handle.OnEvent('Click', ApplyVersion)
@@ -662,19 +714,19 @@ ChargeVersions________() {
         }
     }
 }
-H := Manager.AddPicture('xp+174 ym+25 BackgroundTrans', 'DB\000\aoc.png')
+H := VersionG.AddPicture('xp+174 ym+25 BackgroundTrans', 'DB\000\aoc.png')
 Features['Versions'].Push(H)
-H := Manager.AddText('xp-44 yp+40 cBlue w120 Center BackgroundTrans', 'The Conquerors')
+H := VersionG.AddText('xp-44 yp+40 cBlue w120 Center BackgroundTrans', 'The Conquerors')
 Features['Versions'].Push(H)
 H.SetFont('Bold')
-AoCCom := Manager.AddDropDownList('w120')
+AoCCom := VersionG.AddDropDownList('w120')
 Features['Compatibilities'].Push(AoCCom)
 For Each, Compat in Compatibilities {
     AoCCom.Add([Compat[1]])
 }
 AoCCom.Choose(1)
 AoCCom.OnEvent("Change", (*) => AoCComReg())
-AoCRun := Manager.AddCheckbox('xp yp+30 wp hp BackgroundFFFFFF', 'Run as administrator')
+AoCRun := VersionG.AddCheckbox('xp yp+30 wp hp BackgroundFFFFFF', 'Run as administrator')
 Features['Compatibilities'].Push(AoCRun)
 AoCRun.OnEvent("Click", (*) => AoCComReg())
 AoCComReg() {
@@ -688,25 +740,25 @@ AoCComReg() {
     RegWrite(RegVal, 'REG_SZ', Layers, ChosenFolder.Value '\age2_x1\age2_x1.exe')
 }
 Loop Files, 'DB\002\1*', 'D' {
-    Handle := Manager.AddRadio('w30 w100 BackgroundFFFFFF', A_LoopFileName)
+    Handle := VersionG.AddRadio('w30 w100 BackgroundFFFFFF', A_LoopFileName)
     Features['Versions'].Push(Handle)
     Handle.SetFont('s10', 'Consolas')
     Handle.OnEvent('Click', ApplyVersion)
     General['AOC']['VersionsN'][A_LoopFileName] := Handle
 }
-H := Manager.AddPicture('xp+174 ym+25 BackgroundTrans', 'DB\000\fe.png')
+H := VersionG.AddPicture('xp+174 ym+25 BackgroundTrans', 'DB\000\fe.png')
 Features['Versions'].Push(H)
-H := Manager.AddText('xp-44 yp+40 cGreen w120 Center BackgroundTrans', 'Forgotten Empires')
+H := VersionG.AddText('xp-44 yp+40 cGreen w120 Center BackgroundTrans', 'Forgotten Empires')
 Features['Versions'].Push(H)
 H.SetFont('Bold')
-FOECom := Manager.AddDropDownList('w120')
+FOECom := VersionG.AddDropDownList('w120')
 Features['Compatibilities'].Push(FOECom)
 For Each, Compat in Compatibilities {
     FOECom.Add([Compat[1]])
 }
 FOECom.Choose(1)
 FOECom.OnEvent("Change", (*) => FOEComReg())
-FOERun := Manager.AddCheckbox('xp yp+30 wp hp BackgroundFFFFFF', 'Run as administrator')
+FOERun := VersionG.AddCheckbox('xp yp+30 wp hp BackgroundFFFFFF', 'Run as administrator')
 Features['Compatibilities'].Push(FOERun)
 FOERun.OnEvent("Click", (*) => FOEComReg())
 FOEComReg() {
@@ -719,11 +771,11 @@ FOEComReg() {
     }
     RegWrite(RegVal, 'REG_SZ', Layers, ChosenFolder.Value '\age2_x1\age2_x2.exe')
 }
-Handle := Manager.AddRadio('w30 w100 Checked BackgroundFFFFFF', '2.2  CD')
+Handle := VersionG.AddRadio('w30 w100 Checked BackgroundFFFFFF', '2.2  CD')
 Features['Versions'].Push(Handle)
 Handle.SetFont('s10', 'Consolas')
 General['FOE']['VersionsN']['2.2  CD'] := Handle
-Patch := Manager.AddDropDownList('xm+290 ym+250 w380', ['Do Not Enable Fixes'])
+Patch := VersionG.AddDropDownList('xm w400', ['Do Not Enable Fixes'])
 Features['Versions'].Push(Patch)
 Patch.OnEvent('Change', (*) => IniWrite(Patch.Text, Config, 'Game', 'Fix'))
 ChargeCompatibilities_() {
@@ -778,15 +830,22 @@ ChargeCompatibilities_() {
     }
 }
 
+; The Language GUI
+LanguageG := Gui(, '# The Language')
+LanguageGB := Manager.AddButton('yp w100 h100', 'LANGUAGES')
+LanguageGB.SetFont('Bold')
+LanguageGB.OnEvent('Click', (*) => LanguageG.Show())
+CreateImageButton(LanguageGB, 0, [['DB\000\main_normal.png'], ['DB\000\main_hover.png'], ['DB\000\main_click.png'], ['DB\000\main_disable.png']]*)
+
 ; # Language
 Features['Language'] := []
-_Language_ := Manager.AddText('xm ym+270 w220 h385 Center c800000 BackgroundFFFFFF Border', '# Languages')
+_Language_ := LanguageG.AddText('w220 h385 Center c800000 BackgroundFFFFFF Border', '# Languages')
 Features['Language'].Push(_Language_)
 _Language_.SetFont('Bold')
-H := Manager.AddText('xp+10 yp w200 BackgroundTrans')
+H := LanguageG.AddText('xp+10 yp w200 BackgroundTrans')
 Features['Language'].Push(H)
 Loop Files, 'DB\006\*', 'D' {
-    Handle := Manager.AddRadio('wp Center BackgroundFFFFFF', A_LoopFileName)
+    Handle := LanguageG.AddRadio('wp Center BackgroundFFFFFF', A_LoopFileName)
     Features['Language'].Push(Handle)
     Handle.SetFont('Underline Bold')
     Handle.OnEvent('Click', ApplyLanguage)
@@ -864,14 +923,21 @@ ChargeLanguage________() {
     }
 }
 
-; # Visual Modes
+; The Visual Mods GUI
+VisualModsG := Gui(, '# The Visual Mods')
+VisualModsGB := Manager.AddButton('yp w100 h100', 'VISUAL MODS')
+VisualModsGB.SetFont('Bold')
+VisualModsGB.OnEvent('Click', (*) => VisualModsG.Show())
+CreateImageButton(VisualModsGB, 0, [['DB\000\main_normal.png'], ['DB\000\main_hover.png'], ['DB\000\main_click.png'], ['DB\000\main_disable.png']]*)
+
+; # Visual Mods
 Features['Visual Modes'] := []
-_VisualMods_ := Manager.AddText('xm+230 ym+290 w220 h365 Center c800000 BackgroundFFFFFF Border', '# Visual Mods')
+_VisualMods_ := VisualModsG.AddText('w220 h365 Center c800000 BackgroundFFFFFF Border', '# Visual Mods')
 Features['Visual Modes'].Push(_VisualMods_)
 _VisualMods_.SetFont('Bold')
-H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
+H := VisualModsG.AddText('xp+10 yp+10 w200 BackgroundTrans')
 Features['Visual Modes'].Push(H)
-VMList := Manager.AddListView('w200 h320 -E0x200 -Hdr Checked', ['Mode Name'])
+VMList := VisualModsG.AddListView('w200 h320 -E0x200 -Hdr Checked', ['Mode Name'])
 CLV := LV_Colors(VMList)
 CLV.SelectionColors(0x008000, 0xFFFFFF)
 CLV.AlternateRows(0xCCCCCC)
@@ -941,6 +1007,7 @@ ChargeVModes__________() {
         }
     }
 }
+
 ;LoadVM := Manager.AddButton('wp Disabled', 'Import')
 ;LoadVM.SetFont('Bold')
 ;LoadVM.OnEvent('Click', (*) => ImportVisualMod())
@@ -1020,19 +1087,25 @@ ImportVisualMod() {
     }
 }
 
-; # Data Modes
-Features['Data Modes'] := []
-_VisualMods_.GetPos(, &Y)
-_DataModes_ := Manager.AddText('xm+460 y' Y ' w220 h365 Center c800000 BackgroundFFFFFF Border', '# Data Mods')
-Features['Data Modes'].Push(_DataModes_)
-_DataModes_.SetFont('Bold')
-H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
-Features['Data Modes'].Push(H)
-DMList := Manager.AddListView('w200 h320 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
+; The Data Mods GUI
+DataModsG := Gui(, '# The Data Mods')
+DataModsGB := Manager.AddButton('yp w100 h100', 'DATA MODS')
+DataModsGB.SetFont('Bold')
+DataModsGB.OnEvent('Click', (*) => DataModsG.Show())
+CreateImageButton(DataModsGB, 0, [['DB\000\main_normal.png'], ['DB\000\main_hover.png'], ['DB\000\main_click.png'], ['DB\000\main_disable.png']]*)
+
+; # Data Mods
+Features['Data Mods'] := []
+_DataMods_ := DataModsG.AddText('w220 h365 Center c800000 BackgroundFFFFFF Border', '# Data Mods')
+Features['Data Mods'].Push(_DataMods_)
+_DataMods_.SetFont('Bold')
+H := DataModsG.AddText('xp+10 yp+10 w200 BackgroundTrans')
+Features['Data Mods'].Push(H)
+DMList := DataModsG.AddListView('w200 h320 -E0x200 -Hdr Checked BackgroundFFFFFF', ['Mode Name'])
 CLV := LV_Colors(DMList)
 CLV.SelectionColors(0x008000, 0xFFFFFF)
 CLV.AlternateRows(0xCCCCCC)
-Features['Data Modes'].Push(DMList)
+Features['Data Mods'].Push(DMList)
 DMList.SetFont('Bold')
 For Each, Mode in StrSplit(IniRead('DB\008\DataMode.ini', 'DataMode', , ''), '`n') {
     DMList.Add(, StrSplit(Mode, '=')[1])
@@ -1071,9 +1144,8 @@ ApplyDM(Ctrl, Item, Checked) {
                 Return False
             }
         }
-        CleanUp('1.5  CD')
-        SetVersion('1.5  CD', 'AOC')
-        SectionInteract(Features['Data Modes'], False)
+        ApplyVersion(General['AOC']['VersionsN']['1.5  CD'], 'Info')
+        SectionInteract(Features['Data Mods'], False)
         If !DirExist(ChosenFolder.Value '\Games') {
             DirCreate(ChosenFolder.Value '\Games')
         }
@@ -1107,7 +1179,7 @@ ApplyDM(Ctrl, Item, Checked) {
         }
         IniDelete(Config, 'Game', 'CurrDM')
     }
-    SectionInteract(Features['Data Modes'])
+    SectionInteract(Features['Data Mods'])
     SoundPlay('DB\000\30 wololo.mp3')
 }
 VMDM := Gui(, 'Customize')
@@ -1134,11 +1206,11 @@ ShowVMDMList(Ctrl, Item) {
 }
 VMDMList.OnEvent('ItemCheck', ApplyVMDM)
 ApplyVMDM(Ctrl, Item, Checked) {
-    SectionInteract(Features['Data Modes'], False)
+    SectionInteract(Features['Data Mods'], False)
     VMName := VMList.GetText(Item)
     SlpDir := Checked ? 'DB\007\' VMName : 'DB\007\' VMName '\U'
     RunWait(A_Clipboard := 'DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Games\' VMDMTitle.Text '\Data\gamedata_x1_p1.drs" "' SlpDir '\*.slp"', , 'Hide')
-    SectionInteract(Features['Data Modes'])
+    SectionInteract(Features['Data Mods'])
     SoundPlay('DB\000\30 wololo.mp3')
 }
 ChargeDModes__________() {
@@ -1187,7 +1259,7 @@ ImportDataMode() {
             MsgBox('Unable to find the "age2_x1.xml"!', 'Import failed!', 0x30)
             Return
         }
-        SectionInteract(Features['Data Modes'], False)
+        SectionInteract(Features['Data Mods'], False)
         DirCopy(Selected, Dir '\' ModeName, 1)
         If DirExist(Dir '\' ModeName '\Drs') {
             Loop Files, Dir '\' ModeName '\Drs\*.*', 'R' {
@@ -1211,28 +1283,31 @@ ImportDataMode() {
             }
         }
         IniWrite(DID, 'DB\008\DataMode.ini', 'DataMode', ModeName)
-        SectionInteract(Features['Data Modes'])
+        SectionInteract(Features['Data Mods'])
     }
 }
 
+; The Other tools GUI
+OtherToolsG := Gui(, '# The Other tools')
+OtherToolsGB := Manager.AddButton('yp w100 h100', 'OTHER TOOLS')
+OtherToolsGB.SetFont('Bold')
+OtherToolsGB.OnEvent('Click', (*) => OtherToolsG.Show())
+CreateImageButton(OtherToolsGB, 0, [['DB\000\main_normal.png'], ['DB\000\main_hover.png'], ['DB\000\main_click.png'], ['DB\000\main_disable.png']]*)
+
 ; # Other tools
 Features['Other Tools'] := []
-_ATools_ := Manager.AddText('xm+690 ym w220 h650 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n')
+_ATools_ := OtherToolsG.AddText('w220 h300 Center c800000 BackgroundFFFFFF Border', '# Other Tools`n`n')
 Features['Other Tools'].Push(_ATools_)
 _ATools_.SetFont('Bold')
 _ATools_.GetPos(&X, &Y, &Width, &Height)
 
-H := Manager.AddText('xp+10 yp+10 w200 BackgroundTrans')
+H := OtherToolsG.AddText('xp+10 yp+10 w200 BackgroundTrans')
 Features['Other Tools'].Push(H)
 
 ; # Shortcuts
-Shortcuts := Manager.AddButton('xp yp+20 w200 Center', 'Hotkeys')
-;Macro1 := Manager.AddCheckBox('xp yp+20 w200 BackgroundWhite Center', '{Left Alt + Right Mouse Button}`n[Send && un-select one unit]')
+Shortcuts := OtherToolsG.AddButton('xp yp+20 w200 Center', 'Hotkeys')
 Features['Other Tools'].Push(Shortcuts)
-CreateImageButton(Shortcuts, 0, [['DB\000\hotkey_normal.png' ]
-                               , ['DB\000\hotkey_hover.png'  ]
-                               , ['DB\000\hotkey_click.png'  ]
-                               , ['DB\000\hotkey_disable.png']]*)
+CreateImageButton(Shortcuts, 0, [['DB\000\hotkey_normal.png'], ['DB\000\hotkey_hover.png'], ['DB\000\hotkey_click.png'], ['DB\000\hotkey_disable.png']]*)
 Shortcuts.SetFont('Bold')
 ShortcutsG := Gui(, 'Defined Hotkeys')
 ShortcutList := ShortcutsG.AddListView('w605 r10 Checked', ['Hotkey', 'Comment', 'ID'])
@@ -1245,10 +1320,7 @@ ShortcutList.ModifyCol(1, 200)
 ShortcutList.ModifyCol(2, 400)
 ShortcutList.SetFont('Bold')
 ShortcutAdd := ShortcutsG.AddButton('w100', 'Add')
-CreateImageButton(ShortcutAdd, 0, [['DB\000\shortcut_add_normal.png'  ]
-                                 , ['DB\000\shortcut_add_hover.png'   ]
-                                 , ['DB\000\shortcut_add_click.png'   ]
-                                 , ['DB\000\shortcut_add_disable.png' ]]*)
+CreateImageButton(ShortcutAdd, 0, [['DB\000\shortcut_add_normal.png'], ['DB\000\shortcut_add_hover.png'], ['DB\000\shortcut_add_click.png'], ['DB\000\shortcut_add_disable.png']]*)
 ShortcutAdd.OnEvent('Click', (*) => AddShortcut())
 AddShortcut() {
     ShortcutNameA.Value := ''
@@ -1267,10 +1339,7 @@ ShortcutsGA.AddText(, '3 - Hotkey Action')
 ShortcutActionA := ShortcutsGA.AddEdit('w600 r10 cBlue HScroll')
 ShortcutActionA.SetFont('s12', 'Calibri')
 ShortcutAddOK := ShortcutsGA.AddButton('w600', 'Submit')
-CreateImageButton(ShortcutAddOK, 0, [['DB\000\shortcut_submit_normal.png'  ]
-                                   , ['DB\000\shortcut_submit_hover.png'   ]
-                                   , ['DB\000\shortcut_submit_click.png'   ]
-                                   , ['DB\000\shortcut_submit_disable.png' ]]*)
+CreateImageButton(ShortcutAddOK, 0, [['DB\000\shortcut_submit_normal.png'], ['DB\000\shortcut_submit_hover.png'], ['DB\000\shortcut_submit_click.png'], ['DB\000\shortcut_submit_disable.png']]*)
 ShortcutAddOK.OnEvent('Click', (*) => SaveShortcutA())
 SaveShortcutA() {
     If ShortcutNameA.Value = '' || ShortcutActionA.Value = '' || ShortcutCommentA.Value = '' {
@@ -1309,10 +1378,7 @@ SaveShortcutA() {
     ShortcutsGA.Hide()
 }
 ShortcutEdit := ShortcutsG.AddButton('w100 yp', 'Edit')
-CreateImageButton(ShortcutEdit, 0, [['DB\000\shortcut_add_normal.png'  ]
-                                  , ['DB\000\shortcut_add_hover.png'   ]
-                                  , ['DB\000\shortcut_add_click.png'   ]
-                                  , ['DB\000\shortcut_add_disable.png' ]]*)
+CreateImageButton(ShortcutEdit, 0, [['DB\000\shortcut_add_normal.png'], ['DB\000\shortcut_add_hover.png'], ['DB\000\shortcut_add_click.png'], ['DB\000\shortcut_add_disable.png']]*)
 ShortcutEdit.OnEvent('Click', (*) => EditShortcut())
 EditShortcut() {
     If !R := ShortcutList.GetNext() {
@@ -1345,10 +1411,7 @@ ShortcutsGE.AddText(, '3 - Hotkey Action')
 ShortcutActionE := ShortcutsGE.AddEdit('w600 r10 cBlue HScroll')
 ShortcutActionE.SetFont('s12', 'Calibri')
 ShortcutEditOK := ShortcutsGE.AddButton('w600', 'Submit')
-CreateImageButton(ShortcutEditOK, 0, [['DB\000\shortcut_submit_normal.png'  ]
-                                   , ['DB\000\shortcut_submit_hover.png'   ]
-                                   , ['DB\000\shortcut_submit_click.png'   ]
-                                   , ['DB\000\shortcut_submit_disable.png' ]]*)
+CreateImageButton(ShortcutEditOK, 0, [['DB\000\shortcut_submit_normal.png'], ['DB\000\shortcut_submit_hover.png'], ['DB\000\shortcut_submit_click.png'], ['DB\000\shortcut_submit_disable.png']]*)
 ShortcutEditOK.OnEvent('Click', (*) => SaveShortcutE())
 SaveShortcutE() {
     If ShortcutNameE.Value = '' || ShortcutActionE.Value = '' || ShortcutCommentE.Value = '' {
@@ -1378,10 +1441,7 @@ SaveShortcutE() {
     ShortcutsGE.Hide()
 }
 ShortcutRemove := ShortcutsG.AddButton('xp+400 yp w100', 'Remove')
-CreateImageButton(ShortcutRemove, 0, [['DB\000\shortcut_rem_normal.png'  ]
-                                    , ['DB\000\shortcut_rem_hover.png'   ]
-                                    , ['DB\000\shortcut_rem_click.png'   ]
-                                    , ['DB\000\shortcut_rem_disable.png' ]]*)
+CreateImageButton(ShortcutRemove, 0, [['DB\000\shortcut_rem_normal.png'], ['DB\000\shortcut_rem_hover.png'], ['DB\000\shortcut_rem_click.png'], ['DB\000\shortcut_rem_disable.png']]*)
 ShortcutRemove.OnEvent('Click', (*) => RemoveShortcut())
 RemoveShortcut() {
     If !R := ShortcutList.GetNext() {
@@ -1453,13 +1513,10 @@ ShortcutGetInfo(FileN) {
     }
     Return ShortcutTable
 }
-H := Manager.AddText('x' (X + 1) ' yp+35 w220 0x10')
-VPN := Manager.AddButton('xp+10 yp+10 w56 h56')
+H := OtherToolsG.AddText('x' (X + 1) ' yp+35 w220 0x10')
+VPN := OtherToolsG.AddButton('xp+10 yp+10 w56 h56')
 Features['Other Tools'].Push(VPN)
-CreateImageButton(VPN, 0, [['DB\000\vpn_normal.png'  ]
-                         , ['DB\000\vpn_hover.png'   ]
-                         , ['DB\000\vpn_click.png'   ]
-                         , ['DB\000\vpn_disable.png' ]]*)
+CreateImageButton(VPN, 0, [['DB\000\vpn_normal.png'], ['DB\000\vpn_hover.png'], ['DB\000\vpn_click.png'], ['DB\000\vpn_disable.png']]*)
 VPN.OnEvent('Click', (*) => OpenHAI())
 OpenHAI() {
     If !FileExist(VPNPath) {
@@ -1474,11 +1531,8 @@ OpenHAI() {
     }
     Run(VPNPath, VPNDir)
 }
-ClearVPNReg := Manager.AddButton('xp+65 yp+2 w130', 'Clear Registry')
-CreateImageButton(ClearVPNReg, 0, [['DB\000\clear_vpn_normal.png'  ]
-                                 , ['DB\000\clear_vpn_hover.png'   ]
-                                 , ['DB\000\clear_vpn_click.png'   ]
-                                 , ['DB\000\clear_vpn_disable.png' ]]*)
+ClearVPNReg := OtherToolsG.AddButton('xp+65 yp+2 w130', 'Clear Registry')
+CreateImageButton(ClearVPNReg, 0, [['DB\000\clear_vpn_normal.png'], ['DB\000\clear_vpn_hover.png'], ['DB\000\clear_vpn_click.png'], ['DB\000\clear_vpn_disable.png']]*)
 Features['Other Tools'].Push(ClearVPNReg)
 ClearVPNReg.OnEvent('Click', (*) => ClearRegHAI())
 ClearRegHAI() {
@@ -1501,7 +1555,7 @@ ClearRegHAI() {
     }
     MsgBox((Log != '') ? "The following key(s) is(are) cleared:`n" Log : "Clear!", 'Clear!', 0x40)
 }
-VPNCompat := Manager.AddDropDownList('w130')
+VPNCompat := OtherToolsG.AddDropDownList('w130')
 Features['Other Tools'].Push(VPNCompat)
 For Each, Compat in Compatibilities {
     VPNCompat.Add([Compat[1]])
@@ -1518,13 +1572,10 @@ SetVPNCompat() {
     RegVal := Compatibilities[VPNCompat.Value][2] ' RUNASADMIN'
     RegWrite(RegVal, 'REG_SZ', Layers, VPNPath)
 }
-H := Manager.AddText('x' (X + 1) ' yp+35 w220 0x10')
-RecordFix := Manager.AddButton('xp+10 yp+10 w200 Center', '(.mgx/.mgl) Records biegleux Fixes')
+H := OtherToolsG.AddText('x' (X + 1) ' yp+35 w220 0x10')
+RecordFix := OtherToolsG.AddButton('xp+10 yp+10 w200 Center', '(.mgx/.mgl) Records biegleux Fixes')
 Features['Other Tools'].Push(RecordFix)
-CreateImageButton(RecordFix, 0, [['DB\000\hotkey_normal.png' ]
-                               , ['DB\000\hotkey_hover.png'  ]
-                               , ['DB\000\hotkey_click.png'  ]
-                               , ['DB\000\hotkey_disable.png']]*)
+CreateImageButton(RecordFix, 0, [['DB\000\hotkey_normal.png'], ['DB\000\hotkey_hover.png'], ['DB\000\hotkey_click.png'], ['DB\000\hotkey_disable.png']]*)
 RecordFix.OnEvent('Click', (*) => FixRecords())
 RecordFixG := Gui(, 'Fix Records')
 RecordFixG.OnEvent('Close', (*) => CancelRecordFix())
@@ -1564,7 +1615,7 @@ RecordsCheck__________() {
     CountFixedRecords_____()
     CountUnknownRecords___()
 }
-RecordCount := Manager.AddText('xp yp+30 w200 BackgroundTrans', '0 Records Found')
+RecordCount := OtherToolsG.AddText('xp yp+30 w200 BackgroundTrans', '0 Records Found')
 RecordCount.SetFont('Bold')
 Features['Other Tools'].Push(RecordCount)
 CountRecords__________() {
@@ -1576,7 +1627,7 @@ CountRecords__________() {
         }
     }
 }
-RecordFixed := Manager.AddText('xp yp+20 w200 BackgroundTrans cGreen', '0 Records Processed ✓')
+RecordFixed := OtherToolsG.AddText('xp yp+20 w200 BackgroundTrans cGreen', '0 Records Processed ✓')
 RecordFixed.SetFont('Bold')
 Features['Other Tools'].Push(RecordFixed)
 CountFixedRecords_____() {
@@ -1588,7 +1639,7 @@ CountFixedRecords_____() {
         }
     }
 }
-RecordUnknown := Manager.AddText('xp yp+20 w200 BackgroundTrans cRed', '0 Records Not Processed X')
+RecordUnknown := OtherToolsG.AddText('xp yp+20 w200 BackgroundTrans cRed', '0 Records Not Processed X')
 RecordUnknown.SetFont('Bold')
 Features['Other Tools'].Push(RecordUnknown)
 CountUnknownRecords___() {
@@ -1600,8 +1651,6 @@ CountUnknownRecords___() {
         }
     }
 }
-H := Manager.AddText('x' (X + 1) ' yp+25 w220 0x10')
-
 ;
 ;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '3 - Repair Game Files').SetFont('Bold')
 ;RepairGame := Manager.AddButton('wp', 'Repair')
@@ -1623,13 +1672,26 @@ H := Manager.AddText('x' (X + 1) ' yp+25 w220 0x10')
 ; 'WEBSITE FOR THIS APP, '
 ; 'HTTPS://SMILEAOE.GITHUB.IO |'
 
-SB := Manager.AddStatusBar()
-SB.SetFont('Bold', 'Calibri')
-SB.SetParts(10, 50, 200)
-SB.SetText('v' Version, 2)
-SB.SetText('Loading...', 3)
-SB.SetText(A_Tab A_Tab 'A Collective App From The Internet On What I Found Useful About AoE II!    ', 4)
-Manager.Show('w930 h690')
+;SB := Manager.AddStatusBar()
+;SB.SetFont('s8 Bold', 'Calibri')
+;SB.SetParts(50, 200)
+;SB.SetText('v' Version, 1)
+;SB.SetText('Loading...', 2)
+;SB.SetText(A_Tab A_Tab 'A Collective App From The Internet On What I Found Useful About AoE II!', 3)
+
+WinSetTransColor('EEAA99', Manager)
+Manager.Show()
+Manager.GetPos(,, &Width)
+Manager.AddPicture('x' Width - 50 ' y0', 'DB\000\monk.png')
+Manager.AddText('Center x5 y70 w' Width - 10 ' h25 cWhite Background9e4f00', 'AoE II Easy Manager').SetFont('s13 Bold', 'Consolas')
+Quit := Manager.AddButton('x' Width - 25 ' y70 w25 h25', 'X')
+CreateImageButton(Quit, 0, [['DB\000\quit_normal.png',, 0xFFFFFF], ['DB\000\quit_hover.png'], ['DB\000\quit_click.png'], ['DB\000\quit_disable.png']]*)
+Quit.OnEvent('Click', (*) => ExitApp())
+OnMessage(0x201, MoveWindow)
+MoveWindow(wParam, lParam, msg, hwnd) {
+    PostMessage(0xA1, 2)
+}
+
 ChargeEnableFixes_____()
 ChargeEnableFixes_____() {
     Loop Files, 'DB\001\*', 'D' {
@@ -1646,13 +1708,13 @@ CheckForUpdates_______() {
     If A_IsCompiled {
         Return
     }
-    SB.SetText('Update check is disabled!', 3)
+    ;SB.SetText('Update check is disabled!', 2)
     UpdateChk := IniRead(Config, 'Game', 'UpdateChk', '')
     If UpdateChk = '0' {
         Return
     }
     Try {
-        SB.SetText('Checking for updates...', 3)
+        ;SB.SetText('Checking for updates...', 3)
         GetTextFromLink(Link) {
             whr := ComObject("WinHttp.WinHttpRequest.5.1")
             whr.Open("GET", Link, true)
@@ -1683,7 +1745,7 @@ CheckForUpdates_______() {
                 UpdatesList .= Each ' - ' UpdateFile '`n'
             }
             UpdatesList .= '`n=======================`n'
-            SB.SetText('Update found!', 3)
+            ;SB.SetText('Update found!', 2)
             Choice := MsgBox('The following needs to be updated:`n' UpdatesList '`nUpdate now?', 'New Update!', 0x4 + 0x40 + 0x100)
             If Choice = 'Yes' {
                 DoneSteps.Value := 0
@@ -1709,12 +1771,12 @@ CheckForUpdates_______() {
                 }
                 Reload
             }
-            SB.SetText('New update is waiting!', 3)
+            ;SB.SetText('New update is waiting!', 2)
         } Else {
-            SB.SetText('Up to date!', 3)
+            ;SB.SetText('Up to date!', 2)
         }
     } Catch As Err {
-        SB.SetText('Failed to check for updates!', 3)
+        ;SB.SetText('Failed to check for updates!', 2)
     }
 }
 
@@ -1724,7 +1786,7 @@ ChargeSettings________(Browse := False) {
     SectionInteract(Features['Compatibilities'], False)
     SectionInteract(Features['Language'], False)
     SectionInteract(Features['Visual Modes'], False)
-    SectionInteract(Features['Data Modes'], False)
+    SectionInteract(Features['Data Mods'], False)
     SectionInteract(Features['Other Tools'], False)
     ChosenFolder.Value := IniRead(Config, 'Game', 'Path', '')
     ValidGameLocation(Location) {
@@ -1778,7 +1840,7 @@ ChargeSettings________(Browse := False) {
     SectionInteract(Features['Compatibilities'])
     SectionInteract(Features['Language'])
     SectionInteract(Features['Visual Modes'])
-    SectionInteract(Features['Data Modes'])
+    SectionInteract(Features['Data Mods'])
     SectionInteract(Features['Other Tools'])
     ChargeVersions________()
     ChargeCompatibilities_()
