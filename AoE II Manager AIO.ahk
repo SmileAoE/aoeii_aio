@@ -207,14 +207,28 @@ SB1 := ScrollBar(Manager, 600, 500)
     WheelUp::
     WheelDown::
     +WheelUp::
-    +WheelDown:: {
-        SB1.ScrollMsg(InStr(A_ThisHotkey,"Down") ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, Manager.Hwnd)
-        return
+    +WheelDown::
+    Up::
+    Down::
+    +Up::
+    +Down:: {
+        SB1.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, Manager.Hwnd)
     }
+    PgUp::
+    PgDn::
+    +PgUp::
+    +PgDn:: {
+        SB1.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 3 : 2, 0, GetKeyState("Shift") ? 0x114 : 0x115, Manager.Hwnd)
+    }
+    Home::SB1.ScrollMsg(6, 0, GetKeyState("Shift") ? 0x114 : 0x115, Manager.Hwnd)
+    End::SB1.ScrollMsg(7, 0, GetKeyState("Shift") ? 0x114 : 0x115, Manager.Hwnd)
 #HotIf
 
 ; Features
 Features := Map()
+
+; Progress Bar
+ProgressBar := Manager.AddProgress('-Smooth Hidden')
 
 ; About
 Manager.AddPicture('xm+150', 'DB\000\game.png').Focus()
@@ -506,23 +520,22 @@ Loop Files, 'DB\002\2*', 'D' {
     Handle.OnEvent('Click', ApplyVersion)
     General['AOK']['VersionsN'][A_LoopFileName] := Handle
 }
-ApplyVersion(Ctrl, Info) {
+ApplyVersion(Ctrl, Info?, Wololo := 1) {
     SectionInteract(Features['Versions'], False)
-    SectionInteract(Features['The Game'], False)
     If GameIsRunning() {
         ChargeSettings________()
         Return
     }
     Try {
         CleanUp(Ctrl.Text)
-        SetVersion(Ctrl.Text)
+        SetVersion(Ctrl.Text, !Wololo ? 'AOC' : '')
     } Catch As Err {
         MsgBox('An error occured while trying to set v' Ctrl.Text, 'Version apply error!', 0x20)
     }
-    SectionInteract(Features['The Game'])
     SectionInteract(Features['Versions'])
     UpdateVersionRadio()
-    SoundPlay('DB\000\30 wololo.mp3')
+    If Wololo
+        SoundPlay('DB\000\30 wololo.mp3')
 }
 UpdateVersionRadio() {
     Fix := IniRead(Config, 'Game', 'Fix', '')
@@ -893,12 +906,20 @@ Loop Files, 'DB\007\*', 'D' {
     Features['Visual Modes'].Push(M)
 }
 ApplyVM(Ctrl, Info) {
+    Ctrl.GetPos(&X, &Y, &W, &H)
+    ProgressBar.Move(X, Y, W, H)
+    Ctrl.Visible := False
+    ProgressBar.Visible := True
+    ProgressBar.Value := 0
     SectionInteract(Features['Visual Modes'], False)
     VMName := SubStr(Ctrl.Text, InStr(Ctrl.Text, ' ') + 1)
     SlpDir := InStr(Ctrl.Text, 'Uninstall') ? 'DB\007\' VMName '\U' : 'DB\007\' VMName
     RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['gra'] '" "' SlpDir '\gra*.slp"',, 'Hide')
+    ProgressBar.Value := 20
     RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['int'] '" "' SlpDir '\int*.slp"',, 'Hide')
+    ProgressBar.Value := 40
     RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' DrsTypes['ter'] '" "' SlpDir '\ter*.slp"',, 'Hide')
+    ProgressBar.Value := 60
     If FileExist(SlpDir '\Info.ini') {
         Drs := IniRead(SlpDir '\Info.ini', 'Info', 'Drs', '')
         FileN := IniRead(SlpDir '\Info.ini', 'Info', 'File', '')
@@ -923,6 +944,7 @@ ApplyVM(Ctrl, Info) {
         RunWait('DB\000\DrsBuild.exe /a "' ChosenFolder.Value '\Data\' Drs '" "' ChosenFolder.Value '\Data\' FileN '"',, 'Hide')
         FileDelete(ChosenFolder.Value '\Data\' FileN)
     }
+    ProgressBar.Value := 80
     If FileExist(ChosenFolder.Value '\Games\age2_x1.xml') {
         If RegExMatch(FileRead(ChosenFolder.Value '\Games\age2_x1.xml'), '\Q<path>\E(.*)\Q</path>\E', &DName) {
             SectionInteract(Features['Data Mods'], False)
@@ -930,8 +952,11 @@ ApplyVM(Ctrl, Info) {
             SectionInteract(Features['Data Mods'])
         }
     }
+    ProgressBar.Value := 100
     SectionInteract(Features['Visual Modes'])
     SoundPlay('DB\000\30 wololo.mp3')
+    Ctrl.Visible := True
+    ProgressBar.Visible := False
 }
 ;LoadVM := Manager.AddButton('wp Disabled', 'Import')
 ;LoadVM.SetFont('Bold')
@@ -1032,12 +1057,19 @@ For Each, _Mod in StrSplit(IniRead('DB\008\DataMod.ini', 'DataMod',, ''), '`n') 
     Features['Data Mods'].Push(M)
 }
 ApplyDM(Ctrl, Info) {
+    Ctrl.GetPos(&X, &Y, &W, &H)
+    ProgressBar.Move(X, Y, W, H)
+    Ctrl.Visible := False
+    ProgressBar.Visible := True
+    ProgressBar.Value := 0
     DMName := SubStr(Ctrl.Text, InStr(Ctrl.Text, ' ') + 1)
     If !InStr(Ctrl.Text, 'Uninstall') {
+        SectionInteract(Features['Data Mods'], False)
         ModeDir := IniRead('DB\008\DataMod.ini', 'DataMod', DMName, '')
         ModeDir := StrSplit(ModeDir, '|')
         Parts := StrSplit(ModeDir[2], ',')
         PrepareTheDataMod()
+        ProgressBar.Value := 25
         PrepareTheDataMod() {
             Try {
                 For Each, Part in Parts {
@@ -1057,30 +1089,42 @@ ApplyDM(Ctrl, Info) {
                 Return False
             }
         }
-        ControlClick(General['AOC']['VersionsN']['1.5  CD'])
-        SectionInteract(Features['Data Mods'], False)
+        ApplyVersion(General['AOC']['VersionsN']['1.5  CD'],, 0)
+        ProgressBar.Value := 50
         If !DirExist(ChosenFolder.Value '\Games') {
             DirCreate(ChosenFolder.Value '\Games')
         }
-        If !DirExist(ChosenFolder.Value '\Games\' ModeDir[1])
-            DirCopy('DB\' ModeDir[1], ChosenFolder.Value, 1)
-        If FileExist('DB\' ModeDir[1] '\Games\age2_x1.xml')
+        ProgressBar.Value := 75
+        If FileExist('DB\' ModeDir[1] '\Games\age2_x1.xml') {
             FileCopy('DB\' ModeDir[1] '\Games\age2_x1.xml', ChosenFolder.Value '\Games\age2_x1.xml', 1)
+            If !DirExist(ChosenFolder.Value '\Games\' ModeDir[1])
+                DirCopy('DB\' ModeDir[1], ChosenFolder.Value, 1)
+        } Else {
+            DirCopy('DB\' ModeDir[1], ChosenFolder.Value, 1)
+        }
+        ProgressBar.Value := 100
     } Else {
-        ControlClick(General['AOC']['VersionsN']['1.5  CD'])
+        ApplyVersion(General['AOC']['VersionsN']['1.5  CD'],, 0)
+        ProgressBar.Value := 20
         If FileExist(ChosenFolder.Value '\Games\age2_x1.xml') {
             FileDelete(ChosenFolder.Value '\Games\age2_x1.xml')
         }
+        ProgressBar.Value := 40
         If DirExist(ChosenFolder.Value '\Games\' DMName) {
             DirDelete(ChosenFolder.Value '\Games\' DMName, 1)
         }
+        ProgressBar.Value := 60
         If DMName = 'Sheep vs Wolf 2' {
             DirCopy('DB\008\Sound\stream', ChosenFolder.Value '\Sound\stream', 1)
         }
+        ProgressBar.Value := 80
         IniDelete(Config, 'Game', 'CurrDM')
+        ProgressBar.Value := 100
     }
     SectionInteract(Features['Data Mods'])
     SoundPlay('DB\000\30 wololo.mp3')
+    Ctrl.Visible := True
+    ProgressBar.Visible := False
 }
 ;ApplyVMDM(Ctrl, Info) {
 ;    SectionInteract(Features['Data Mods'], False)
@@ -1439,13 +1483,16 @@ FixRecords() {
         If Cancel {
             Break
         }
+        If InStr(Record, 'aoeii_aio_fix') {
+            RecordFixProgress.Value += 1
+            Continue
+        }
         RunWait('DB\000\MgxFix.exe -f "' Record '"',, 'Hide')
         RunWait('DB\000\RevealFix.exe "' Record '"',, 'Hide')
         SplitPath(Record,, &Dir, &Ext, &Name)
         If !InStr(Record, 'aoeii_aio_fix')
             FileMove(Record, Dir '\' Name '_aoeii_aio_fix.' Ext)
         RecordFixText.Text := Each ' / ' Records.Length
-        RecordFixProgress.Value += 1
     }
     RecordsCheck__________()
     RecordFixG.Hide()
@@ -1499,16 +1546,27 @@ CountUnknownRecords___() {
 ;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '5 - Scenario Files Select').SetFont('Bold')
 ;FixMgz := Manager.AddButton('wp', 'Select')
 ;FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-
+F1::{
+    Msgbox SB1.ScrollInf.nPos
+}
 FileMenu := Menu()
-FileMenu.Add("&Age of Empires II: The Age of Kings`tAlt+E", (*) => Run(ChosenFolder.Value '\empires2.exe', ChosenFolder.Value))
-FileMenu.Add("&Age of Empires II: The Conquerors`tAlt+C", (*) => Run(ChosenFolder.Value '\age2_x1\age2_x1.exe', ChosenFolder.Value '\age2_x1'))
-FileMenu.Add("&Age of Empires II: Forgotten Empires`tAlt+F", (*) => Run(ChosenFolder.Value '\age2_x1\age2_x2.exe', ChosenFolder.Value '\age2_x1'))
-FileMenu.Add("E&xit`tEsc", (*) => ExitApp())
-FileMenu.SetIcon('&Age of Empires II: The Age of Kings`tAlt+E', 'DB\000\aok.png')
-FileMenu.SetIcon('&Age of Empires II: The Conquerors`tAlt+C', 'DB\000\aoc.png')
-FileMenu.SetIcon('&Age of Empires II: Forgotten Empires`tAlt+F', 'DB\000\fe.png')
+FileMenu.Add("Age of Empires II: The Age of Kings`tAlt+E", (*) => Run(ChosenFolder.Value '\empires2.exe', ChosenFolder.Value))
+FileMenu.Add("Age of Empires II: The Conquerors`tAlt+C", (*) => Run(ChosenFolder.Value '\age2_x1\age2_x1.exe', ChosenFolder.Value '\age2_x1'))
+FileMenu.Add("Age of Empires II: Forgotten Empires`tAlt+F", (*) => Run(ChosenFolder.Value '\age2_x1\age2_x2.exe', ChosenFolder.Value '\age2_x1'))
+FileMenu.Add("Exit`tEsc", (*) => ExitApp())
+FileMenu.SetIcon('Age of Empires II: The Age of Kings`tAlt+E', 'DB\000\aok.png')
+FileMenu.SetIcon('Age of Empires II: The Conquerors`tAlt+C', 'DB\000\aoc.png')
+FileMenu.SetIcon('Age of Empires II: Forgotten Empires`tAlt+F', 'DB\000\fe.png')
+GoToMenu := Menu()
+GoToMenu.Add('Go to GAME LOCATION', (*) => SB1.ScrollMsg(100, 0, 0x115, Manager.Hwnd))
+GoToMenu.Add('Go to OPTION', (*) => SB1.ScrollMsg(101, 0, 0x115, Manager.Hwnd))
+GoToMenu.Add('Go to GAME VERSION', (*) => SB1.ScrollMsg(102, 0, 0x115, Manager.Hwnd))
+GoToMenu.Add('Go to GAME LANGUAGES', (*) => SB1.ScrollMsg(103, 0, 0x115, Manager.Hwnd))
+GoToMenu.Add('Go to GAME VISUAL MODS', (*) => SB1.ScrollMsg(104, 0, 0x115, Manager.Hwnd))
+GoToMenu.Add('Go to GAME DATA MODS', (*) => SB1.ScrollMsg(105, 0, 0x115, Manager.Hwnd))
+GoToMenu.Add('Go to GAME OTHER TOOLS', (*) => SB1.ScrollMsg(7, 0, 0x115, Manager.Hwnd))
 AboutMenu := Menu()
+
 AboutMenu.Add('&About this app`tAlt+B', (*) => Msgbox('Nothing but a small AutoHotkey app'
                                                     . '`n`nIn which I tried to include all the helphul things I found on the internet'
                                                     . '`nTo save you the time searching on already done features'
@@ -1527,8 +1585,9 @@ AboutMenu.Add('&About this app`tAlt+B', (*) => Msgbox('Nothing but a small AutoH
                                                     . '`n[ Ebul-Feth ] | Cagri the Turk - For helping testing my app'
                                                     . '`n`nAnd to all others who did help make this game better', 'About it', 0x40))
 Menus := MenuBar()
-Menus.Add("&Games", FileMenu)
-Menus.Add("&About", AboutMenu)
+Menus.Add("Games", FileMenu)
+Menus.Add("Go to", GoToMenu)
+Menus.Add("About", AboutMenu)
 Manager.MenuBar := Menus
 Manager.Show('w520 h300')
 
@@ -2919,6 +2978,15 @@ class ScrollBar {
     ; The scrollbar received WM_KEYUP, meaning that the user released a key that sent a relevant virtual key code.
     SB_ENDSCROLL => 8
 
+    ; Custom
+    GAMELOCATION => 100
+    OPTION => 101
+    GAMEVERSION => 102
+    GAMELANGUAGES => 103
+    GAMEVISUALMODS => 104
+    GAMEDATAMODS => 105
+    GAMEOTHERTOOLS => 106
+
     ; Constructor for the ScrollBar class
     __New(guiObj, width, height) {
         ; Check if the first parameter is a Gui object
@@ -3067,7 +3135,7 @@ class ScrollBar {
                 this.ScrollAction(this.SB_HORZ, wParam)
                 this.ScrollWindow(this.oldPos - this.ScrollInf.nPos, 0)
                 this.UpdateFixedControlsPosition()
-                ; If the message is WM_VSCROLL, update the vertical scroll bar
+            ; If the message is WM_VSCROLL, update the vertical scroll bar
             case this.WM_VSCROLL:
                 this.ScrollAction(this.SB_VERT, wParam)
                 this.ScrollWindow(0, this.oldPos - this.ScrollInf.nPos)
@@ -3080,6 +3148,7 @@ class ScrollBar {
     ScrollAction(typeOfScrollBar, wParam) {
         ; Get current attributes of scroll bar
         this.GetScrollInfo(typeOfScrollBar)
+
         ; Store current position of scroll bar
         this.oldPos := this.ScrollInf.nPos
 
@@ -3101,10 +3170,25 @@ class ScrollBar {
                 this.ScrollInf.nPos := min(this.ScrollInf.nPos + this.ScrollInf.nPage, maxThumbPos)
             case this.SB_THUMBTRACK:
                 this.ScrollInf.nPos := this.HiWord(wParam)
+            case this.SB_LEFT, this.SB_TOP:
+                this.ScrollInf.nPos := minPos
+            case this.SB_RIGHT, this.SB_BOTTOM:
+                this.ScrollInf.nPos := maxThumbPos
+            case this.GAMELOCATION:
+                this.ScrollInf.nPos := 285
+            case this.OPTION:
+                this.ScrollInf.nPos := 525
+            case this.GAMEVERSION:
+                this.ScrollInf.nPos := 705
+            case this.GAMELANGUAGES:
+                this.ScrollInf.nPos := 1170
+            case this.GAMEVISUALMODS:
+                this.ScrollInf.nPos := 1650
+            case this.GAMEDATAMODS:
+                this.ScrollInf.nPos := 5940
             default:
                 return
         }
-
         this.SetScrollInfo(typeOfScrollBar, true)
     }
 
