@@ -14,7 +14,7 @@ If !A_IsAdmin {
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.7'
+Version := '1.8'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
 Startup := A_AppData '\Microsoft\Windows\Start Menu\Programs\Startup\' StrReplace(A_ScriptName, 'ahk', 'lnk')
