@@ -14,11 +14,13 @@ If !A_IsAdmin {
 Server := 'https://raw.githubusercontent.com'
 User := 'SmileAoE'
 Repo := 'aoeii_aio'
-Version := '1.8'
+Version := '1.9'
 Layers := 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 Config := A_AppData '\aoeii_aio\config.ini'
+MConfig := A_AppData '\aoeii_aio\mconfig.ini'
+RConfig := A_AppData '\aoeii_aio\rconfig.ini'
 Startup := A_AppData '\Microsoft\Windows\Start Menu\Programs\Startup\' StrReplace(A_ScriptName, 'ahk', 'lnk')
-AppDir := ['DB', A_AppData '\aoeii_aio', A_AppData '\aoeii_aio\Hotkeys']
+AppDir := ['DB', A_AppData '\aoeii_aio', A_AppData '\aoeii_aio\Hotkeys', A_AppData '\aoeii_aio\Records']
 GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
 GRApp := A_AppData '\GameRanger\GameRanger\GameRanger.exe'
 DrsTypes := Map('gra', 'graphics.drs', 'int', 'interfac.drs', 'ter', 'terrain.drs')
@@ -483,7 +485,7 @@ UpdateChk.OnEvent('Click', (*) => IniWrite(UpdateChk.Value, Config, 'Game', 'Upd
 Features['Versions'] := []
 ; # Compatibilities
 Features['Compatibilities'] := []
-_Version_ := Manager.AddText('xm yp+50 w600 h26 cBlue', 'VERSIONS:')
+_Version_ := Manager.AddText('xm yp+50 w600 h26 cBlue', 'GAME VERSIONS:')
 Features['Versions'].Push(_Version_)
 _Version_.SetFont('Bold s14')
 H := Manager.AddButton('xm+69 yp+30 w36 h36')
@@ -1192,15 +1194,14 @@ ImportDataMod() {
     }
 }
 
-; # Other tools
-Features['Other Tools'] := []
-_ATools_ := Manager.AddText('xm yp+50 w600 h26 cBlue', 'OTHER TOOLS:')
-Features['Other Tools'].Push(_ATools_)
+; # Game Hotkeys
+Features['Game Hotkeys'] := []
+_ATools_ := Manager.AddText('xm yp+50 w600 h26 cBlue', 'GAME HOTKEYS:')
+Features['Game Hotkeys'].Push(_ATools_)
 _ATools_.SetFont('Bold s14')
-
 ; # Shortcuts
 Shortcuts := Manager.AddButton('xm+10', 'Hotkeys')
-Features['Other Tools'].Push(Shortcuts)
+Features['Game Hotkeys'].Push(Shortcuts)
 Shortcuts.SetFont('Bold')
 ShortcutsG := Gui(, 'Defined Hotkeys')
 ShortcutList := ShortcutsG.AddListView('w605 r10 Checked', ['Hotkey', 'Comment', 'ID'])
@@ -1401,9 +1402,16 @@ ShortcutGetInfo(FileN) {
     }
     Return ShortcutTable
 }
-VPN := Manager.AddButton('yp+50 xm+10 w56 h56', 'VPN')
+
+; # VPN
+Features['VPN'] := []
+_ATools_ := Manager.AddText('xm yp+50 w600 h26 cBlue', 'VPN:')
+Features['VPN'].Push(_ATools_)
+_ATools_.SetFont('Bold s14')
+
+VPN := Manager.AddButton('xm+10 w56 h56', 'VPN')
 VPN.SetFont('Bold s20')
-Features['Other Tools'].Push(VPN)
+Features['VPN'].Push(VPN)
 VPN.OnEvent('Click', (*) => OpenHAI())
 OpenHAI() {
     If !FileExist(VPNPath) {
@@ -1419,7 +1427,7 @@ OpenHAI() {
     Run(VPNPath, VPNDir)
 }
 ClearVPNReg := Manager.AddButton('yp w130', 'Clear Registry')
-Features['Other Tools'].Push(ClearVPNReg)
+Features['VPN'].Push(ClearVPNReg)
 ClearVPNReg.OnEvent('Click', (*) => ClearRegHAI())
 ClearRegHAI() {
     Try {
@@ -1442,7 +1450,7 @@ ClearRegHAI() {
     MsgBox((Log != '') ? "The following key(s) is(are) cleared:`n" Log : "Clear!", 'Clear!', 0x40)
 }
 VPNCompat := Manager.AddDropDownList('w130')
-Features['Other Tools'].Push(VPNCompat)
+Features['VPN'].Push(VPNCompat)
 For Each, Compat in Compatibilities {
     VPNCompat.Add([Compat[1]])
 }
@@ -1458,8 +1466,15 @@ SetVPNCompat() {
     RegVal := Compatibilities[VPNCompat.Value][2] ' RUNASADMIN'
     RegWrite(RegVal, 'REG_SZ', Layers, VPNPath)
 }
-RecordFix := Manager.AddButton('xm+10 yp+50', '(.mgx/.mgl) Records biegleux Fixes')
-Features['Other Tools'].Push(RecordFix)
+
+; # Game Records
+Features['Game Records'] := []
+_ATools_ := Manager.AddText('xm yp+50 w600 h26 cBlue', 'GAME RECORDS:')
+Features['Game Records'].Push(_ATools_)
+_ATools_.SetFont('Bold s14')
+
+RecordFix := Manager.AddButton('xm+10', '(.mgx/.mgl) Records biegleux Fixes')
+Features['Game Records'].Push(RecordFix)
 RecordFix.OnEvent('Click', (*) => FixRecords())
 RecordFixG := Gui(, 'Fix Records')
 RecordFixG.OnEvent('Close', (*) => CancelRecordFix())
@@ -1484,61 +1499,200 @@ FixRecords() {
             Break
         }
         If InStr(Record, 'aoeii_aio_fix') {
-            RecordFixProgress.Value += 1
+            RRecord := StrReplace(Record, '_aoeii_aio_fix')
+            FileMove(Record, RRecord)
+            Record := RRecord
+        }
+        RecordFixText.Text := Each ' / ' Records.Length
+        RecordFixProgress.Value := Each
+        SplitPath(Record, &FullName, &Dir, &Ext, &Name)
+        If IniRead(MConfig, 'MgxFix', FullName, 0)
+            || IniRead(RConfig, 'RevealFix', FullName, 0) {
             Continue
         }
-        RunWait('DB\000\MgxFix.exe -f "' Record '"',, 'Hide')
-        RunWait('DB\000\RevealFix.exe "' Record '"',, 'Hide')
-        SplitPath(Record,, &Dir, &Ext, &Name)
-        If !InStr(Record, 'aoeii_aio_fix')
-            FileMove(Record, Dir '\' Name '_aoeii_aio_fix.' Ext)
-        RecordFixText.Text := Each ' / ' Records.Length
+        If (Ext ~= 'i)MGX|MGL') {
+            RunWait('DB\000\MgxFix.exe -f "' Record '"',, 'Hide')
+            IniWrite(1, MConfig, 'MgxFix', FullName)
+            If Ext = 'MGL' {
+                RunWait('DB\000\MgxFix.exe -f "' Record '"',, 'Hide')
+                IniWrite(1, RConfig, 'RevealFix', FullName)
+            }
+        }
     }
-    RecordsCheck__________()
     RecordFixG.Hide()
+    RecordsCheck__________()
 }
 RecordsCheck__________() {
-    CountRecords__________()
-    CountFixedRecords_____()
-    CountUnknownRecords___()
+    Records1 := 0
+    RecordCount.Text := '0 Records Found'
+    Records2 := 0
+    RecordMgxFixed.Text := '0 Records Mgx only Processed ✓'
+    Records3 := 0
+    RecordRevealFixed.Text := '0 Records Mgx & Reveal Processed ✓'
+    Records4 := 0
+    RecordUnknown.Text := '0 Records Not Processed X'
+    Loop Files, ChosenFolder.Value '\SaveGame\*.mg*' {
+        Records1 := CountRecords__________(Records1)
+        Records2 := CountMgxFixedRecords__(Records2)
+        Records3 := CountRevealFixedRecords(Records3)
+        Records4 := CountUnknownRecords___(Records4)
+    }
+    RecordMgxFixed.Text := Records2 ' Records Mgx only Processed ✓'
+    RecordRevealFixed.Text := Records3 ' Records Mgx && Reveal Processed ✓'
+    RecordUnknown.Text := Records4 ' Records Not Processed X'
 }
-RecordCount := Manager.AddText('xp yp+30 w200 BackgroundTrans', '0 Records Found')
+RecordCount := Manager.AddText('xp yp+30 w400 BackgroundTrans', '0 Records Found')
 RecordCount.SetFont('Bold')
-Features['Other Tools'].Push(RecordCount)
-CountRecords__________() {
-    Records := 0
-    Loop Files, ChosenFolder.Value '\SaveGame\*.mg*' {
-        If (A_LoopFileExt = 'MGX' || A_LoopFileExt = 'MGL') {
-            Records += 1
-            RecordCount.Text := Records ' Records Found'
-        }
+Features['Game Records'].Push(RecordCount)
+CountRecords__________(Records) {
+    If (A_LoopFileExt ~= 'i)MGX|MGL') {
+        Records += 1
+        RecordCount.Text := Records ' Records Found'
     }
+    Return Records
 }
-RecordFixed := Manager.AddText('xp yp+20 w200 BackgroundTrans cGreen', '0 Records Processed ✓')
-RecordFixed.SetFont('Bold')
-Features['Other Tools'].Push(RecordFixed)
-CountFixedRecords_____() {
-    Records := 0
-    Loop Files, ChosenFolder.Value '\SaveGame\*.mg*' {
-        If (A_LoopFileExt = 'MGX' || A_LoopFileExt = 'MGL') && InStr(A_LoopFileName, 'aoeii_aio_fix') {
-            Records += 1
-            RecordFixed.Text := Records ' Records Processed ✓'
-        }
+RecordMgxFixed := Manager.AddText('xp yp+20 w400 BackgroundTrans cBlue', '0 Records Mgx only Processed ✓')
+RecordMgxFixed.SetFont('Bold')
+Features['Game Records'].Push(RecordMgxFixed)
+CountMgxFixedRecords__(Records) {
+    If (A_LoopFileExt ~= 'i)MGX|MGL') 
+        && IniRead(MConfig, 'MgxFix', A_LoopFileName, 0)
+        && !IniRead(RConfig, 'RevealFix', A_LoopFileName, 0) {
+        Records += 1
     }
+    Return Records
 }
-RecordUnknown := Manager.AddText('xp yp+20 w200 BackgroundTrans cRed', '0 Records Not Processed X')
+RecordRevealFixed := Manager.AddText('xp yp+20 w400 BackgroundTrans cGreen', '0 Records Mgx && Reveal Processed ✓')
+RecordRevealFixed.SetFont('Bold')
+Features['Game Records'].Push(RecordRevealFixed)
+CountRevealFixedRecords(Records) {
+    If (A_LoopFileExt ~= 'i)MGX|MGL')
+        && IniRead(MConfig, 'MgxFix', A_LoopFileName, 0)
+        && IniRead(RConfig, 'RevealFix', A_LoopFileName, 0) {
+        Records += 1
+    }
+    Return Records
+}
+RecordUnknown := Manager.AddText('xp yp+20 w400 BackgroundTrans cRed', '0 Records Not Processed X')
 RecordUnknown.SetFont('Bold')
-Features['Other Tools'].Push(RecordUnknown)
-CountUnknownRecords___() {
-    Records := 0
+Features['Game Records'].Push(RecordUnknown)
+CountUnknownRecords___(Records) {
+    If (A_LoopFileExt ~= 'i)MGX|MGL') 
+        && !IniRead(MConfig, 'MgxFix', A_LoopFileName, 0)
+        && !IniRead(RConfig, 'RevealFix', A_LoopFileName, 0) {
+        Records += 1
+    }
+    Return Records
+}
+
+RecordDetailsG := Gui(, 'Records Statistics')
+RecordDetailsG.BackColor := 'White'
+RecordDetailsG.SetFont('Bold s10', 'Calibri')
+RecordsList := RecordDetailsG.AddListView('w300 h283 -E0x200 -Multi', ['Record File Names:'])
+RecordsList.OnEvent('ItemFocus', ViewRecordDetails)
+ColorId := Map(0, 0x358BE0, 1, 0xFF0000, 2, 0x00FF00, 3, 0xFFFF00, 4, 0x00CBCB, 5, 0xFF00FF, 6, 0xFFFFFF, 7, 0xD86D00)
+ReadTime(Time) {
+    Seconds := Time // 1000
+    Minutes := Seconds // 60
+    Hours := Minutes // 60
+    Return (Hours ? Hours ' : ' : '') (Minutes ? Minutes ' : ' : '') (Seconds ? Seconds : '')
+}
+SaveStatistic(FileName) {
+    Hash := HashFile(FileName)
+    If !DirExist(AppDir[4] '\' Hash) {
+        DirCreate(AppDir[4] '\' Hash)
+    }
+    FileCopy('DB\000\Minimap.bmp', AppDir[4] '\' Hash '\Minimap.bmp')
+    FileCopy('DB\000\Record.ini', AppDir[4] '\' Hash '\Record.ini')
+}
+ViewRecordDetails(GuiCtrlObj, Item) {
+    RecordsList.Enabled := False
+    Loop RecordsTeamsDetails.GetCount()
+        RecordsTeamsDetails.Modify(A_Index,,'','','','','','','','','','','')
+    RecordsTeamsDetails.ModifyCol(1,, 'Team')
+    RecordsTeamsDetails.ModifyCol(2,, 'Team')
+    RecordDetailsMinimap.Value := 'DB\000\Minimapd.png'
+    Hash := HashFile(ChosenFolder.Value '\SaveGame\' RecordsList.GetText(Item))
+    If !DirExist(AppDir[4] '\' Hash) {
+        RunWait('DB\000\recanalyst.exe "' ChosenFolder.Value '\SaveGame\' RecordsList.GetText(Item) '"', 'DB\000', 'Hide')
+        SaveStatistic(ChosenFolder.Value '\SaveGame\' RecordsList.GetText(Item))
+    }
+    RecordDetailsMinimap.Value := AppDir[4] '\' Hash '\Minimap.bmp'
+    RecordsTeamsDetails.Modify(1,,,,, IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'POV Name', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Game Type', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Map Style', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Map', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Versus', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Difficulty Level', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Game Speed', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Reveal Map', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Map Size', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Version', '')
+                                    , IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Pop Limit', '')
+                                    , ReadTime(IniRead(AppDir[4] '\' Hash '\Record.ini', 'Game Settings' , 'Play Time', '')))
+    Players := Map()
+    Teams := Map()
+    Loop {
+        Players['Number_' A_Index] := Map()
+        Players['Number_' A_Index]['Name'] := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Name', '')
+        Players['Number_' A_Index]['Team'] := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Team', '')
+        Players['Number_' A_Index]['Civilization'] := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Civilization', '')
+        Id := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Color Id', 0) + 0
+        Players['Number_' A_Index]['Color Id'] := ColorId[Id <= 7 ? Id : 7]
+        Players['Number_' A_Index]['Feudal Time'] := ReadTime(IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Feudal Time', 0))
+        Players['Number_' A_Index]['Castle Time'] := ReadTime(IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Castle Time', 0))
+        Players['Number_' A_Index]['Imperial Time'] := ReadTime(IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Imperial Time', 0))
+        Players['Number_' A_Index]['Resign Time'] := ReadTime(IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Resign Time', 0))
+        Players['Number_' A_Index]['Initial Wood'] := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Initial Wood', 0)
+        Players['Number_' A_Index]['Initial Food'] := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Initial Food', 0)
+        Players['Number_' A_Index]['Initial Gold'] := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Initial Gold', 0)
+        Players['Number_' A_Index]['Initial Stone'] := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Initial Stone', 0)
+        Players['Number_' A_Index]['Initial Stone'] := IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index, 'Initial Stone', 0)
+        If !Teams.Has(Players['Number_' A_Index]['Team']) {
+            Teams[Players['Number_' A_Index]['Team']] := []
+        }
+        Teams[Players['Number_' A_Index]['Team']].Push('Number_' A_Index)
+    } Until IniRead(AppDir[4] '\' Hash '\Record.ini', 'Number_' A_Index + 1, 'Name', '') = ''
+    RecordsTeamsDetails.Redraw()
+    IndexCol := 0
+    For Each, Team in Teams {
+        If Each = 0 {
+            For Every, Member in Team {
+                RecordsTeamsDetails.Modify(Every,,,, Players[Member]['Name'])
+                RecordsTeamsDetailsColors.Cell(Every, 3, 0x000000, Players[Member]['Color Id'])
+            }
+            Continue
+        }
+        ++IndexCol
+        RecordsTeamsDetails.ModifyCol(IndexCol,, 'Team [' Each ']')
+        For Every, Member in Team {
+            IndexCol = 1 ? RecordsTeamsDetails.Modify(Every,, Players[Member]['Name']) : RecordsTeamsDetails.Modify(Every,,, Players[Member]['Name'])
+            RecordsTeamsDetailsColors.Cell(Every, IndexCol, 0x000000, Players[Member]['Color Id'])
+        }
+    }
+    Loop RecordsTeamsDetails.GetCount('Col') {
+        RecordsTeamsDetails.ModifyCol(A_Index, 'AutoHdr')
+    }
+    RecordsList.Enabled := True
+}
+RecordDetailsG.AddText('yp w500 h250 h26', 'Minimap:').SetFont('s12')
+RecordDetailsMinimap := RecordDetailsG.AddPicture('w500 h250')
+RecordsTeamsDetails := RecordDetailsG.AddListView('xm w820 r5 -E0x200 -Multi', ['Team', 'Team', 'Player [No Team]', 'POV Name', 'Game Type', 'Map Style', 'Map', 'Versus', 'Difficulty Level', 'Game Speed', 'Reveal Map', 'Map Size', 'Version', 'Pop Limit', 'Play Time'])
+RecordsTeamsDetailsColors := LV_Colors(RecordsTeamsDetails)
+Loop 4 {
+    RecordsTeamsDetailsColors.Row(RecordsTeamsDetails.Add(), 0x000000, 0xFFFFFF)
+}
+RecordDetails := Manager.AddButton(, 'View Records Statistics')
+RecordDetails.OnEvent('Click', (*) => LoadRecordList())
+LoadRecordList() {
+    RecordDetailsG.Show()
+    RecordsList.Delete()
     Loop Files, ChosenFolder.Value '\SaveGame\*.mg*' {
-        If (A_LoopFileExt = 'MGX' || A_LoopFileExt = 'MGL') && !InStr(A_LoopFileName, 'aoeii_aio_fix') {
-            Records += 1
-            RecordUnknown.Text := Records ' Records Not Processed X'
+        If (A_LoopFileExt ~= 'i)MGX|MGL') {
+            RecordsList.Add(, A_LoopFileName)
         }
     }
 }
-;
 ;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '3 - Repair Game Files').SetFont('Bold')
 ;RepairGame := Manager.AddButton('wp', 'Repair')
 ;RepairGame.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
@@ -1546,9 +1700,7 @@ CountUnknownRecords___() {
 ;Manager.AddText('yp+40 cBlue w200 BackgroundTrans Center', '5 - Scenario Files Select').SetFont('Bold')
 ;FixMgz := Manager.AddButton('wp', 'Select')
 ;FixMgz.OnEvent('Click', (*) => MsgBox('Not Yet Implemented!', 'Hoy!', 0x40))
-F1::{
-    Msgbox SB1.ScrollInf.nPos
-}
+
 FileMenu := Menu()
 FileMenu.Add("Age of Empires II: The Age of Kings`tAlt+E", (*) => Run(ChosenFolder.Value '\empires2.exe', ChosenFolder.Value))
 FileMenu.Add("Age of Empires II: The Conquerors`tAlt+C", (*) => Run(ChosenFolder.Value '\age2_x1\age2_x1.exe', ChosenFolder.Value '\age2_x1'))
@@ -1564,7 +1716,7 @@ GoToMenu.Add('Go to GAME VERSION', (*) => SB1.ScrollMsg(102, 0, 0x115, Manager.H
 GoToMenu.Add('Go to GAME LANGUAGES', (*) => SB1.ScrollMsg(103, 0, 0x115, Manager.Hwnd))
 GoToMenu.Add('Go to GAME VISUAL MODS', (*) => SB1.ScrollMsg(104, 0, 0x115, Manager.Hwnd))
 GoToMenu.Add('Go to GAME DATA MODS', (*) => SB1.ScrollMsg(105, 0, 0x115, Manager.Hwnd))
-GoToMenu.Add('Go to GAME OTHER TOOLS', (*) => SB1.ScrollMsg(7, 0, 0x115, Manager.Hwnd))
+;GoToMenu.Add('Go to GAME OTHER TOOLS', (*) => SB1.ScrollMsg(7, 0, 0x115, Manager.Hwnd))
 AboutMenu := Menu()
 
 AboutMenu.Add('&About this app`tAlt+B', (*) => Msgbox('Nothing but a small AutoHotkey app'
@@ -1713,7 +1865,9 @@ ChargeSettings________(Browse := False) {
     SectionInteract(Features['Language'], False)
     SectionInteract(Features['Visual Modes'], False)
     SectionInteract(Features['Data Mods'], False)
-    SectionInteract(Features['Other Tools'], False)
+    SectionInteract(Features['Game Hotkeys'], False)
+    SectionInteract(Features['VPN'], False)
+    SectionInteract(Features['Game Records'], False)
     ChosenFolder.Value := IniRead(Config, 'Game', 'Path', '')
     ValidGameLocation(Location) {
         Return FileExist(Location '\empires2.exe')
@@ -1767,7 +1921,9 @@ ChargeSettings________(Browse := False) {
     SectionInteract(Features['Language'])
     SectionInteract(Features['Visual Modes'])
     SectionInteract(Features['Data Mods'])
-    SectionInteract(Features['Other Tools'])
+    SectionInteract(Features['Game Hotkeys'])
+    SectionInteract(Features['VPN'])
+    SectionInteract(Features['Game Records'])
     ChargeVersions________()
     UpdateVersionRadio()
     ChargeCompatibilities_()
@@ -2701,8 +2857,8 @@ Class LV_Colors {
     Row(Row, BkColor := "", TxColor := "") {
         If !(This.HWND)
             Return False
-        If (Row > This.RowCount)
-            Return False
+        ;If (Row > This.RowCount)
+        ;    Return False
         If This.IsStatic
             Row := This.MapIndexToID(Row)
         If This.Rows.Has(Row)
@@ -2731,8 +2887,8 @@ Class LV_Colors {
     Cell(Row, Col, BkColor := "", TxColor := "") {
         If !(This.HWND)
             Return False
-        If (Row > This.RowCount) || (Col > This.ColCount)
-            Return False
+        ;If (Row > This.RowCount) || (Col > This.ColCount)
+        ;    Return False
         If This.IsStatic
             Row := This.MapIndexToID(Row)
         If This.Cells.Has(Row) && This.Cells[Row].Has(Col)
@@ -3161,11 +3317,11 @@ class ScrollBar {
         ; Updates scroll bar position based on command received
         switch this.LoWord(wParam) {
             case this.SB_LINELEFT, this.SB_LINEUP:
-                this.ScrollInf.nPos := max(this.ScrollInf.nPos - 15, minPos)
+                this.ScrollInf.nPos := max(this.ScrollInf.nPos - 40, minPos)
             case this.SB_PAGELEFT, this.SB_PAGEUP:
                 this.ScrollInf.nPos := max(this.ScrollInf.nPos - this.ScrollInf.nPage, minPos)
             case this.SB_LINERIGHT, this.SB_LINEDOWN:
-                this.ScrollInf.nPos := min(this.ScrollInf.nPos + 15, maxThumbPos)
+                this.ScrollInf.nPos := min(this.ScrollInf.nPos + 40, maxThumbPos)
             case this.SB_PAGERIGHT, this.SB_PAGEDOWN:
                 this.ScrollInf.nPos := min(this.ScrollInf.nPos + this.ScrollInf.nPage, maxThumbPos)
             case this.SB_THUMBTRACK:
@@ -3177,15 +3333,15 @@ class ScrollBar {
             case this.GAMELOCATION:
                 this.ScrollInf.nPos := 285
             case this.OPTION:
-                this.ScrollInf.nPos := 525
+                this.ScrollInf.nPos := 530
             case this.GAMEVERSION:
-                this.ScrollInf.nPos := 705
+                this.ScrollInf.nPos := 700
             case this.GAMELANGUAGES:
                 this.ScrollInf.nPos := 1170
             case this.GAMEVISUALMODS:
-                this.ScrollInf.nPos := 1650
+                this.ScrollInf.nPos := 1649
             case this.GAMEDATAMODS:
-                this.ScrollInf.nPos := 5940
+                this.ScrollInf.nPos := 5941
             default:
                 return
         }
