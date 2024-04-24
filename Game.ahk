@@ -1,5 +1,6 @@
 #Include SharedLib.ahk
 InstallRegKey := "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Age of Empires II AIO"
+A_Args.Push(IniRead(Config, 'PIDs', '_Parent_', ''))
 AoEIIAIO.Title := 'GAME LOCATION'
 AoEIIAIO.SetFont('Bold')
 Select := AoEIIAIO.AddButton('xm w200 h27', 'Select')
@@ -26,6 +27,7 @@ DeskShort.OnEvent('Click', GameShortcuts)
 PBT := AoEIIAIO.AddText('Center w410 Hidden cBlue')
 PB := AoEIIAIO.AddProgress('-Smooth wp Hidden')
 AoEIIAIO.Show()
+; Load settings
 FGameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')
 If !ValidGameDirectory(FGameDirectory) {
     SelectDirectoryGR(SelectGR, '')
@@ -67,40 +69,45 @@ SetDirectoryGR(Ctrl, Info) {
         Return
     }
     ; Select macro
-    MacroSelect('empires2.exe', 12)
-    MacroSelect('age2_x1\age2_x1.exe', 14)
-    MacroSelect('age2_x1\age2_x2.exe', 11)
     MacroSelect(Game, Row) {
-        If FileExist(GameDirectory.Value '\' Game) {
-            WinActivate('ahk_exe GameRanger.exe')
-            If !WinWaitActive('ahk_exe GameRanger.exe',, 5) {
-                MsgBox('Unable to get the GameRanger window!', 'Invalid', 0x30)
-                Ctrl.Enabled := True
-                Return
-            }
-            SendInput('^e')
-            If !WinWaitActive('Options ahk_exe GameRanger.exe',, 5) {
-                MsgBox('Unable to get the GameRanger option window!', 'Invalid', 0x30)
-                Ctrl.Enabled := True
-                Return
-            }
-            ControlChooseIndex(1, 'SysTabControl321', 'Options ahk_exe GameRanger.exe')
-            ControlFocus('SysListView321', 'Options ahk_exe GameRanger.exe')
-            SendInput('{Home}')
-            SendInput('{Down ' Row '}')
-            WinGetPos(&X, &Y, &W, &H, 'Options ahk_exe GameRanger.exe')
-            MouseClick('Left', W - 115, H - 65)
-            If !WinWaitActive('Choose ahk_exe GameRanger.exe',, 5) {
-                MsgBox('Unable to get the GameRanger selection window!', 'Invalid', 0x30)
-                Ctrl.Enabled := True
-                Return
-            }
-            ControlSetText(GameDirectory.Value '\' Game, 'Edit1', 'Choose ahk_exe GameRanger.exe')
-            WinGetPos(&X, &Y, &W, &H, 'Choose ahk_exe GameRanger.exe')
-            MouseClick('Left', W - 50, H - 120)
+        If !FileExist(GameDirectory.Value '\' Game) {
+            Ctrl.Enabled := True
+            Return False
         }
+        WinActivate('ahk_exe GameRanger.exe')
+        If !WinWaitActive('ahk_exe GameRanger.exe',, 5) {
+            MsgBox('Unable to get the GameRanger window!', 'Invalid', 0x30)
+            Ctrl.Enabled := True
+            Return False
+        }
+        SendInput('^e')
+        If !WinWaitActive('Options ahk_exe GameRanger.exe',, 5) {
+            MsgBox('Unable to get the GameRanger option window!', 'Invalid', 0x30)
+            Ctrl.Enabled := True
+            Return False
+        }
+        ControlChooseIndex(1, 'SysTabControl321', 'Options ahk_exe GameRanger.exe')
+        ControlFocus('SysListView321', 'Options ahk_exe GameRanger.exe')
+        SendInput('{Home}')
+        SendInput('{Down ' Row '}')
+        WinGetPos(&X, &Y, &W, &H, 'Options ahk_exe GameRanger.exe')
+        MouseClick('Left', W - 115, H - 65)
+        If !WinWaitActive('Choose ahk_exe GameRanger.exe',, 5) {
+            MsgBox('Unable to get the GameRanger selection window!', 'Invalid', 0x30)
+            Ctrl.Enabled := True
+            Return False
+        }
+        ControlSetText(GameDirectory.Value '\' Game, 'Edit1', 'Choose ahk_exe GameRanger.exe')
+        WinGetPos(&X, &Y, &W, &H, 'Choose ahk_exe GameRanger.exe')
+        MouseClick('Left', W - 50, H - 120)
+        WinClose('Options ahk_exe GameRanger.exe')
+        Return True
     }
-    WinClose('Options ahk_exe GameRanger.exe')
+    If !MacroSelect('empires2.exe', 12) || !MacroSelect('age2_x1\age2_x1.exe', 14) || !MacroSelect('age2_x1\age2_x2.exe', 11) {
+        MsgBox('No game was found!', 'Invalid', 0x30)
+        Ctrl.Enabled := True
+        Return False
+    }
     MsgBox('Game selected successfully!`n`nNow GameRanger must restart to unlock the game excutables`nRestarting in 5 seconds...', 'Game select', 0x40 ' T5')
     ProcessClose('GameRanger.exe')
     Run(GRApp)
@@ -108,22 +115,24 @@ SetDirectoryGR(Ctrl, Info) {
 }
 ; Selects a location from GR
 SelectDirectoryGR(Ctrl, Info) {
-    Ctrl.Enabled := False
-    Text := BinGrabText(GRSetting)
-    Locations := TextGrabPath(Text, ['empires2.exe', 'age2_x1.exe', 'age2_x2.exe'])
-    For Location in Locations {
-        If RC := ValidGameDirectory(Location) {
-            Choice := MsgBox('Want to select this location?`n`n' Location, 'Game Location', 0x4 + 0x40)
-            If Choice = 'Yes' {
-                GameDirectory.Value := Location
-                IniWrite(Location, Config, 'Settings', 'GameDirectory')
-                IniWrite(1, Config, 'SelectionHistory', Location)
-                If IniRead(Config, 'Settings', 'Shortcut', 0) {
-                    AddGameShortcuts()
+    Try {
+        Ctrl.Enabled := False
+        Text := BinGrabText(GRSetting)
+        Locations := TextGrabPath(Text, ['empires2.exe', 'age2_x1.exe', 'age2_x2.exe'])
+        For Location in Locations {
+            If RC := ValidGameDirectory(Location) {
+                Choice := MsgBox('Want to select this location?`n`n' Location, 'Game Location', 0x4 + 0x40)
+                If Choice = 'Yes' {
+                    GameDirectory.Value := Location
+                    IniWrite(Location, Config, 'Settings', 'GameDirectory')
+                    IniWrite(1, Config, 'SelectionHistory', Location)
+                    Break
                 }
-                Break
             }
         }
+    } Catch Error As Err {
+        MsgBox("Select failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Fix', 0x10)
+        Ctrl.Enabled := True
     }
     Ctrl.Enabled := True
 }
@@ -157,9 +166,6 @@ SelectDirectory(Ctrl, Info) {
             GameDirectory.Value := StrUpper(SelectedDirectory)
             IniWrite(SelectedDirectory, Config, 'Settings', 'GameDirectory')
             IniWrite(1, Config, 'SelectionHistory', SelectedDirectory)
-            If IniRead(Config, 'Settings', 'Shortcut', 0) {
-                AddGameShortcuts()
-            }
         } Else {
             MsgBox('Nothing was selected!', 'Game location', 0x30)
         }
@@ -169,64 +175,73 @@ SelectDirectory(Ctrl, Info) {
 ; Deletes the game
 DeleteGame(Ctrl, Info) {
     Ctrl.Enabled := False
-    Run('UninstallGame.ahk')
+    Try {
+        Run('UninstallGame.ahk')
+    } Catch Error As Err {
+        MsgBox("Run failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Fix', 0x10)
+        Ctrl.Enabled := True
+    }
     Ctrl.Enabled := True
 }
 ; Downloads and installs the game
 DownloadGame(Ctrl, Info) {
-    If !GetConnectedState() {
-        MsgBox('Make sure you are connected to the internet!', "Can't download!", 0x30)
-        Return
-    }
-    If (SGameDirectory := FileSelect('D',, 'Game install location')) && 'Yes' = MsgBox('Are you sure want to install at this location?`n' SGameDirectory, 'Game install location', 0x40 + 0x4) {
-        SGameDirectory := RegExReplace(SGameDirectory, "\\$")
-        SGameDirectory := SGameDirectory '\Age of Empires II'
-        If !DirExist(SGameDirectory) {
-            DirCreate(SGameDirectory)
-        }
-        If ValidGameDirectory(SGameDirectory) && 'Yes' != MsgBox('It seems like the game already installed at this location!`nWant continue?', 'Game location install', 0x30 + 0x4) {
+    Try {
+        If !GetConnectedState() {
+            MsgBox('Make sure you are connected to the internet!', "Can't download!", 0x30)
             Return
         }
-        ; Check for packages updates
-        Ctrl.Enabled := False
-        PB.Value := 0
-        PB.Opt('Range0-' GamePackages.Length + 3)
-        PB.Visible := True
-        PBT.Visible := True
-        For Each, Package in GamePackages {
-            ; Set the needed parameters
-            PackagePath := StrReplace(Package, '/', '\')
-            PackageFolder := StrSplit(PackagePath, '.')[1]
-            PBT.Value := 'Downloading ' Package
-            DownloadPackage(Package, PackagePath, PackageFolder)
+        If (SGameDirectory := FileSelect('D',, 'Game install location')) && 'Yes' = MsgBox('Are you sure want to install at this location?`n' SGameDirectory, 'Game install location', 0x40 + 0x4) {
+            SGameDirectory := RegExReplace(SGameDirectory, "\\$")
+            SGameDirectory := SGameDirectory '\Age of Empires II'
+            If !DirExist(SGameDirectory) {
+                DirCreate(SGameDirectory)
+            }
+            If ValidGameDirectory(SGameDirectory) && 'Yes' != MsgBox('It seems like the game already installed at this location!`nWant continue?', 'Game location install', 0x30 + 0x4) {
+                Return
+            }
+            ; Check for packages updates
+            Ctrl.Enabled := False
+            PB.Value := 0
+            PB.Opt('Range0-' GamePackages.Length + 3)
+            PB.Visible := True
+            PBT.Visible := True
+            For Each, Package in GamePackages {
+                ; Set the needed parameters
+                PackagePath := StrReplace(Package, '/', '\')
+                PackageFolder := StrSplit(PackagePath, '.')[1]
+                PBT.Value := 'Downloading ' Package
+                DownloadPackage(Package, PackagePath, PackageFolder)
+                PB.Value += 1
+            }
+            ; AOK extract
+            PBT.Value := 'Exporting The Age of Kings'
+            ExtractPackage('DB\003.7z.001', SGameDirectory, 1)
             PB.Value += 1
-        }
-        ; AOK extract
-        PBT.Value := 'Exporting The Age of Kings'
-        ExtractPackage('DB\003.7z.001', SGameDirectory, 1)
-        PB.Value += 1
-        ; AOC extract
-        PBT.Value := 'Exporting The Conquerors'
-        ExtractPackage('DB\004.7z.001', SGameDirectory, 1)
-        PB.Value += 1
-        ; FE extract
-        PBT.Value := 'Exporting Forgotten Empires'
-        ExtractPackage('DB\005.7z.001', SGameDirectory, 1)
-        PB.Value += 1
-        ; Add the reg keys
-        UpdateGameReg(SGameDirectory)
-        If 'Yes' = MsgBox('Game installation complete!`nWanna select this game?', 'Game install location', 0x4 + 0x40) {
-            GameDirectory.Value := StrUpper(SGameDirectory)
-            IniWrite(SGameDirectory, Config, 'Settings', 'GameDirectory')
-            IniWrite(1, Config, 'SelectionHistory', SGameDirectory)
-            If IniRead(Config, 'Settings', 'Shortcut', 0) {
-                AddGameShortcuts()
+            ; AOC extract
+            PBT.Value := 'Exporting The Conquerors'
+            ExtractPackage('DB\004.7z.001', SGameDirectory, 1)
+            PB.Value += 1
+            ; FE extract
+            PBT.Value := 'Exporting Forgotten Empires'
+            ExtractPackage('DB\005.7z.001', SGameDirectory, 1)
+            PB.Value += 1
+            ; Add the reg keys
+            UpdateGameReg(SGameDirectory)
+            If 'Yes' = MsgBox('Game installation complete!`nWanna select this game?', 'Game install location', 0x4 + 0x40) {
+                GameDirectory.Value := StrUpper(SGameDirectory)
+                IniWrite(SGameDirectory, Config, 'Settings', 'GameDirectory')
+                IniWrite(1, Config, 'SelectionHistory', SGameDirectory)
             }
         }
+        PB.Visible := False
+        PBT.Visible := False
+        Ctrl.Enabled := True
+    } Catch Error As Err {
+        MsgBox("Download failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Fix', 0x10)
+        PB.Visible := False
+        PBT.Visible := False
+        Ctrl.Enabled := True
     }
-    PB.Visible := False
-    PBT.Visible := False
-    Ctrl.Enabled := True
 }
 ; Updates game install registery settings
 UpdateGameReg(GameDirectory) {
@@ -280,52 +295,56 @@ TextGrabPath(TextFound, Excutables) {
 }
 ; Adds game shortcuts to the desktop
 AddGameShortcuts() {
-    GameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')
-    AddShortcut := IniRead(Config, 'Settings', 'Shortcut', 0)
-    If AddShortcut && ValidGameDirectory(GameDirectory) {
-        CreateShortcut := False
-        If FileExist(GameDirectory '\empires2.exe') {
-            If !FileExist(A_Desktop '\The Age of Kings.lnk') {
-                CreateShortcut := True
-            } Else {
-                FileGetShortcut(A_Desktop '\The Age of Kings.lnk', &OutTarget)
-                If OutTarget != GameDirectory '\empires2.exe' {
+    Try {
+        GameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')
+        AddShortcut := IniRead(Config, 'Settings', 'Shortcut', 0)
+        If AddShortcut && ValidGameDirectory(GameDirectory) {
+            CreateShortcut := False
+            If FileExist(GameDirectory '\empires2.exe') {
+                If !FileExist(A_Desktop '\The Age of Kings.lnk') {
                     CreateShortcut := True
                 } Else {
-                    CreateShortcut := False
+                    FileGetShortcut(A_Desktop '\The Age of Kings.lnk', &OutTarget)
+                    If OutTarget != GameDirectory '\empires2.exe' {
+                        CreateShortcut := True
+                    } Else {
+                        CreateShortcut := False
+                    }
+                }
+            }
+            If FileExist(GameDirectory '\age2_x1\age2_x1.exe') && !CreateShortcut {
+                If !FileExist(A_Desktop '\The Conquerors.lnk') {
+                    CreateShortcut := True
+                } Else {
+                    FileGetShortcut(A_Desktop '\The Conquerors.lnk', &OutTarget)
+                    If OutTarget != GameDirectory '\age2_x1\age2_x1.exe' {
+                        CreateShortcut := True
+                    } Else {
+                        CreateShortcut := False
+                    }
+                }
+            }
+            If FileExist(GameDirectory '\age2_x1\age2_x2.exe') && !CreateShortcut {
+                If !FileExist(A_Desktop '\Forgotten Empires.lnk') {
+                    CreateShortcut := True
+                } Else {
+                    FileGetShortcut(A_Desktop '\Forgotten Empires.lnk', &OutTarget)
+                    If OutTarget != GameDirectory '\age2_x1\age2_x2.exe' {
+                        CreateShortcut := True
+                    } Else {
+                        CreateShortcut := False
+                    }
+                }
+            }
+            If CreateShortcut {
+                If 'Yes' = MsgBox('Want to create the game desktop shortcuts?', 'Game', 0x4 + 0x40) {
+                    FileCreateShortcut(GameDirectory '\empires2.exe', A_Desktop '\The Age of Kings.lnk', GameDirectory)
+                    FileCreateShortcut(GameDirectory '\age2_x1\age2_x1.exe', A_Desktop '\The Conquerors.lnk', GameDirectory '\age2_x1')
+                    FileCreateShortcut(GameDirectory '\age2_x1\age2_x2.exe', A_Desktop '\Forgotten Empires.lnk', GameDirectory '\age2_x1')
                 }
             }
         }
-        If FileExist(GameDirectory '\age2_x1\age2_x1.exe') && !CreateShortcut {
-            If !FileExist(A_Desktop '\The Conquerors.lnk') {
-                CreateShortcut := True
-            } Else {
-                FileGetShortcut(A_Desktop '\The Conquerors.lnk', &OutTarget)
-                If OutTarget != GameDirectory '\age2_x1\age2_x1.exe' {
-                    CreateShortcut := True
-                } Else {
-                    CreateShortcut := False
-                }
-            }
-        }
-        If FileExist(GameDirectory '\age2_x1\age2_x2.exe') && !CreateShortcut {
-            If !FileExist(A_Desktop '\Forgotten Empires.lnk') {
-                CreateShortcut := True
-            } Else {
-                FileGetShortcut(A_Desktop '\Forgotten Empires.lnk', &OutTarget)
-                If OutTarget != GameDirectory '\age2_x1\age2_x2.exe' {
-                    CreateShortcut := True
-                } Else {
-                    CreateShortcut := False
-                }
-            }
-        }
-        If CreateShortcut {
-            If 'Yes' = MsgBox('Want to create the game desktop shortcuts?', 'Game', 0x4 + 0x40) {
-                FileCreateShortcut(GameDirectory '\empires2.exe', A_Desktop '\The Age of Kings.lnk', GameDirectory)
-                FileCreateShortcut(GameDirectory '\age2_x1\age2_x1.exe', A_Desktop '\The Conquerors.lnk', GameDirectory '\age2_x1')
-                FileCreateShortcut(GameDirectory '\age2_x1\age2_x2.exe', A_Desktop '\Forgotten Empires.lnk', GameDirectory '\age2_x1')
-            }
-        }
+    } Catch Error As Err {
+        MsgBox("Add shortcut failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Fix', 0x10)
     }
 }

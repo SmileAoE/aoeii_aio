@@ -1,7 +1,8 @@
 #Include SharedLib.ahk
 Features['Main'] := []
+WD := AoEIIAIO.AddButton('x0 y0', '...')
 AoEIIAIO.SetFont('Bold s20')
-T := AoEIIAIO.AddText('Center', 'Age of Empires II Easy Manager v' Version)
+T := AoEIIAIO.AddText('xm cGreen Center', 'Age of Empires II Easy Manager v' Version)
 P := AoEIIAIO.AddPicture('xm+118', 'DB\000\game.png')
 H := AoEIIAIO.AddButton('xm', 'GAME')
 H.SetFont('Bold s12')
@@ -9,7 +10,7 @@ CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [
 H.OnEvent('Click', LaunchGame)
 LaunchGame(Ctrl, Info) {
     Try {
-        Run('Game.ahk')
+        Run('Game.ahk ' ProcessExist())
     } Catch Error As Err {
         MsgBox("Launch failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Game', 0x10)
     }
@@ -62,11 +63,51 @@ LaunchVM(Ctrl, Info) {
         MsgBox("Launch failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Language', 0x10)
     }
 }
+H := AoEIIAIO.AddButton('yp', 'DATA MODS')
+H.SetFont('Bold s12')
+CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+H.OnEvent('Click', LaunchDM)
+Features['Main'].Push(H)
+LaunchDM(Ctrl, Info) {
+    Try {
+        Run('DM.ahk')
+    } Catch Error As Err {
+        MsgBox("Launch failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Language', 0x10)
+    }
+}
+H := AoEIIAIO.AddButton('xm', 'HIDE ALL IP')
+H.SetFont('Bold s12')
+CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+H.OnEvent('Click', LaunchVPN)
+Features['Main'].Push(H)
+LaunchVPN(Ctrl, Info) {
+    Try {
+        Run('VPN.ahk')
+    } Catch Error As Err {
+        MsgBox("Launch failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Language', 0x10)
+    }
+}
+H := AoEIIAIO.AddButton('YP', 'SHORTCUTS')
+H.SetFont('Bold s12')
+CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+H.OnEvent('Click', LaunchAHK)
+Features['Main'].Push(H)
+LaunchAHK(Ctrl, Info) {
+    Try {
+        Run('AHK.ahk')
+    } Catch Error As Err {
+        MsgBox("Launch failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Language', 0x10)
+    }
+}
 AoEIIAIO.Show()
+; Graphics updates
 AoEIIAIO.GetPos(,, &W, &H)
 T.Move(0,, W)
 T.Redraw()
 P.Move((W - 373) / 2)
+WD.Move(,, W)
+WD.SetFont('Bold')
+WD.OnEvent('Click', (*) => OpenGameFolder())
 GameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')
 If !ValidGameDirectory(GameDirectory) {
     P.Value := 'DB\000\gameoff.png'
@@ -76,18 +117,30 @@ If !ValidGameDirectory(GameDirectory) {
     If 'Yes' = MsgBox('Game is not yet located!, want to select now?', 'Game', 0x4 + 0x40) {
         Run('Game.ahk')
     }
+    Return
 }
-SetTimer(KeepChecking, 1000)
-KeepChecking() {
+WD.Text := 'Game: ' GameDirectory
+CreateImageButton(WD, 0, [[0xCCCCCC], [0xB2B2B2], [0x999999], [0xCCCCCC,, 0xCCCCCC]]*)
+; Stay up to date with the new selections
+OnMessage(0x1001, GameUpdate)
+GameUpdate(wParam, LParam, Msg, Hwnd) {
+    If Msg = 0x1001 {
+        Apps := IniRead(Config, 'PIDs',, '')
+        Loop Parse, Apps, '`n', '`r' {
+            PID := StrSplit(A_LoopField, '=')
+            If ProcessExist(PID[2]) && PID[2] != ProcessExist() {
+                Run(PID[1])
+            }
+        }
+        Reload()
+    }
+}
+; Opens the game folder
+OpenGameFolder() {
     GameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')
-    If !ValidGameDirectory(GameDirectory) {
-        Return
+    If ValidGameDirectory(GameDirectory) {
+        Run(GameDirectory '\')
     }
-    P.Value := 'DB\000\game.png'
-    For Each, Version in Features['Main'] {
-        Version.Enabled := True
-    }
-    SetTimer(KeepChecking, 0)
 }
 ;
 ;; AoE II Manager AIO class

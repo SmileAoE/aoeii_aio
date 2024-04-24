@@ -54,9 +54,9 @@ Shortcut1 := '
 ;Fast One Unit Un-Select;
 #Requires AutoHotkey v2
 #SingleInstance Force
-GroupAdd('AOKAOC', 'ahk_exe empires2.exe')
-GroupAdd('AOKAOC', 'ahk_exe age2_x1.exe')
-GroupAdd('AOKAOC', 'ahk_exe age2_x2.exe')
+GroupAdd('AOEII', 'ahk_exe empires2.exe')
+GroupAdd('AOEII', 'ahk_exe age2_x1.exe')
+GroupAdd('AOEII', 'ahk_exe age2_x2.exe')
 HotIfWinActive("ahk_group AOKAOC")
 Hotkey('!RButton', Action)
 Action(*) {

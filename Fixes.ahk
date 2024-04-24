@@ -14,9 +14,9 @@ For Each, FIX in GameFix['FIX'] {
     GameFix['FIXHandle'][FIX] := H
 }
 H := AoEIIAIO.AddLink('w350', 'Help Links:`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13275">Aoe II Wide Screen all version</a>'
-                                 . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13710">Age of Empire II the Age of king version 2.0c patch into 2.0</a>'
-                                 . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13730">Ao2 patch:1.0 ,1.0c,2.0,2.0a,2.0c Widescreen + windowed</a>'
-                                 . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13673">Aok 2.0 Generate Record To Ignore Player Who Leave</a>')
+                                       . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13710">Age of Empire II the Age of king version 2.0c patch into 2.0</a>'
+                                       . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13730">Ao2 patch:1.0 ,1.0c,2.0,2.0a,2.0c Widescreen + windowed</a>'
+                                       . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13673">Aok 2.0 Generate Record To Ignore Player Who Leave</a>')
 H.SetFont('Bold')
 AoEIIAIO.Show()
 GameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')
@@ -30,6 +30,7 @@ If !ValidGameDirectory(GameDirectory) {
     ExitApp()
 }
 AnalyzeFix()
+; Applys fixes
 ApplyFix(Ctrl, Info) {
     Try {
         CloseGame()

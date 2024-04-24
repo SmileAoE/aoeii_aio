@@ -33,6 +33,7 @@ If !ValidGameDirectory(GameDirectory) {
     ExitApp()
 }
 AnalyzeLanguage(1)
+; Aanalyzes game languages
 AnalyzeLanguage(Backup := 0) {
     If Backup {
         If !DirExist('DB\006\Restore') {

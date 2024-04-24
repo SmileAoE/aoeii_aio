@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2
+DetectHiddenWindows(True)
 #SingleInstance Force
 ; Checks if the script run as admin
 If !A_IsAdmin {
@@ -13,34 +14,42 @@ GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
 GRApp := A_AppData '\GameRanger\GameRanger\GameRanger.exe'
 DownloadDB := 'https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main'
 LinkHashs := DownloadDB '/Hashsums.ini'
-BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'DB/008.7z.001']
+BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'Game.ahk', 'UninstallGame.ahk', 'Version.ahk', 'Fixes.ahk', 'Language.ahk', 'VM.ahk', 'DM.ahk', 'VPN.ahk', 'AHK.ahk']
 GamePackages := ['DB/003.7z.001', 'DB/003.7z.002', 'DB/003.7z.003', 'DB/003.7z.004', 'DB/004.7z.001', 'DB/004.7z.002', 'DB/004.7z.003', 'DB/005.7z.001']
 RestPackages := ['DB/009.7z.001', 'DB/009.7z.002', 'DB/010.7z.001', 'DB/010.7z.002', 'DB/010.7z.003', 'DB/010.7z.004', 'DB/010.7z.005', 'DB/011.7z.001', 'DB/012.7z.001', 'DB/013.7z.001', 'DB/014.7z.001', 'DB/014.7z.002']
 Unpacker := 'DB\7za.exe'
+DrsMap := Map('gra', 'graphics.drs', 'int', 'interfac.drs', 'ter', 'terrain.drs')
+Layers := 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
 ; Builds up graphics
 AoEIIAIO := Gui(, 'Age of Empires II Easy Manager!')
 AoEIIAIO.BackColor := 'White'
-AoEIIAIO.OnEvent('Close', (*) => ExitApp())
-AoEIIAIO.OnEvent('Escape', (*) => ExitApp())
+AoEIIAIO.OnEvent('Close', ExitScript)
+; ExitScript(HGUI)
+ExitScript(HGui) {
+    ExitApp()
+}
 AoEIIAIO.MarginX := AoEIIAIO.MarginY := 10
 AoEIIAIO.SetFont('s10', 'Calibri')
-;AoEIIAIOSB := ScrollBar(AoEIIAIO, 600, 300)
-;HotIfWinActive("ahk_id " AoEIIAIO.Hwnd)
-;Hotkey("WheelUp", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("WheelDown", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("+WheelUp", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("+WheelDown", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("Up", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("Down", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("+Up", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("+Down", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 1 : 0, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("PgUp", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 3 : 2, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("PgDn", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 3 : 2, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("+PgUp", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 3 : 2, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("+PgDn", (*) => AoEIIAIOSB.ScrollMsg((InStr(A_ThisHotkey,"Down") || InStr(A_ThisHotkey,"Dn")) ? 3 : 2, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("Home", (*) => AoEIIAIOSB.ScrollMsg(6, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;Hotkey("End", (*) => AoEIIAIOSB.ScrollMsg(7, 0, GetKeyState("Shift") ? 0x114 : 0x115, AoEIIAIO.Hwnd))
-;HotIfWinActive
+; Prepare packages
+Prepare := Gui(, 'Preparing...')
+Prepare.OnEvent('Close', (*) => ExitApp())
+Prepare.AddText('Center w400 h25', 'Please Wait...').SetFont('s12 Bold')
+ProgressBar := Prepare.AddProgress('Center w400 h20 -Smooth Range1-' BasePackages.Length + 1)
+ProgressText := Prepare.AddText('Center wp cBlue')
+Prepare.Show()
+; Base packages
+For Package in BasePackages {
+    ProgressBar.Value += 1
+    ProgressText.Text := 'Preparing [ ' Package ' ]'
+    PackagePath := StrReplace(Package, '/', '\')
+    SplitPath(PackagePath, &OutFileName)
+    PackageFolder := StrSplit(OutFileName, '.')[1]
+    If !FileExist(PackagePath) {
+        DownloadPackage(Package, PackagePath, PackageFolder)
+        ExtractPackage(Package, PackagePath, True)
+    }
+}
+
 ; Closes the game if it is open
 CloseGame() {
     For Each, App in ['empires2.exe', 'age2_x1.exe', 'age2_x2.exe'] {
@@ -81,16 +90,6 @@ ValidGameDirectory(Location) {
           && FileExist(Location '\Data\interfac.drs')
           && FileExist(Location '\Data\terrain.drs') ? 1 : 0
 }
-; Loads a game folder
-Loader(GameDirectory) {
-    If !ValidGameDirectory(GameDirectory) {
-        MsgBox('Invalid game location!', 'Game Select', 0x30)
-        Return
-    }
-    GameDirectory.Value := GameDirectory
-    IniWrite(GameDirectory, Config, 'Settings', 'GameDirectory')
-    MsgBox('Game selected sucessfully!', 'Game Select', 0x40 ' T5')
-}
 ; Returns the updated packages hashs
 UpdatedPackagesHashs() {
     whr := ComObject("WinHttp.WinHttpRequest.5.1")
@@ -116,12 +115,15 @@ DownloadPackage(Package, PackagePath, PackageFolder) {
 }
 ; Extracts a given package
 ExtractPackage(PackagePath, PackageFolder, Overwrite := 0) {
-    Overwrite := !Overwrite ? !DirExist(PackageFolder) : Overwrite
+    Overwrite := Overwrite ? Overwrite : !DirExist(PackageFolder)
     If Overwrite && FileExist(PackagePath) {
         RunWait(Unpacker ' x ' PackagePath ' -o"' PackageFolder '" -aoa',, 'Hide')
     }
 }
-; Applys some quick fixs
+; Check if there is internet connection
+ConnectedToInternet(Flag := 0x40) {
+    Return DllCall("Wininet.dll\InternetGetConnectedState", "Str", Flag, "Int", 0)
+}
 ; Class ScrollBar
 Class ScrollBar {
     ; Notification codes for horizontal and vertical scroll
