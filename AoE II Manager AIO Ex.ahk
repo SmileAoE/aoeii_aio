@@ -3,10 +3,14 @@ Features['Main'] := []
 WD := AoEIIAIO.AddButton('x0 y0', '...')
 AoEIIAIO.SetFont('Bold s20')
 T := AoEIIAIO.AddText('xm cGreen Center', 'Age of Empires II Easy Manager v' Version)
-P := AoEIIAIO.AddPicture('xm+118', 'DB\000\game.png')
+P := AoEIIAIO.AddPicture('xm+90', 'DB\000\game.png')
+R := AoEIIAIO.AddButton('xm ym+30', 'RELOAD')
+R.SetFont('Bold s12')
+CreateImageButton(R, 0, [[0xFFFFFF,, 0xFF0000, 4, 0xFF0000, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+R.OnEvent('Click', (*) => Reload())
 H := AoEIIAIO.AddButton('xm', 'GAME')
 H.SetFont('Bold s12')
-CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0x000000, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
 H.OnEvent('Click', LaunchGame)
 LaunchGame(Ctrl, Info) {
     Try {
@@ -17,7 +21,7 @@ LaunchGame(Ctrl, Info) {
 }
 H := AoEIIAIO.AddButton('yp', 'VERSION')
 H.SetFont('Bold s12')
-CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+CreateImageButton(H, 0, [[0xFFFFFF,, 0x0000FF, 4, 0x0000FF, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
 H.OnEvent('Click', LaunchVersion)
 Features['Main'].Push(H)
 LaunchVersion(Ctrl, Info) {
@@ -29,7 +33,7 @@ LaunchVersion(Ctrl, Info) {
 }
 H := AoEIIAIO.AddButton('yp', 'FIX')
 H.SetFont('Bold s12')
-CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+CreateImageButton(H, 0, [[0xFFFFFF,, 0x0000FF, 4, 0x0000FF, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
 H.OnEvent('Click', LaunchFixes)
 Features['Main'].Push(H)
 LaunchFixes(Ctrl, Info) {
@@ -41,7 +45,7 @@ LaunchFixes(Ctrl, Info) {
 }
 H := AoEIIAIO.AddButton('yp', 'LANGUAGE')
 H.SetFont('Bold s12')
-CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0x000000, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
 H.OnEvent('Click', LaunchLanguage)
 Features['Main'].Push(H)
 LaunchLanguage(Ctrl, Info) {
@@ -53,7 +57,7 @@ LaunchLanguage(Ctrl, Info) {
 }
 H := AoEIIAIO.AddButton('yp', 'VISUAL MODS')
 H.SetFont('Bold s12')
-CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+CreateImageButton(H, 0, [[0xFFFFFF,, 0x008000, 4, 0x008000, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
 H.OnEvent('Click', LaunchVM)
 Features['Main'].Push(H)
 LaunchVM(Ctrl, Info) {
@@ -65,7 +69,7 @@ LaunchVM(Ctrl, Info) {
 }
 H := AoEIIAIO.AddButton('yp', 'DATA MODS')
 H.SetFont('Bold s12')
-CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+CreateImageButton(H, 0, [[0xFFFFFF,, 0x008000, 4, 0x008000, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
 H.OnEvent('Click', LaunchDM)
 Features['Main'].Push(H)
 LaunchDM(Ctrl, Info) {
@@ -77,7 +81,7 @@ LaunchDM(Ctrl, Info) {
 }
 H := AoEIIAIO.AddButton('xm', 'HIDE ALL IP')
 H.SetFont('Bold s12')
-CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+CreateImageButton(H, 0, [[0xFFFFFF,, 0x804000, 4, 0x804000, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
 H.OnEvent('Click', LaunchVPN)
 Features['Main'].Push(H)
 LaunchVPN(Ctrl, Info) {
@@ -89,7 +93,7 @@ LaunchVPN(Ctrl, Info) {
 }
 H := AoEIIAIO.AddButton('YP', 'SHORTCUTS')
 H.SetFont('Bold s12')
-CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+CreateImageButton(H, 0, [[0xFFFFFF,, 0x804000, 4, 0x804000, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
 H.OnEvent('Click', LaunchAHK)
 Features['Main'].Push(H)
 LaunchAHK(Ctrl, Info) {
@@ -100,6 +104,7 @@ LaunchAHK(Ctrl, Info) {
     }
 }
 AoEIIAIO.Show()
+R.Redraw()
 ; Graphics updates
 AoEIIAIO.GetPos(,, &W, &H)
 T.Move(0,, W)

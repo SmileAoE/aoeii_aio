@@ -126,6 +126,7 @@ SelectDirectoryGR(Ctrl, Info) {
                     GameDirectory.Value := Location
                     IniWrite(Location, Config, 'Settings', 'GameDirectory')
                     IniWrite(1, Config, 'SelectionHistory', Location)
+                    AddGameShortcuts()
                     Break
                 }
             }
@@ -166,6 +167,7 @@ SelectDirectory(Ctrl, Info) {
             GameDirectory.Value := StrUpper(SelectedDirectory)
             IniWrite(SelectedDirectory, Config, 'Settings', 'GameDirectory')
             IniWrite(1, Config, 'SelectionHistory', SelectedDirectory)
+            AddGameShortcuts()
         } Else {
             MsgBox('Nothing was selected!', 'Game location', 0x30)
         }
@@ -231,6 +233,7 @@ DownloadGame(Ctrl, Info) {
                 GameDirectory.Value := StrUpper(SGameDirectory)
                 IniWrite(SGameDirectory, Config, 'Settings', 'GameDirectory')
                 IniWrite(1, Config, 'SelectionHistory', SGameDirectory)
+                AddGameShortcuts()
             }
         }
         PB.Visible := False
