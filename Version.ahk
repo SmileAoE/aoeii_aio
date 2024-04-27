@@ -160,7 +160,8 @@ AppliedVersionLookUp(Location) {
 ; Analyzes game versions
 AnalyzeVersion() {
     If FileExist(GameDirectory '\empires2.exe') {
-        If (Version := AppliedVersionLookUp('aok'))[1] {
+        Version := AppliedVersionLookUp('aok')
+        If Type(Version) = 'Array' {
             For Game, Version in GameVersion['aok'] {
                 Game.Enabled := True
             }
@@ -168,7 +169,8 @@ AnalyzeVersion() {
         }
     }
     If FileExist(GameDirectory '\age2_x1\age2_x1.exe') {
-        If (Version := AppliedVersionLookUp('aoc'))[1] {
+        Version := AppliedVersionLookUp('aoc')
+        If Type(Version) = 'Array' {
             For Game, Version in GameVersion['aoc'] {
                 Game.Enabled := True
             }
@@ -176,7 +178,8 @@ AnalyzeVersion() {
         }
     }
     If FileExist(GameDirectory '\age2_x1\age2_x2.exe') {
-        If (Version := AppliedVersionLookUp('fe'))[1] {
+        Version := AppliedVersionLookUp('fe')
+        If Type(Version) = 'Array' {
             For Game, Version in GameVersion['fe'] {
                 Game.Enabled := True
             }

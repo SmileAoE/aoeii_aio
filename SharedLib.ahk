@@ -14,7 +14,7 @@ GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
 GRApp := A_AppData '\GameRanger\GameRanger\GameRanger.exe'
 DownloadDB := 'https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main'
 LinkHashs := DownloadDB '/Hashsums.ini'
-BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'Game.ahk', 'UninstallGame.ahk', 'Version.ahk', 'Fixes.ahk', 'Language.ahk', 'VM.ahk', 'DM.ahk', 'VPN.ahk', 'AHK.ahk']
+BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'Shortcuts.7z.001', 'Game.ahk', 'UninstallGame.ahk', 'Version.ahk', 'Fixes.ahk', 'Language.ahk', 'VM.ahk', 'DM.ahk', 'VPN.ahk', 'AHK.ahk']
 GamePackages := ['DB/003.7z.001', 'DB/003.7z.002', 'DB/003.7z.003', 'DB/003.7z.004', 'DB/004.7z.001', 'DB/004.7z.002', 'DB/004.7z.003', 'DB/005.7z.001']
 RestPackages := ['DB/009.7z.001', 'DB/009.7z.002', 'DB/010.7z.001', 'DB/010.7z.002', 'DB/010.7z.003', 'DB/010.7z.004', 'DB/010.7z.005', 'DB/011.7z.001', 'DB/012.7z.001', 'DB/013.7z.001', 'DB/014.7z.001', 'DB/014.7z.002']
 Unpacker := 'DB\7za.exe'
@@ -38,18 +38,31 @@ ProgressBar := Prepare.AddProgress('Center w400 h20 -Smooth Range1-' BasePackage
 ProgressText := Prepare.AddText('Center wp cBlue')
 Prepare.Show()
 ; Base packages
-For Package in BasePackages {
-    ProgressBar.Value += 1
-    ProgressText.Text := 'Preparing [ ' Package ' ]'
-    PackagePath := StrReplace(Package, '/', '\')
-    SplitPath(PackagePath, &OutFileName)
-    PackageFolder := StrSplit(OutFileName, '.')[1]
-    If !FileExist(PackagePath) {
-        DownloadPackage(Package, PackagePath, PackageFolder)
-        ExtractPackage(Package, PackagePath, True)
+Try {
+    If !DirExist('DB') {
+        DirCreate('DB')
     }
+    If !FileExist('DB\7za.exe') {
+        Download(DownloadDB '/7za.exe', 'DB\7za.exe')
+    }
+    For Package in BasePackages {
+        ProgressBar.Value += 1
+        ProgressText.Text := 'Preparing [ ' Package ' ]'
+        PackagePath := StrReplace(Package, '/', '\')
+        SplitPath(PackagePath, &OutFileName, &OutDir)
+        PackageFolder := OutDir '\' StrSplit(OutFileName, '.')[1]
+        If !FileExist(PackagePath) {
+            DownloadPackage(Package, PackagePath, PackageFolder)
+        }
+        PackHead := StrGet(FileRead(PackagePath, 'RAW m2'), 2, 'CP0')
+        If (PackHead = '7z') && !DirExist(PackageFolder) {
+            ExtractPackage(PackagePath, PackageFolder, True)
+        }
+    }
+} Catch Error As Err {
+    MsgBox("Launch failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Version', 0x10)
 }
-
+Prepare.Hide()
 ; Closes the game if it is open
 CloseGame() {
     For Each, App in ['empires2.exe', 'age2_x1.exe', 'age2_x2.exe'] {
