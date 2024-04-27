@@ -5,6 +5,7 @@ If !A_IsAdmin {
     MsgBox('Installer must run as administrator!', 'Warning', 0x30)
     ExitApp
 }
+InstallRegKey := "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\AoE II AIO"
 Installer := Gui('-MinimizeBox', 'Setup')
 Installer.OnEvent('Close', (*) => ExitApp())
 Try {
@@ -29,8 +30,10 @@ Install(Ctrl, Info) {
         Download('https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main/AoE II Manager AIO Ex.ahk', AppDir '\AoE II Manager AIO Ex.ahk')
         InstallPrg.Value := 50
         Download('https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main/SharedLib.ahk', AppDir '\SharedLib.ahk')
-        InstallPrg.Value := 90
+        InstallPrg.Value := 80
         Download('https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main/Uninstall.ahk', AppDir '\Uninstall.ahk')
+        InstallPrg.Value := 90
+        UpdateGameReg(AppDir)
         InstallPrg.Value := 100
         Sleep(1000)
         InstallBtn.Text := 'Installed'
@@ -41,4 +44,24 @@ Install(Ctrl, Info) {
     } Catch Error As Err {
         MsgBox("Installation failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Version', 0x10)
     }
+}
+; Updates installation registery settings
+UpdateGameReg(AppDir) {
+    RegWrite('Age of Empires II Easy Manager', 'REG_SZ', InstallRegKey, 'DisplayName')
+    RegWrite('2.0', 'REG_SZ', InstallRegKey, 'DisplayVersion')
+    RegWrite(A_AhkPath, 'REG_SZ', InstallRegKey, 'DisplayIcon')
+    RegWrite(AppDir, 'REG_SZ', InstallRegKey, 'InstallLocation')
+    RegWrite(1, 'REG_DWORD', InstallRegKey, 'NoModify')
+    RegWrite(1, 'REG_DWORD', InstallRegKey, 'NoRepair')
+    RegWrite(FolderGetSize(AppDir), 'REG_DWORD', InstallRegKey, 'EstimatedSize')
+    RegWrite('Smile@GR', 'REG_SZ', InstallRegKey, 'Publisher')
+    RegWrite('"' A_AhkPath '" "' AppDir '\Uninstaller.ahk" "' AppDir '"', 'REG_SZ', InstallRegKey, 'UninstallString')
+}
+; Returns a folder size in KB
+FolderGetSize(Location) {
+    Size := 0
+    Loop Files, Location '\*.*', 'R' {
+        Size += FileGetSize(A_LoopFileFullPath, 'K')
+    }
+    Return Size
 }

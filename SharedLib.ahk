@@ -20,6 +20,7 @@ RestPackages := ['DB/009.7z.001', 'DB/009.7z.002', 'DB/010.7z.001', 'DB/010.7z.0
 Unpacker := 'DB\7za.exe'
 DrsMap := Map('gra', 'graphics.drs', 'int', 'interfac.drs', 'ter', 'terrain.drs')
 Layers := 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
+SetRegView(32)
 ; Builds up graphics
 AoEIIAIO := Gui(, 'Age of Empires II Easy Manager!')
 AoEIIAIO.BackColor := 'White'
