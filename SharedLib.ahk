@@ -43,14 +43,14 @@ Try {
         DirCreate('DB')
     }
     If !FileExist('DB\7za.exe') {
-        Download(DownloadDB '/7za.exe', 'DB\7za.exe')
+        Download(DownloadDB '/DB/7za.exe', 'DB\7za.exe')
     }
     For Package in BasePackages {
         ProgressBar.Value += 1
         ProgressText.Text := 'Preparing [ ' Package ' ]'
         PackagePath := StrReplace(Package, '/', '\')
         SplitPath(PackagePath, &OutFileName, &OutDir)
-        PackageFolder := OutDir '\' StrSplit(OutFileName, '.')[1]
+        PackageFolder := (OutDir ? OutDir '\' : '') StrSplit(OutFileName, '.')[1]
         If !FileExist(PackagePath) {
             DownloadPackage(Package, PackagePath, PackageFolder)
         }
