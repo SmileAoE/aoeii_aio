@@ -31,7 +31,7 @@ Install(Ctrl, Info) {
         InstallPrg.Value := 50
         Download('https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main/SharedLib.ahk', AppDir '\SharedLib.ahk')
         InstallPrg.Value := 80
-        Download('https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main/Uninstall.ahk', AppDir '\Uninstall.ahk')
+        Download('https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main/Uninstaller.ahk', AppDir '\Uninstaller.ahk')
         InstallPrg.Value := 90
         UpdateGameReg(AppDir)
         InstallPrg.Value := 100
