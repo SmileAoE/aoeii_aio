@@ -196,6 +196,7 @@ Check4Updates(Ctrl, Info) {
                     ExtractPackage(PackagePath, PackageFolder, True)
                 }
             }
+            Reload()
         }
     } Catch Error As Err {
         MsgBox("Update check failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Fix', 0x10)
