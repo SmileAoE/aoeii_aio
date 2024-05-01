@@ -197,6 +197,8 @@ Check4Updates(Ctrl, Info) {
                 }
             }
             Reload()
+        } Else {
+            MsgBox('Up to date!', 'Up to date!', 0x40)
         }
     } Catch Error As Err {
         MsgBox("Update check failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Fix', 0x10)
