@@ -7,18 +7,17 @@ If !A_IsAdmin {
     ExitApp
 }
 ; Inits
-Version := '2.1'
+Version := '2.2'
 Features := Map()
 Config := 'Config.ini'
 GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
 GRApp := A_AppData '\GameRanger\GameRanger\GameRanger.exe'
 DownloadDB := 'https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main'
 LinkHashs := DownloadDB '/Hashsums.ini'
-BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'Shortcuts.7z.001']
-BaseScripts := ['SharedLib.ahk', 'Game.ahk', 'UninstallGame.ahk', 'Version.ahk', 'Fixes.ahk', 'Language.ahk', 'VM.ahk', 'DM.ahk', 'VPN.ahk', 'AHK.ahk']
+BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'Shortcuts.7z.001', 'Scripts.7z.001']
 GamePackages := ['DB/003.7z.001', 'DB/003.7z.002', 'DB/003.7z.003', 'DB/003.7z.004', 'DB/004.7z.001', 'DB/004.7z.002', 'DB/004.7z.003', 'DB/005.7z.001']
 RestPackages := ['DB/009.7z.001', 'DB/009.7z.002', 'DB/010.7z.001', 'DB/010.7z.002', 'DB/010.7z.003', 'DB/010.7z.004', 'DB/010.7z.005', 'DB/011.7z.001', 'DB/012.7z.001', 'DB/013.7z.001', 'DB/014.7z.001', 'DB/014.7z.002']
-AllPackagesC := [BasePackages, BaseScripts, GamePackages, RestPackages]
+AllPackagesC := [BasePackages, GamePackages, RestPackages]
 IBRed := [[0xFFFFFF,, 0xFF0000, 4, 0xFF0000, 2], [0xFF0000,, 0xFFFFFF], [0xFF0000,, 0xFFFF00], [0xFFFFFF,, 0xCCCCCC,, 0xCCCCCC]]
 IBBlue := [[0xFFFFFF,, 0x0000FF, 4, 0x0000FF, 2], [0x0000FF,, 0xFFFFFF], [0x0000FF,, 0xFFFF00], [0xFFFFFF,, 0xCCCCCC,, 0xCCCCCC]]
 IBBlack := [[0xFFFFFF,, 0x000000, 4, 0x000000, 2], [0x000000,, 0xFFFFFF], [0x000000,, 0xFFFF00], [0xFFFFFF,, 0xCCCCCC,, 0xCCCCCC]]
@@ -135,6 +134,12 @@ UpdatedPackagesHashs() {
 DownloadPackage(Package, PackagePath, PackageFolder) {
     If !FileExist(PackagePath) {
         Download(DownloadDB '/' Package, PackagePath)
+        If SubStr(PackagePath, -3) = '.ahk' {
+            Script := FileRead(PackagePath)
+            O := FileOpen(PackagePath, 'w', 0x4)
+            O.Write(Script)
+            O.Close()
+        }
         If PackageFolder != '' && DirExist(PackageFolder) {
             DirDelete(PackageFolder, 1)
         }
@@ -144,6 +149,9 @@ DownloadPackage(Package, PackagePath, PackageFolder) {
 ExtractPackage(PackagePath, PackageFolder, Overwrite := 0) {
     Overwrite := Overwrite ? Overwrite : !DirExist(PackageFolder)
     If Overwrite && FileExist(PackagePath) {
+        If PackageFolder = 'Scripts' {
+            PackageFolder := A_ScriptDir
+        }
         RunWait(Unpacker ' x ' PackagePath ' -o"' PackageFolder '" -aoa',, 'Hide')
     }
 }

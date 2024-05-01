@@ -160,15 +160,14 @@ Check4Updates(Ctrl, Info) {
     Try {
         Hashsums := UpdatedPackagesHashs()
         UpdateList := [[], '']
-        For Each, Packages in AllPackagesC {
-            For Every, Package in Packages {
-                If !FileExist(Package) {
-                    Continue
-                }
-                If Hashsums.Has(Package) && Hashsums[Package] != HashFile(Package) {
-                    UpdateList[1].Push(Package)
-                    UpdateList[2] .= UpdateList[2] = '' ? '+ ' Package : '`n+ ' Package
-                }
+        For Package, Hashsum in Hashsums {
+            PackagePath := StrReplace(Package, '/', '\')
+            If !FileExist(PackagePath) {
+                Continue
+            }
+            If Hashsum != HashFile(Package) {
+                UpdateList[1].Push(Package)
+                UpdateList[2] .= UpdateList[2] = '' ? '+ ' Package : '`n+ ' Package
             }
         }
         If UpdateList[1].Length > 0 {
