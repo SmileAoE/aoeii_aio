@@ -23,7 +23,7 @@ Hotkey("End", (*) => AoEIIAIOSB.ScrollMsg(7, 0, GetKeyState("Shift") ? 0x114 : 0
 HotIfWinActive
 AoEIIAIO.AddText('Center w460', 'Search')
 Search := AoEIIAIO.AddEdit('Border Center -E0x200 w460')
-Search.OnEvent('Change', (*) => UpdateModsList())
+Search.OnEvent('Change', (*) => UpdateList())
 Features['DM'].Push(Search)
 For Each, DataMod in StrSplit(IniRead('DB\000\DM\DataMod.ini', 'DataMod',, ''), '`n') {
     ModName := StrSplit(DataMod, '=')[1]
@@ -71,9 +71,9 @@ If !ValidGameDirectory(GameDirectory) {
     }
     ExitApp()
 }
-UpdateModsList()
+UpdateList()
 ; Updates the data mod list
-UpdateModsList() {
+UpdateList() {
     For Mod, Prop in DMListH {
         DMListH[Index := Format('{:03}', A_Index)]['Title'].Text := '...'
         CreateImageButton(DMListH[Index]['Title'], 0, [[0xFFFFFF], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
@@ -117,6 +117,10 @@ UpdateDM(Ctrl, Info) {
         P := InStr(Ctrl.Text, ' ')
         Apply := SubStr(Ctrl.Text, 1, P - 1) = 'Install'
         DMName := SubStr(Ctrl.Text, P + 1)
+        If DMName = '...' {
+            Return
+        }
+        EnableControls(Features['DM'], 0)
         Update(Ctrl, Progress, Default := 0) {
             If !Default {
                 If Apply {
@@ -140,7 +144,6 @@ UpdateDM(Ctrl, Info) {
                 }
             }
         }
-        EnableControls(Features['DM'], 0)
         If Apply {
             If ConnectedToInternet() {
                 ; Tries to download the mod if doesn't exist or it is outdated

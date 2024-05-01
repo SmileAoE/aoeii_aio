@@ -43,6 +43,9 @@ Uninstall(Ctrl, Info) {
             }
         }
         RegDeleteKey(InstallRegKey)
+        If FileExist(A_Desktop '\AoE II Manager AIO.lnk') {
+            FileDelete(A_Desktop '\AoE II Manager AIO.lnk')
+        }
         Sleep(1000)
         UninstallBtn.Text := 'Uninstalled'
         MsgBox('Uninstallation complete!', 'Setup', 0x40)

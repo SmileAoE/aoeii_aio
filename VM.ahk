@@ -117,6 +117,9 @@ UpdateVM(Ctrl, Info) {
         P := InStr(Ctrl.Text, ' ')
         Apply := SubStr(Ctrl.Text, 1, P - 1) = 'Install'
         VMName := SubStr(Ctrl.Text, P + 1)
+        If VMName = '...' {
+            Return
+        }
         EnableControls(Features['VM'], 0)
         Update(Ctrl, Progress, Default := 0) {
             If !Default {
