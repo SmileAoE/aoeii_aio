@@ -61,7 +61,7 @@ Try {
         }
         PackHead := StrGet(FileRead(PackagePath, 'RAW m2'), 2, 'CP0')
         If (PackHead = '7z') && !DirExist(PackageFolder) {
-            ExtractPackage(PackagePath, PackageFolder, True)
+            ExtractPackage(PackagePath, PackageFolder)
         }
     }
 } Catch Error As Err {
@@ -126,12 +126,6 @@ UpdatedPackagesHashs() {
 DownloadPackage(Package, PackagePath, PackageFolder) {
     If !FileExist(PackagePath) {
         Download(DownloadDB '/' Package, PackagePath)
-        If SubStr(PackagePath, -3) = '.ahk' {
-            Script := FileRead(PackagePath)
-            O := FileOpen(PackagePath, 'w', 0x4)
-            O.Write(Script)
-            O.Close()
-        }
         If PackageFolder != '' && DirExist(PackageFolder) {
             DirDelete(PackageFolder, 1)
         }
@@ -139,11 +133,11 @@ DownloadPackage(Package, PackagePath, PackageFolder) {
 }
 ; Extracts a given package
 ExtractPackage(PackagePath, PackageFolder, Overwrite := 0) {
+    If PackageFolder = 'Scripts' {
+        PackageFolder := A_ScriptDir
+    }
     Overwrite := Overwrite ? Overwrite : !DirExist(PackageFolder)
     If Overwrite && FileExist(PackagePath) {
-        If PackageFolder = 'Scripts' {
-            PackageFolder := A_ScriptDir
-        }
         RunWait(Unpacker ' x ' PackagePath ' -o"' PackageFolder '" -aoa',, 'Hide')
     }
 }

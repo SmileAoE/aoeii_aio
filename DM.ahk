@@ -113,7 +113,7 @@ UpdateList() {
     }
 }
 UpdateDM(Ctrl, Info) {
-    Try {
+    Try { 
         P := InStr(Ctrl.Text, ' ')
         Apply := SubStr(Ctrl.Text, 1, P - 1) = 'Install'
         DMName := SubStr(Ctrl.Text, P + 1)
