@@ -39,7 +39,7 @@ AoEIIAIO.SetFont('s10', 'Calibri')
 Prepare := Gui(, 'Preparing...')
 Prepare.OnEvent('Close', ExitScript)
 Prepare.AddText('Center w400 h25', 'Please Wait...').SetFont('s12 Bold')
-ProgressBar := Prepare.AddProgress('Center w400 h20 -Smooth Range1-' BasePackages.Length + BaseScripts.Length + 1)
+ProgressBar := Prepare.AddProgress('Center w400 h20 -Smooth Range1-' BasePackages.Length + 1)
 ProgressText := Prepare.AddText('Center wp cBlue')
 Prepare.Show()
 ; Base packages
@@ -62,14 +62,6 @@ Try {
         PackHead := StrGet(FileRead(PackagePath, 'RAW m2'), 2, 'CP0')
         If (PackHead = '7z') && !DirExist(PackageFolder) {
             ExtractPackage(PackagePath, PackageFolder, True)
-        }
-    }
-    For Package in BaseScripts {
-        ProgressBar.Value += 1
-        ProgressText.Text := 'Preparing [ ' Package ' ]'
-        PackagePath := StrReplace(Package, '/', '\')
-        If !FileExist(PackagePath) {
-            DownloadPackage(Package, PackagePath, PackageFolder := '')
         }
     }
 } Catch Error As Err {

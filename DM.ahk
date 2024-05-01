@@ -23,7 +23,7 @@ Hotkey("End", (*) => AoEIIAIOSB.ScrollMsg(7, 0, GetKeyState("Shift") ? 0x114 : 0
 HotIfWinActive
 AoEIIAIO.AddText('Center w460', 'Search')
 Search := AoEIIAIO.AddEdit('Border Center -E0x200 w460')
-Search.OnEvent('Change', (*) => UpdateList())
+Search.OnEvent('Change', (*) => UpdateModsList())
 Features['DM'].Push(Search)
 For Each, DataMod in StrSplit(IniRead('DB\000\DM\DataMod.ini', 'DataMod',, ''), '`n') {
     ModName := StrSplit(DataMod, '=')[1]
@@ -71,9 +71,9 @@ If !ValidGameDirectory(GameDirectory) {
     }
     ExitApp()
 }
-UpdateList()
+UpdateModsList()
 ; Updates the data mod list
-UpdateList() {
+UpdateModsList() {
     For Mod, Prop in DMListH {
         DMListH[Index := Format('{:03}', A_Index)]['Title'].Text := '...'
         CreateImageButton(DMListH[Index]['Title'], 0, [[0xFFFFFF], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)

@@ -65,8 +65,8 @@ FindGame(Ctrl) {
     }
     Return FGame
 }
-; Sets a version
-CleanUp(FGame) {
+; Cleans up
+CleansUp(FGame) {
     Loop Files, 'DB\002\' FGame '\*', 'D' {
         Version := A_LoopFileName
         Loop Files, 'DB\002\' FGame '\' Version '\*.*', 'R' {
@@ -96,7 +96,7 @@ ApplyVersion(Ctrl, Info) {
         ; Closes the game if running
         CloseGame()
         ; Cleans up previous applied version
-        CleanUp(FGame)
+        CleansUp(FGame)
         ; Applys the selected version files
         ApplyReqVersion(Ctrl, FGame)
         ; Analyzes the game folder
