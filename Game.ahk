@@ -74,13 +74,16 @@ SetDirectoryGR(Ctrl, Info) {
             Ctrl.Enabled := True
             Return False
         }
+        Run(GRApp)
         WinActivate('ahk_exe GameRanger.exe')
         If !WinWaitActive('ahk_exe GameRanger.exe',, 5) {
             MsgBox('Unable to get the GameRanger window!', 'Invalid', 0x30)
             Ctrl.Enabled := True
             Return False
         }
+        Sleep(500)
         SendInput('^e')
+        Sleep(500)
         If !WinWaitActive('Options ahk_exe GameRanger.exe',, 5) {
             MsgBox('Unable to get the GameRanger option window!', 'Invalid', 0x30)
             Ctrl.Enabled := True
@@ -103,7 +106,9 @@ SetDirectoryGR(Ctrl, Info) {
         WinClose('Options ahk_exe GameRanger.exe')
         Return True
     }
-    If !MacroSelect('empires2.exe', 12) || !MacroSelect('age2_x1\age2_x1.exe', 14) || !MacroSelect('age2_x1\age2_x2.exe', 11) {
+    If !MacroSelect('empires2.exe', 12) 
+    || !MacroSelect('age2_x1\age2_x1.exe', 14) 
+    || !MacroSelect('age2_x1\age2_x2.exe', 11) {
         MsgBox('No game was found!', 'Invalid', 0x30)
         Ctrl.Enabled := True
         Return False
