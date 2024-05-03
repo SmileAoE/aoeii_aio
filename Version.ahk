@@ -104,12 +104,18 @@ ApplyVersion(Ctrl, Info) {
         ; Finish
         SoundPlay('DB\000\30 Wololo.mp3')
     } Catch Error As Err {
-        MsgBox("Version set failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Version', 0x10)
+        MsgBox("Version set failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File
+             . '`n`nPossible reason:'
+             . '`nGame folder [ ' GameDirectory ' ] is locked by another process'
+             . '`n`nFamous applications that can be the cause:'
+             . '`nGameRanger.exe`nAdvancedGenieEditor3.exe`nTurtle Pack.exe'
+             . '`n`nTerminating or restarting them may solve the issue', 'Version', 0x10)
+        EnableOptions(FGame := FindGame(Ctrl))
     }
 }
 ; Enables a versions list
-EnableOptions(List) {
-    For Item in List {
+EnableOptions(Game) {
+    For Item in GameVersion[Game] {
         Item.Enabled := True
     }
 }
