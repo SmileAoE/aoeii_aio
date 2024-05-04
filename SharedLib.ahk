@@ -62,7 +62,7 @@ Try {
         }
         PackHead := StrGet(FileRead(PackagePath, 'RAW m2'), 2, 'CP0')
         If (PackHead = '7z') && !DirExist(PackageFolder) {
-            ExtractPackage(PackagePath, PackageFolder)
+            ExtractPackage(PackagePath, PackageFolder, True)
         }
     }
 } Catch Error As Err {
