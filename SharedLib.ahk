@@ -21,6 +21,7 @@ AllPackagesC := [BasePackages, GamePackages, RestPackages]
 IBRed := [[0xFFFFFF,, 0xFF0000, 4, 0xFF0000, 2], [0xFF0000,, 0xFFFFFF], [0xFF0000,, 0xFFFF00], [0xFFFFFF,, 0xCCCCCC,, 0xCCCCCC]]
 IBBlue := [[0xFFFFFF,, 0x0000FF, 4, 0x0000FF, 2], [0x0000FF,, 0xFFFFFF], [0x0000FF,, 0xFFFF00], [0xFFFFFF,, 0xCCCCCC,, 0xCCCCCC]]
 IBBlack := [[0xFFFFFF,, 0x000000, 4, 0x000000, 2], [0x000000,, 0xFFFFFF], [0x000000,, 0xFFFF00], [0xFFFFFF,, 0xCCCCCC,, 0xCCCCCC]]
+IBGray := [[0xFFFFFF,, 0x000000, 4, 0xCCCCCC, 2], [0xAAAAAA], [0xBBBBBB], [0xFFFFFF,, 0xCCCCCC]]
 Unpacker := 'DB\7za.exe'
 DrsMap := Map('gra', 'graphics.drs', 'int', 'interfac.drs', 'ter', 'terrain.drs')
 Layers := 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'

@@ -119,7 +119,7 @@ T.Move(0,, W)
 T.Redraw()
 P.Move((W - 373) / 2)
 WD.Move(,, W)
-WD.SetFont('Bold')
+WD.SetFont('Bold s10', 'Consolas')
 WD.OnEvent('Click', (*) => OpenGameFolder())
 GameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')
 If !ValidGameDirectory(GameDirectory) {
@@ -132,10 +132,9 @@ If !ValidGameDirectory(GameDirectory) {
     }
     Return
 }
-WD.Text := 'Game: ' GameDirectory
-CreateImageButton(WD, 0, [[0xCCCCCC], [0xB2B2B2], [0x999999], [0xCCCCCC,, 0xCCCCCC]]*)
+WD.Text := 'GAME LOCATION: "' GameDirectory '"'
+CreateImageButton(WD, 0, IBGray*)
 ; Stay up to date with the new selections
-OnMessage(0x1001, GameUpdate)
 GameUpdate(wParam, LParam, Msg, Hwnd) {
     If Msg = 0x1001 {
         Apps := IniRead(Config, 'PIDs',, '')
@@ -158,6 +157,9 @@ OpenGameFolder() {
 ; Check for the updates
 Check4Updates(Ctrl, Info) {
     Try {
+        ;Ctrl.Enabled := False
+        Ctrl.Text := 'Checking...'
+        CreateImageButton(Ctrl, 0, IBBlue*)
         Hashsums := UpdatedPackagesHashs()
         UpdateList := [[], '']
         For Package, Hashsum in Hashsums {
@@ -199,8 +201,13 @@ Check4Updates(Ctrl, Info) {
         } Else {
             MsgBox('Up to date!', 'Up to date!', 0x40)
         }
+        Ctrl.Enabled := True
+        Ctrl.Text := 'Update'
+        CreateImageButton(Ctrl, 0, IBBlue*)
     } Catch Error As Err {
         MsgBox("Update check failed!`n`n" Err.Message '`n' Err.Line '`n' Err.File, 'Fix', 0x10)
         Ctrl.Enabled := True
+        Ctrl.Text := 'Update'
+        CreateImageButton(Ctrl, 0, IBBlue*)
     }
 }
