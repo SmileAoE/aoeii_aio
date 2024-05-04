@@ -23,7 +23,7 @@ Hotkey("End", (*) => AoEIIAIOSB.ScrollMsg(7, 0, GetKeyState("Shift") ? 0x114 : 0
 HotIfWinActive
 AoEIIAIO.AddText('Center w460', 'Search')
 Search := AoEIIAIO.AddEdit('Border Center -E0x200 w460')
-Search.OnEvent('Change', (*) => UpdateList())
+Search.OnEvent('Change', (*) => UpdateModList())
 Features['VM'].Push(Search)
 Loop Files, 'DB\007\*', 'D' {
     VMList[A_LoopFileName] := Map()
@@ -70,9 +70,9 @@ If !ValidGameDirectory(GameDirectory) {
     }
     ExitApp()
 }
-UpdateList()
+UpdateModList()
 ; Updates the list
-UpdateList() {
+UpdateModList() {
     For Mod, Prop in VMListH {
         VMListH[Index := Format('{:03}', A_Index)]['Title'].Text := '...'
         CreateImageButton(VMListH[Index]['Title'], 0, [[0xFFFFFF], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)

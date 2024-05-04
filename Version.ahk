@@ -6,6 +6,7 @@ AoEIIAIO.Title := 'GAME VERSION'
 H := AoEIIAIO.AddText('cRed w150 Center h30', 'The Age of Kings')
 H.SetFont('Bold s12')
 H := AoEIIAIO.AddPicture('xp+59 yp+30', 'DB\000\aok.png')
+H.OnEvent('Click', LaunchGame)
 AoEIIAIO.AddText('xp-59 yp+35 w1 h1')
 GameVersion['aok'] := Map()
 Loop Files, 'DB\002\aok\*', 'D' {
@@ -18,6 +19,7 @@ Loop Files, 'DB\002\aok\*', 'D' {
 H := AoEIIAIO.AddText('cBlue ym w150 Center h30', 'The Conquerors')
 H.SetFont('Bold s12')
 H := AoEIIAIO.AddPicture('xp+59 yp+30', 'DB\000\aoc.png')
+H.OnEvent('Click', LaunchGame)
 AoEIIAIO.AddText('xp-59 yp+35 w1 h1')
 GameVersion['aoc'] := Map()
 Loop Files, 'DB\002\aoc\*', 'D' {
@@ -30,6 +32,7 @@ Loop Files, 'DB\002\aoc\*', 'D' {
 H := AoEIIAIO.AddText('cGreen ym w150 Center h30', 'Forgotten Empires')
 H.SetFont('Bold s12')
 H := AoEIIAIO.AddPicture('xp+59 yp+30', 'DB\000\fe.png')
+H.OnEvent('Click', LaunchGame)
 AoEIIAIO.AddText('xp-59 yp+35 w1 h1')
 GameVersion['fe'] := Map()
 Loop Files, 'DB\002\fe\*', 'D' {
@@ -191,5 +194,16 @@ AnalyzeVersion() {
             }
             CreateImageButton(Version[2], 0, [[0x00A800,, 0xFFFFFF, 4, 0x00A800, 2],,, [0xFFFFFF,, 0xCCCCCC,, 0xCCCCCC]]*)
         }
+    }
+}
+LaunchGame(Ctrl, Info) {
+    If InStr(Ctrl.Value, 'aok') && FileExist(GameDirectory '\empires2.exe') {
+        Run(GameDirectory '\empires2.exe', GameDirectory)
+    }
+    If InStr(Ctrl.Value, 'aoc') && FileExist(GameDirectory '\age2_x1\age2_x1.exe') {
+        Run(GameDirectory '\age2_x1\age2_x1.exe', GameDirectory)
+    }
+    If InStr(Ctrl.Value, 'fe') && FileExist(GameDirectory '\age2_x1\age2_x2.exe') {
+        Run(GameDirectory '\age2_x1\age2_x2.exe', GameDirectory)
     }
 }
