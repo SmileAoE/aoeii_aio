@@ -1,5 +1,5 @@
 #Include SharedLib.ahk
-GameFix := Map('FIX'        , ['Fix v1', 'Fix v2']
+GameFix := Map('FIX'        , ['Fix v1', 'Fix v2', 'Fix v3']
              , 'FIXHandle'  , Map())
 Features['Fixes'] := []
 AoEIIAIO.Title := 'GAME FIXES'
@@ -13,7 +13,8 @@ For Each, FIX in GameFix['FIX'] {
     H.OnEvent('Click', ApplyFix)
     GameFix['FIXHandle'][FIX] := H
 }
-H := AoEIIAIO.AddLink('w350', 'Help Links:`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13275">Aoe II Wide Screen all version</a>'
+H := AoEIIAIO.AddLink('w350', 'Help Links:`n<a href="https://www.moddb.com/games/age-of-empires-2-the-conquerors/downloads/aoe2-patch-wide-screen-1010c2020a20b-20c">Aoe2 Patch Wide Screen 1.0, 1.0c, 2.0, 2.0a, 2.0b, 2.0c</a>'
+                                       . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13275">Aoe II Wide Screen all version</a>'
                                        . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13710">Age of Empire II the Age of king version 2.0c patch into 2.0</a>'
                                        . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13730">Ao2 patch:1.0 ,1.0c,2.0,2.0a,2.0c Widescreen + windowed</a>'
                                        . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13673">Aok 2.0 Generate Record To Ignore Player Who Leave</a>')
@@ -37,7 +38,7 @@ ApplyFix(Ctrl, Info) {
         DefaultPB(Features['Fixes'])
         EnableControls(Features['Fixes'], 0)
         DirCopy('DB\001\' Ctrl.Text, GameDirectory, 1)
-        If InStr(Ctrl.Text, 'v2') {
+        If InStr(Ctrl.Text, 'v2') || InStr(Ctrl.Text, 'v3') {
             RegWrite(2, 'REG_DWORD', 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Microsoft Games\Age of Empires', 'Aoe2Patch')
         }
         EnableControls(Features['Fixes'])

@@ -7,7 +7,7 @@ If !A_IsAdmin {
     ExitApp
 }
 ; Inits
-Version := '2.2'
+Version := '2.3'
 Features := Map()
 Config := 'Config.ini'
 GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
