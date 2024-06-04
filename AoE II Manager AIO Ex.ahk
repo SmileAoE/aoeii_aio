@@ -174,6 +174,7 @@ Check4Updates(Ctrl, Info) {
         }
         If UpdateList[1].Length > 0 {
             If 'Yes' != MsgBox('Files to be updated!`n`n' UpdateList[2] '`n`nWant to update now?', 'Update list', 0x4 + 0x40) {
+                Ctrl.Text := 'Update'
                 Return
             }
             Prepare.Show()
