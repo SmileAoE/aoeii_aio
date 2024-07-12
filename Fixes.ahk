@@ -1,8 +1,10 @@
 #Include SharedLib.ahk
-GameFix := Map('FIX'        , ['Fix v1', 'Fix v2', 'Fix v3']
+GameFix := Map('FIX'        , ['Fix v1', 'Fix v2', 'Fix v3', 'Fix v4']
              , 'FIXHandle'  , Map())
 Features['Fixes'] := []
-AoEIIAIO.Title := 'GAME FIXES'
+RegKey := 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Microsoft Games\Age of Empires'
+RegName := 'Aoe2Patch'
+AoEIIAIO.Title := 'GAME FIXS'
 H := AoEIIAIO.AddText('w350 Center h25', 'Select one of the fixes below')
 H.SetFont('Bold s12')
 For Each, FIX in GameFix['FIX'] {
@@ -19,6 +21,47 @@ H := AoEIIAIO.AddLink('w350', 'Help Links:`n<a href="https://www.moddb.com/games
                                        . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13730">Ao2 patch:1.0 ,1.0c,2.0,2.0a,2.0c Widescreen + windowed</a>'
                                        . '`n<a href="https://aok.heavengames.com/blacksmith/showfile.php?fileid=13673">Aok 2.0 Generate Record To Ignore Player Who Leave</a>')
 H.SetFont('Bold')
+AoEIIAIO.AddText('ym w300 Center', 'General options:').SetFont('Bold')
+GeneralOptions := AoEIIAIO.AddListView('r4 -Hdr Checked -E0x200 wp', [' ', ' '])
+For Option in StrSplit(IniRead('DB\001\general.ini', 'General',, ''), '`n') {
+	OptionValue := StrSplit(Option, '=')
+	CurrentValue := RegRead(RegKey, RegName, 0)
+	GeneralOptions.Add(CurrentValue = OptionValue[2] ? 'Check' : '', IniRead('DB\001\general.ini', 'Description', OptionValue[1], ''), OptionValue[1])
+	GeneralOptions.ModifyCol(1, 'AutoHdr')
+}
+GeneralOptions.ModifyCol(2, '0')
+GeneralOptions.OnEvent('ItemCheck', UpdateAoe2Patch)
+UpdateAoe2Patch(Ctrl, Item, Checked) {
+	Loop GeneralOptions.GetCount() {
+		GeneralOptions.Modify(A_Index, '-Check')
+	}
+	GeneralOptions.Modify(Item, 'Check')
+	RegWrite(Item, 'REG_DWORD', RegKey, RegName)
+}
+WaterAni := AoEIIAIO.AddCheckBox('xp+4 yp+80 ' (RegRead(RegKey, 'WaterAnnimation', 0) ? 'Checked' : '') , 'Water animation')
+WaterAni.OnEvent('Click', UpdateAoe2PatchWA)
+UpdateAoe2PatchWA(Ctrl, Info) {
+	RegWrite(Ctrl.Value, 'REG_DWORD', RegKey, 'WaterAnnimation')
+}
+AoEIIAIO.AddText('xp-4 yp+30 w300 Center', 'Window mod options:').SetFont('Bold')
+AdvanceOptions := AoEIIAIO.AddListView('r6 -Hdr Checked -E0x200 wp', [' '])
+For Option in StrSplit(IniRead('DB\001\wndmode.ini', 'WINDOWMODE',, ''), '`n') {
+	OptionValue := StrSplit(Option, '=')
+	AdvanceOptions.Add(OptionValue[2] ? 'Check' : '', OptionValue[1])
+	AdvanceOptions.ModifyCol(1, 'AutoHdr')
+}
+AdvanceOptions.OnEvent('ItemCheck', UpdateWndMod)
+UpdateWndMod(Ctrl, Item, Checked) {
+	CurrentKey := AdvanceOptions.GetText(Item)
+	IniWrite(Checked, 'DB\001\wndmode.ini', 'WINDOWMODE', CurrentKey)
+	Configs := [GameDirectory '\wndmode.ini', GameDirectory '\age2_x1\wndmode.ini']
+	For Config in Configs {
+		If !FileExist(Config) {
+			FileAppend("", Config, "UTF-8")
+		}
+		Checked ? IniWrite(1, Config, 'WINDOWMODE', CurrentKey) : IniDelete(Config, 'WINDOWMODE', CurrentKey)
+	}
+}
 AoEIIAIO.Show()
 GameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')
 If !ValidGameDirectory(GameDirectory) {
@@ -38,8 +81,9 @@ ApplyFix(Ctrl, Info) {
         DefaultPB(Features['Fixes'])
         EnableControls(Features['Fixes'], 0)
         DirCopy('DB\001\' Ctrl.Text, GameDirectory, 1)
-        If InStr(Ctrl.Text, 'v2') || InStr(Ctrl.Text, 'v3') {
-            RegWrite(2, 'REG_DWORD', 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Microsoft Games\Age of Empires', 'Aoe2Patch')
+        If Ctrl.Text ~= 'v3|v4' {
+            RegWrite('RUNASADMIN WINXPSP3', 'REG_SZ', RegKey, GameDirectory '\empires2.exe')
+            RegWrite('RUNASADMIN WINXPSP3', 'REG_SZ', RegKey, GameDirectory '\age2_x1\age2_x1.exe')
         }
         EnableControls(Features['Fixes'])
         AnalyzeFix()

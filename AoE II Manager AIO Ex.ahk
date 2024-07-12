@@ -134,19 +134,6 @@ If !ValidGameDirectory(GameDirectory) {
 }
 WD.Text := 'GAME LOCATION: "' GameDirectory '"'
 CreateImageButton(WD, 0, IBGray*)
-; Stay up to date with the new selections
-GameUpdate(wParam, LParam, Msg, Hwnd) {
-    If Msg = 0x1001 {
-        Apps := IniRead(Config, 'PIDs',, '')
-        Loop Parse, Apps, '`n', '`r' {
-            PID := StrSplit(A_LoopField, '=')
-            If ProcessExist(PID[2]) && PID[2] != ProcessExist() {
-                Run(PID[1])
-            }
-        }
-        Reload()
-    }
-}
 ; Opens the game folder
 OpenGameFolder() {
     GameDirectory := IniRead(Config, 'Settings', 'GameDirectory', '')

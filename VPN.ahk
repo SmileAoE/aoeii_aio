@@ -46,6 +46,10 @@ ResetProcess(Ctrl, Info) {
         If ProcessExist('HideALLIP.exe') {
             ProcessClose('HideALLIP.exe')
         }
+		If !FileExist(VPNPath) {
+			Msgbox('You must have Hide All IP installed!', 'Unable to run', 0x30)
+			Return
+		}
         Run(VPNPath)
         ; Update attempts
         If ++Index > Possibilities.Length {

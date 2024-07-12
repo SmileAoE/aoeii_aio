@@ -7,14 +7,14 @@ If !A_IsAdmin {
     ExitApp
 }
 ; Inits
-Version := '2.3'
+Version := '2.4'
 Features := Map()
 Config := 'Config.ini'
 GRSetting := A_AppData '\GameRanger\GameRanger Prefs\Settings'
 GRApp := A_AppData '\GameRanger\GameRanger\GameRanger.exe'
 DownloadDB := 'https://raw.githubusercontent.com/SmileAoE/aoeii_aio/main'
 LinkHashs := DownloadDB '/Hashsums.ini'
-BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'Shortcuts.7z.001', 'Scripts.7z.001']
+BasePackages := ['DB/000.7z.001', 'DB/001.7z.001', 'DB/002.7z.001', 'DB/006.7z.001', 'DB/007.7z.001', 'DB/007.7z.002', 'Shortcuts.7z.001', 'Scripts.7z.001']
 GamePackages := ['DB/003.7z.001', 'DB/003.7z.002', 'DB/003.7z.003', 'DB/003.7z.004', 'DB/004.7z.001', 'DB/004.7z.002', 'DB/004.7z.003', 'DB/005.7z.001']
 RestPackages := ['DB/009.7z.001', 'DB/009.7z.002', 'DB/010.7z.001', 'DB/010.7z.002', 'DB/010.7z.003', 'DB/010.7z.004', 'DB/010.7z.005', 'DB/011.7z.001', 'DB/012.7z.001', 'DB/013.7z.001', 'DB/014.7z.001', 'DB/014.7z.002']
 AllPackagesC := [BasePackages, GamePackages, RestPackages]
