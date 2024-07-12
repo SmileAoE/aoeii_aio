@@ -8,7 +8,7 @@ H.SetFont('Bold s12')
 For Each, FIX in GameFix['FIX'] {
     H := AoEIIAIO.AddButton('w350', FIX)
     H.SetFont('Bold')
-    CreateImageButton(H, 0, [[0xFFFFFF,,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
+    CreateImageButton(H, 0, [[0xFFFFFF, 0,, 4, 0xCCCCCC, 2], [0xE6E6E6], [0xCCCCCC], [0xFFFFFF,, 0xCCCCCC]]*)
     Features['Fixes'].Push(H)
     H.OnEvent('Click', ApplyFix)
     GameFix['FIXHandle'][FIX] := H
